@@ -4,7 +4,7 @@
   "description": "@xpgriderbot Twitter",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node build/cleverBotAPI.js",
+    "start": "nodemon src/serverside/server.ts",
     "dev": "nodemon src/cleverBotAPI.ts",
     "build": "tsc -p ."
   },
