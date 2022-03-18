@@ -1,0 +1,40 @@
+.filterElement {
+	display: grid;
+	grid-template-columns: 15% 80%;
+	font-weight: 600;
+	align-items: center;
+	word-wrap: break-word;
+	word-break: break-all;
+	gap: 1rem;
+}
+
+.flWord {
+	font-size: 1.4rem;
+	color: rgb(23, 149, 118);
+}
+.flText {
+	font-size: 1.2rem;
+	color: rgb(61, 73, 110);
+}
+.filterListContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.filterElement > input {
+	height: 3rem;
+	border-radius: 0.4rem;
+	border: 2px inset rgb(211, 211, 211);
+	padding: 0.2rem 0.5rem;
+	font-weight: 600;
+}
+.filterTotal {
+	padding: 0.5rem 1rem;
+	background-color: rgb(255, 255, 255);
+	/* border: 2px solid black; */
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+	border-radius: 0.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}

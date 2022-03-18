@@ -1,0 +1,25 @@
+.header {
+	display: flex;
+	background-color: rgba(223, 223, 223, 0.733);
+	height: 4rem;
+	align-items: center;
+	padding: 2rem;
+	gap: 1rem;
+}
+
+.headerInput {
+	height: 2.5rem;
+	border-radius: 0.6rem;
+	padding: 0.5rem;
+	font-size: 1.3rem;
+}
+
+.headerLabel {
+	color: black;
+	font-weight: bold;
+	font-size: 1.3rem;
+}
+/* .title {
+	margin: 0px;
+	font-weight: 800;
+} */

@@ -1,0 +1,74 @@
+.settingsTotalContainer {
+	background-color: white;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+	width: 100%;
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+	align-items: center;
+}
+.username {
+	font-size: 2rem;
+	font-weight: bold;
+	color: rgb(41, 117, 41);
+}
+.settingsTopContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	gap: 0.4rem;
+}
+.pfp {
+	width: 30%;
+	border-radius: 0.4rem;
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+}
+.settingsMiddleContainer {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+}
+.leftSideStats {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
+}
+.settingsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	background-color: rgb(49, 58, 66);
+	width: 100%;
+	padding: 0.5rem;
+	border-radius: 0.4rem;
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+}
+.containerTitle {
+	font-size: 1.4rem;
+	font-weight: 800;
+	color: rgb(233, 233, 233);
+}
+.containerOutput {
+	font-size: 1.2rem;
+	font-weight: 400;
+	color: rgb(186, 160, 235);
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 1rem;
+}
+.editPencil {
+	width: 2rem;
+	filter: invert(100%);
+	cursor: pointer;
+}
+.rightSideStats {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}

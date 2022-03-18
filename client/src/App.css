@@ -1,0 +1,23 @@
+.App {
+	background: #444c57;
+	padding: 3rem;
+	display: flex;
+	justify-content: space-evenly;
+	gap: 2rem;
+	align-items: flex-start;
+	flex-wrap: wrap;
+}
+.appLeft {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	/* flex: 1; */
+}
+.appRight {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	/* flex: 1; */
+}
+

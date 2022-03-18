@@ -1,0 +1,16 @@
+.textButton {
+	width: fit-content;
+	padding: 0.5rem 2rem;
+	font-size: 1.4rem;
+	font-weight: 800;
+	border-radius: 1rem;
+	color: white;
+	border: none;
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+	cursor: pointer;
+	transition: all 0.125s ease-in-out;
+}
+
+.textButton:hover {
+	filter: brightness(80%);
+}

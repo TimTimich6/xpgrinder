@@ -1,0 +1,31 @@
+.errorTotal{
+    position:fixed;
+   top:-18px;
+    z-index:2;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    height:105vh;
+    width:100vw;
+    background-color:rgba(32, 29, 29, 0.767)
+}
+
+.errorInner{
+    background-color: rgb(255, 255, 255);
+    padding:2rem;
+    border-radius:2rem;
+	box-shadow: 1px 4px 2px rgb(10, 10, 10);
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+    max-width: 30rem;
+}
+.errorTitle{
+    color:rgb(151, 24, 24);
+}
+.errorDescription{
+    font-size: 1.3rem;
+    font-weight: 500;
+    word-break: keep-all;
+}
