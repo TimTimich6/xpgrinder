@@ -1,20 +1,15 @@
 import { WebSocket } from "ws";
 import express from "express";
 import getInviteData from "../discordapiutils/getInviteData";
-import cors from "cors";
 import { selfData } from "../discordapiutils/selfData";
 import { Settings, trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking } from "./middleware";
+
 dotenv.config();
 const app = express();
-
 app.use(express.json());
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+
 const port: number | string = process.env.port || 3080;
 
 interface WebSocketStorage {

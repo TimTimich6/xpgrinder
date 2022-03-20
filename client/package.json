@@ -2,6 +2,7 @@
   "name": "xpgrinder",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
@@ -25,6 +26,7 @@
       "react-app/jest"
     ]
   },
+  "proxy": "http://localhost:3080/",
   "browserslist": {
     "production": [
       ">0.2%",

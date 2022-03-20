@@ -16,7 +16,7 @@ export const UserSettingsProvider = (props) => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
     setLoading((prevState) => !prevState);
     await axios
-      .get(`http://localhost:3080/api/self/${token}`)
+      .get(`/api/self/${token}`)
       .then((resp) => {
         console.log(resp.data);
         if (resp.data.error) {

@@ -14,7 +14,7 @@ const ServerList = (props) => {
 
   const handleTracking = async () => {
     if (!servers[currentServer].tracking) {
-      const resp = await axios
+      axios
         .post("/api/track", {
           guildID: servers[currentServer].guildID,
           filters: servers[currentServer].filters,

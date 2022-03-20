@@ -45,7 +45,7 @@ const CreateSever = (props) => {
     const invRegex = new RegExp("(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/.+[a-z]");
     if (invRegex.test(link)) {
       const code = link.slice(19);
-      const resp = await axios.get(`http://localhost:3080/api/invite/${code}`);
+      const resp = await axios.get(`/api/invite/${code}`);
       if (resp.data.error) {
         setError({ title: "Invite failed", description: resp.data.error });
         return null;
