@@ -65,7 +65,7 @@ const CreateSever = (props) => {
             name: resp.guildName,
             filters: [],
             img: resp.serverIcon,
-            settings: { useAI: false, dialogueMode: false, reply: false },
+            settings: { useAI: false, dialogueMode: false, reply: false, responseTime: 5 },
             guildID: resp.guildID,
             tracking: false,
             id: v4(),

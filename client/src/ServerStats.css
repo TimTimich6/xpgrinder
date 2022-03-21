@@ -72,3 +72,10 @@
 	flex-direction: column;
 	flex: 1;
 }
+
+.headerInput {
+	height: 2.5rem;
+	border-radius: 0.6rem;
+	padding: 0.5rem;
+	font-size: 1.3rem;
+}

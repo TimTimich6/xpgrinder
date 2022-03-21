@@ -8,6 +8,7 @@ const defaultServer = {
     useAI: false,
     dialogueMode: false,
     reply: false,
+    responseTime: 5,
   },
   guildID: "934702825328504843",
   tracking: false,

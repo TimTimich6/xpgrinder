@@ -17,6 +17,7 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   if (!token) res.json({ error: 1 });
   else if (filters.some((filter) => !filter.filter || !filter.response)) res.json({ error: 2 });
   else if (filters.length == 0 && !settings.useAI) res.json({ error: 3 });
+  else if (settings.responseTime <= 0 || settings.responseTime >= 15) res.json({ error: 4 });
   else next();
 };
 

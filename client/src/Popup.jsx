@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { ServerListContext } from "./ServerListContext";
 import "./Popup.css";
 import TextButton from "./TextButton";
@@ -8,7 +8,7 @@ const Popup = () => {
   const aiRef = useRef();
   const dialogueRef = useRef();
   const replyRef = useRef();
-
+  const timeRef = useRef();
   const handleCheck = (event) => {
     setServers((prevState) => {
       return prevState.map((server, index) => {
@@ -20,6 +20,24 @@ const Popup = () => {
               useAI: aiRef.current.checked,
               dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
+            },
+          };
+        return server;
+      });
+    });
+  };
+  const handleInput = (event) => {
+    setServers((prevState) => {
+      return prevState.map((server, index) => {
+        if (index === currentServer)
+          return {
+            ...server,
+            settings: {
+              ...server.settings,
+              useAI: aiRef.current.checked,
+              dialogueMode: dialogueRef.current.checked,
+              reply: replyRef.current.checked,
+              responseTime: parseInt(timeRef.current.value),
             },
           };
         return server;
@@ -66,6 +84,19 @@ const Popup = () => {
                   onChange={(event) => handleCheck(event)}
                   ref={replyRef}
                   checked={server.settings.reply}
+                />
+              </div>
+              <div className="serverSettingContainer">
+                <span className="settingsCheckboxLabel">Response Time</span>
+                <input
+                  type="number"
+                  value={server.settings.responseTime}
+                  className="settingsInput"
+                  onChange={(event) => handleInput(event)}
+                  ref={timeRef}
+                  min="3"
+                  max="10"
+                  step="1"
                 />
               </div>
             </div>

@@ -16,7 +16,7 @@ const SettingsContainer = (props) => {
       <span className="containerOutput">
         {!editing ? props.output : null}
         {props.modify ? <img className="editPencil" src="editpencil.png" onClick={() => handleEdit()} /> : null}
-        {editing && props.modify ? <input className="headerInput" onChange={(e) => setInput(e.target.value)} /> : null}
+        {editing && props.modify ? <input type="password" className="headerInput" onChange={(e) => setInput(e.target.value)} /> : null}
       </span>
     </div>
   );

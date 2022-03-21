@@ -29,6 +29,7 @@ export interface Settings {
   dialogueMode: boolean;
   reply: boolean;
   useAI: boolean;
+  responseTime: number;
 }
 //indentifying payload sent
 
@@ -76,8 +77,8 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
           console.log(getTime(), author, ": ", content);
           if (settings.useAI == false && filters.some((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())) {
             const filter: Filter = <Filter>filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase());
-            console.log(getTime(), "responding with:", filter.response);
-            await realType(filter.response, d.channel_id, token, 6, settings.reply, {
+            console.log(getTime(), "responding with:", filter.response, "in", settings.responseTime, "seconds");
+            await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
               channel_id: d.channel_id,
               guild_id: guildID,
               message_id: d.id,
@@ -85,7 +86,7 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
           } else if (settings.useAI == true) {
             const output: string = await receiveMessage(d.content);
             console.log(getTime(), "responding with:", output);
-            await realType(output, d.channel_id, token, 6, settings.reply, {
+            await realType(output, d.channel_id, token, settings.responseTime, settings.reply, {
               channel_id: d.channel_id,
               guild_id: guildID,
               message_id: d.id,
