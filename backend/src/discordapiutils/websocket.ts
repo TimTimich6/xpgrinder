@@ -74,7 +74,7 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
           //&& d.author.id !== "516369143046340608"
           const content: string = d.content;
           console.log(getTime(), author, ": ", content);
-          if (filters.some((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())) {
+          if (settings.useAI == false && filters.some((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())) {
             const filter: Filter = <Filter>filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase());
             console.log(getTime(), "responding with:", filter.response);
             await realType(filter.response, d.channel_id, token, 6, settings.reply, {
@@ -82,7 +82,7 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
               guild_id: guildID,
               message_id: d.id,
             });
-          } else if (settings.useAI) {
+          } else if (settings.useAI == true) {
             const output: string = await receiveMessage(d.content);
             console.log(getTime(), "responding with:", output);
             await realType(output, d.channel_id, token, 6, settings.reply, {
