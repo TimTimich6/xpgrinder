@@ -16,13 +16,9 @@ function App() {
         <ServerListProvider>
           <Popup />
           <ErrorDisplay />
-          <div className="appLeft">
+          <div className="appContainer">
             <ServerStats />
-
             <ServerList />
-          </div>
-          <div className="appRight">
-            <BotOutput />
             <FilterList />
           </div>
         </ServerListProvider>
