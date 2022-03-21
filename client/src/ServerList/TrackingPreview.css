@@ -1,10 +1,10 @@
 .serverList {
 	display: flex;
 	flex-direction: column;
-	gap: 0.7rem;
+	gap: 0.9rem;
 	width: 100%;
 }
-.serverTrackerWrapper {
+.servererWrapper {
 	display: flex;
 	align-items: center;
 }
@@ -22,7 +22,7 @@
 }
 
 .leftSide {
-	height: 9rem;
+	height: 8em;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -53,64 +53,9 @@
 	gap: 0.3rem;
 }
 
-.statusCircle {
-	max-width: 15px;
-	max-height: 15px;
-}
 
-.status {
-	padding: 0.5rem 1rem;
-	display: flex;
-	align-items: center;
-	margin-right: 1rem;
 
-	border-radius: 1rem;
-	gap: 0.8rem;
-}
-.statusText {
-	font-weight: 600;
-	font-size: 1rem;
-}
-.errorContainer {
-	background-color: rgb(255, 168, 168);
-}
-.error {
-	color: rgb(255, 31, 50);
-}
-.successContainer {
-	background-color: rgb(167, 255, 189);
-}
-.success {
-	color: rgb(1, 144, 68);
-}
-.warningContainer {
-	background-color: rgb(255, 209, 148);
-}
-.warning {
-	color: rgb(192, 112, 8);
-}
 
-.plusIcon {
-	height: 100px;
-	padding: 1rem;
-	background-color: rgb(218, 218, 218);
-	border-top-left-radius: 0.7rem;
-	border-bottom-left-radius: 0.7rem;
-	transition: all 0.125s ease-in-out;
-}
-.plusIcon:hover {
-	background-color: rgb(130, 165, 230);
-}
-
-.addServerText {
-	margin-right: 1rem;
-	font-size: 1.3rem;
-	color: rgb(95, 138, 218);
-	transition: color 0.3s ease-in-out;
-}
-.addServerText:hover {
-	color: rgb(24, 9, 36);
-}
 
 @media only screen and (max-width: 650px) {
 	.trackingTotal {
@@ -137,10 +82,8 @@
 	grid-template-columns: 25% 75%;
 	font-weight: 600;
 	background-color: rgb(255, 255, 255);
-
-	/* border: 2px solid black; */
 	border-radius: 0.7rem;
-	padding: 1rem 1rem;
+	padding: 0.7rem 1rem;
 	align-items: center;
 	word-wrap: break-word;
 	word-break: break-all;
@@ -148,7 +91,7 @@
 	row-gap: 1rem;
 }
 .newServerContainer > input {
-	height: 3rem;
+	height: 4rem;
 	border-radius: 0.4rem;
 	border: 2px inset rgb(211, 211, 211);
 	padding: 0.2rem 0.5rem;
@@ -193,7 +136,7 @@
 	display: flex;
 	align-items: center;
 	gap:0.5rem;
-	font-size: 18px;
+	font-size: 1.4rem;
 	font-weight: 600;
 	width:max-content;
 	background-color:rgb(88, 88, 88);

@@ -29,7 +29,7 @@ const TrackingPreview = (props) => {
       </div>
       <div className="serverRightSide">
         <div className="buttonWrapper" onClick={() => handleTracking()}>
-          <TextButton fz="1.2rem" pd="1rem" bgc="#a6bbff" bx="none">
+          <TextButton fz="1.4rem" pd="1.6rem" bgc="#a6bbff" bx="none">
             {props.tracking == true ? "Active" : "Track"}
           </TextButton>
         </div>
