@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError } = useContext(UserSettingsContext);
+  const { setError, key } = useContext(UserSettingsContext);
   const { setServers, setCurrentServer, servers, setLoading, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
@@ -16,6 +16,7 @@ const CreateSever = (props) => {
         .delete("/api/track", {
           data: {
             id: servers[currentServer].id,
+            key: key,
           },
         })
         .then((response) => {
@@ -27,7 +28,7 @@ const CreateSever = (props) => {
           });
         })
         .catch((err) => {
-          console.log("Error when deactivating: ", err);
+          console.log("Error when deactivating: ", err.response.data);
           setError({
             title: "Tracking Error",
             description: "Something went wrong when deactivating the tracking",

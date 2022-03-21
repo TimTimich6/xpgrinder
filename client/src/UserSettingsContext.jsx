@@ -16,7 +16,7 @@ export const UserSettingsProvider = (props) => {
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
     setLoading((prevState) => !prevState);
-    await axios
+    axios
       .get(`/api/self/${token}`)
       .then((resp) => {
         console.log(resp.data);

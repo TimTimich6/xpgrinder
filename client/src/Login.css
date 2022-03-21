@@ -20,6 +20,7 @@
     flex-direction:column;
     align-items: center;
     gap:1rem;
+    box-shadow: 1px 4px 2px rgb(10, 10, 10);
 }
 .projectName{
     color:rgb(102, 89, 138);

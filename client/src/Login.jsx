@@ -8,25 +8,27 @@ const Login = () => {
   const [input, setInput] = useState("");
   const handleSubmit = () => {
     console.log(input);
-    axios
-      .post(`/api/key`, {
-        key: input,
-      })
-      .then((resp) => {
-        console.log(resp.data);
-        if (resp.status === 200) {
-          setKey(input);
-          console.log("authorized");
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        setError({ title: "Key Failure", description: "Key Provided doesn't exist" });
-        setKey(null);
-      })
-      .finally(() => {
-        setInput("");
-      });
+    if (input.length > 5) {
+      axios
+        .post(`/api/key`, {
+          key: input,
+        })
+        .then((resp) => {
+          console.log(resp.data);
+          if (resp.status === 200) {
+            setKey(input);
+            console.log("authorized");
+          }
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+          setError({ title: "Key Failure", description: "Key Provided doesn't exist" });
+          setKey(null);
+        })
+        .finally(() => {
+          setInput("");
+        });
+    }
   };
   return (
     <>

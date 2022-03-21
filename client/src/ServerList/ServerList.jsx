@@ -9,7 +9,7 @@ import axios from "axios";
 
 const ServerList = (props) => {
   const { servers, setServers, currentServer, setCurrentServer } = useContext(ServerListContext);
-  const { token, user, setError } = useContext(UserSettingsContext);
+  const { token, user, setError, key } = useContext(UserSettingsContext);
   const [loading, setLoading] = useState(false);
 
   const handleTracking = async () => {
@@ -22,6 +22,7 @@ const ServerList = (props) => {
           token: token,
           settings: servers[currentServer].settings,
           id: servers[currentServer].id,
+          key: key,
         })
         .then((error) => {
           console.log(error);
@@ -42,10 +43,11 @@ const ServerList = (props) => {
           }
         });
     } else {
-      const resp = await axios
+      axios
         .delete("/api/track", {
           data: {
             id: servers[currentServer].id,
+            key: key,
           },
         })
         .then((response) => {
@@ -57,7 +59,7 @@ const ServerList = (props) => {
           });
         })
         .catch((err) => {
-          console.log("Error when deactivating: ", err);
+          console.log("Error when deactivating: ", err.response.data);
           setError({
             title: "Tracking Error",
             description: "Something went wrong when deactivating the tracking",

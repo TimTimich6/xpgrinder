@@ -41,7 +41,7 @@ app.get("/api/self/:token", async (req, res) => {
   res.json(data);
 });
 
-app.post("/api/track", checkTracking, async (req, res) => {
+app.post("/api/track", authKey, checkTracking, async (req, res) => {
   console.log("in track");
   const body: TrackBody = req.body;
   console.log(body);
