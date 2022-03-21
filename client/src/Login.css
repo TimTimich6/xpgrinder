@@ -1,0 +1,36 @@
+.loginTotal{
+    position:fixed;
+    top:-18px;
+    z-index:2;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    height:105vh;
+    width:100vw;
+    background-color:rgba(32, 29, 29, 0.95)
+}
+
+.loginInner{
+    color:rgb(36, 26, 28);
+    background-color:rgb(221, 235, 241);
+    padding:3rem;
+    border-radius: 2.5rem;
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    gap:1rem;
+}
+.projectName{
+    color:rgb(102, 89, 138);
+}
+.keyInput{
+    height: 3rem;
+	border-radius: 0.4rem;
+	border: 2px inset rgb(211, 211, 211);
+	padding: 0.2rem 0.5rem;
+	font-weight: 600;
+    font-size: 1.6rem;
+    width:80%;
+    background-color:rgb(255, 255, 255);
+}

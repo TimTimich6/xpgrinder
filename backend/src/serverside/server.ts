@@ -4,7 +4,7 @@ import getInviteData from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { Settings, trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
-import { checkTracking } from "./middleware";
+import { checkTracking, authKey } from "./middleware";
 
 dotenv.config();
 const app = express();
@@ -52,6 +52,10 @@ app.post("/api/track", checkTracking, async (req, res) => {
   console.log("adding id:", id);
   const mappedArr = trackingArray.map((element) => element.id);
   console.log(mappedArr);
+});
+
+app.post("/api/key", authKey, (req, res) => {
+  res.status(200).send("Key authorized!");
 });
 
 app.delete("/api/track", async (req, res) => {

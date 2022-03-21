@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import "./ServerStats.css";
 import SettingsContainer from "./SettingsContainer";
 import { UserSettingsContext } from "./UserSettingsContext";
-const ServerStats = (props) => {
+const ServerStats = () => {
   const { token, altToken, setToken, setAltToken, logEverything, setLogEverything, user, loading } = useContext(UserSettingsContext);
-  console.log(token);
   const tokenValid = /[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token);
   const alttokenValid = /[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(altToken);
 

@@ -11,6 +11,7 @@ export const UserSettingsProvider = (props) => {
   const [logEverything, setLogEverything] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [key, setKey] = useState(null);
 
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
@@ -30,7 +31,9 @@ export const UserSettingsProvider = (props) => {
   }, [token]);
 
   return (
-    <UserSettingsContext.Provider value={{ token, setToken, logEverything, setLogEverything, altToken, setAltToken, user, loading, error, setError }}>
+    <UserSettingsContext.Provider
+      value={{ token, setToken, logEverything, setLogEverything, altToken, setAltToken, user, loading, error, setError, key, setKey }}
+    >
       {props.children}
     </UserSettingsContext.Provider>
   );
