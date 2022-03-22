@@ -16,7 +16,9 @@ const CreateSever = (props) => {
         .delete("/api/track", {
           data: {
             id: servers[currentServer].id,
-            key: key,
+          },
+          headers: {
+            "testing-key": key,
           },
         })
         .then((response) => {

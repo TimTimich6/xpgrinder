@@ -22,10 +22,10 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
 };
 
 export const authKey = async (req: Request, res: Response, next: NextFunction) => {
-  const key: string = req.body.key;
+  const key: string = <string>req.headers["testing-key"];
   const data = await getPaste();
   const splitTokens: string[] = data.split("\r\n");
-  if (splitTokens.includes(key)) {
+  if (key && splitTokens.includes(key)) {
     console.log("key found: ", key);
     next();
   } else {

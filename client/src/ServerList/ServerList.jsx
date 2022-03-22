@@ -15,39 +15,49 @@ const ServerList = (props) => {
   const handleTracking = async () => {
     if (!servers[currentServer].tracking) {
       axios
-        .post("/api/track", {
-          guildID: servers[currentServer].guildID,
-          filters: servers[currentServer].filters,
-          userID: user.id,
-          token: token,
-          settings: servers[currentServer].settings,
-          id: servers[currentServer].id,
-          key: key,
-        })
+        .post(
+          "/api/track",
+          {
+            guildID: servers[currentServer].guildID,
+            filters: servers[currentServer].filters,
+            userID: user.id,
+            token: token,
+            settings: servers[currentServer].settings,
+            id: servers[currentServer].id,
+          },
+          {
+            headers: {
+              "testing-key": key,
+            },
+          }
+        )
         .then((error) => {
           console.log(error);
-          if (error.data.error == 1)
-            setError({
-              title: "Token Missing",
-              description: "No primary token has been found. Please check that you've inputed a primary token",
-            });
-          if (error.data.error == 2) setError({ title: "Filter Error", description: "Either filter or response are not valid values" });
-          if (error.data.error == 3) setError({ title: "Filter Error", description: "There are no filters to track" });
-          else if (!error.data.error) {
+          if (!error.data.error) {
             setServers((prevState) => {
               return prevState.map((server, i) => {
                 if (i === currentServer) return { ...server, tracking: true };
                 return server;
               });
             });
-          }
+          } else if (error.data.error == 1)
+            setError({
+              title: "Token Missing",
+              description: "No primary token has been found. Please check that you've inputed a primary token",
+            });
+          else if (error.data.error == 2) setError({ title: "Filter Error", description: "Either filter or response are not valid values" });
+          else if (error.data.error == 3) setError({ title: "Filter Error", description: "There are no filters to track" });
+          else if (error.data.error == 4) setError({ title: "Response Time Error", description: "Response time is out of valid range" });
+          else if (error.data.error) setError({ title: "Error Occured", description: "Something went wrong when starting a tracking process" });
         });
     } else {
       axios
         .delete("/api/track", {
           data: {
             id: servers[currentServer].id,
-            key: key,
+          },
+          headers: {
+            "testing-key": key,
           },
         })
         .then((response) => {

@@ -1,11 +1,13 @@
 import { WebSocket } from "ws";
 import express from "express";
+import { JsonBinIoApi } from "jsonbin-io-api";
 import getInviteData from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { Settings, trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
 
+const api = new JsonBinIoApi("$2b$10$/HwW4Ggy8nlHZxSKQJamg.sVgmXbl/cqqYmNNgxBm57g9guxK5Jge");
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -54,14 +56,13 @@ app.post("/api/track", authKey, checkTracking, async (req, res) => {
   console.log(mappedArr);
 });
 
-app.post("/api/key", authKey, (req, res) => {
+app.get("/api/key", authKey, (req, res) => {
   res.status(200).send("Key authorized!");
 });
 
-app.delete("/api/track", async (req, res) => {
+app.delete("/api/track", authKey, async (req, res) => {
   const body: { id: string } = req.body;
   const { id } = body;
-
   const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.id = id));
   if (storage) {
     console.log("removing id: ", id);
@@ -73,6 +74,13 @@ app.delete("/api/track", async (req, res) => {
   } else res.status(500).json({ error: "ID not found" });
 });
 
+app.get("/api/filters", authKey, async (req, res) => {
+  const data = await api.bins.read({
+    binId: "62394f7e7caf5d67836efb23",
+  });
+  const filters = data.record.defaultFilters;
+  res.status(200).send(filters);
+});
 app.listen(port, () => {
   console.log("listening on port", port);
 });

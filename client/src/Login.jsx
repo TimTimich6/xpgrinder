@@ -10,8 +10,10 @@ const Login = () => {
     console.log(input);
     if (input.length > 5) {
       axios
-        .post(`/api/key`, {
-          key: input,
+        .get(`/api/key`, {
+          headers: {
+            "testing-key": input,
+          },
         })
         .then((resp) => {
           console.log(resp.data);

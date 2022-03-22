@@ -42,3 +42,8 @@
 	flex-direction: column;
 	gap: 1rem;
 }
+.filtersButtons{
+	display: flex;
+	justify-content: flex-start;
+	gap:1rem;
+}
