@@ -35,7 +35,7 @@ export interface TrackBody {
 }
 
 app.get("/api/key", authKey, (req, res) => {
-  res.status(200).send("Key authorized!");
+  res.status(200).json({ message: "key successful authorized", key: req.headers["testing-key"] });
 });
 
 app.get("/api/invite/:code", (req, res) => {
@@ -91,12 +91,13 @@ app.delete("/api/track", authKey, async (req, res) => {
 });
 
 app.get("/api/filters", authKey, (req, res) => {
-  readBin("62394f7e7caf5d67836efb2")
+  readBin("62394f7e7caf5d67836efb23")
     .then((binData) => {
       const filters = binData.defaultFilters;
       res.status(200).send(filters);
     })
     .catch(() => {
+      console.log("failed to get bin data");
       res.status(500).json({ title: "Filters Error", description: "Failed to fetch default filters" });
     });
 });

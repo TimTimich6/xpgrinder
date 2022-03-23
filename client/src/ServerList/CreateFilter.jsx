@@ -22,18 +22,20 @@ const CreateFilter = (props) => {
     setFilterInput("");
     setResponseInput("");
   };
-  const setDefault = async () => {
-    await axios
+  const setDefault = () => {
+    axios
       .get("/api/filters", { headers: { "testing-key": key } })
       .then((resp) => {
-        setServers((prevState) => {
+        console.log(resp.data);
+        setServers((prevState) =>
           prevState.map((server, i) => {
             if (i === currentServer) return { ...server, filters: resp.data };
             return server;
-          });
-        });
+          })
+        );
       })
       .catch((err) => {
+        console.log("Filter default error");
         setError({ ...err.response.data });
       });
   };
