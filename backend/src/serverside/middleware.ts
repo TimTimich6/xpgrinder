@@ -14,10 +14,13 @@ const getPaste = async () => {
 export const checkTracking = (req: Request, res: Response, next: NextFunction) => {
   const body: TrackBody = req.body;
   const { filters, token, settings } = body;
-  if (!token) res.json({ error: 1 });
-  else if (filters.some((filter) => !filter.filter || !filter.response)) res.json({ error: 2 });
-  else if (filters.length == 0 && !settings.useAI) res.json({ error: 3 });
-  else if (settings.responseTime <= 0 || settings.responseTime >= 15) res.json({ error: 4 });
+  if (!token) res.status(500).json({ title: "No token found", description: "Token provided is either invalid or not found", code: 1 });
+  else if (filters.some((filter) => !filter.filter || !filter.response))
+    res.status(500).json({ title: "Filter error", description: "Filters provided are either empty of invalid", code: 2 });
+  else if (filters.length == 0 && !settings.useAI)
+    res.status(500).json({ title: "Filter error", description: "No filters provided to work with", code: 3 });
+  else if (settings.responseTime <= 0 || settings.responseTime >= 15)
+    res.status(500).json({ title: "Settings error", description: "Response time provided is out of range", code: 4 });
   else next();
 };
 
@@ -30,6 +33,6 @@ export const authKey = async (req: Request, res: Response, next: NextFunction) =
     next();
   } else {
     console.log("key not found:", key);
-    res.status(404).json({ error: "Key not found", code: 0 });
+    res.status(404).json({ title: "Key not found", description: "Enter a valid key to use the XP Grinder" });
   }
 };

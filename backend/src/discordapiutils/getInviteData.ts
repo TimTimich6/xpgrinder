@@ -18,11 +18,8 @@ interface inviteData {
 }
 export default async (code: string): Promise<inviteData> => {
   console.log("in axios");
-  const server_invite: any = await axios.get<inviteResponse>(`https://discord.com/api/v9/invites/${code}`).catch((err) => {
-    console.log("Failed axios");
-    return { error: "Can't get data on invite" };
-  });
-  if (server_invite.error) return server_invite;
+  const server_invite: any = await axios.get<inviteResponse>(`https://discord.com/api/v9/invites/${code}`);
+  if (server_invite.error) throw new Error();
   const data = server_invite.data;
   const guildID: string = data.guild.id;
   const iconHash: string = data.guild.icon;

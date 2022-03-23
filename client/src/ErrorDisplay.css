@@ -23,6 +23,7 @@
 }
 .errorTitle{
     color:rgb(151, 24, 24);
+    text-align: center;
 }
 .errorDescription{
     font-size: 1.3rem;

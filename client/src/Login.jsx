@@ -24,7 +24,8 @@ const Login = () => {
         })
         .catch((error) => {
           console.log(error.response.data);
-          setError({ title: "Key Failure", description: "Key Provided doesn't exist" });
+          const errorData = error.response.data;
+          setError({ ...errorData });
           setKey(null);
         })
         .finally(() => {

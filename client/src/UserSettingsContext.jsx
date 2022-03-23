@@ -20,10 +20,13 @@ export const UserSettingsProvider = (props) => {
       .get(`/api/self/${token}`)
       .then((resp) => {
         console.log(resp.data);
-        if (resp.data.error) {
-          setError({ title: "Token Error", description: "Can't get data on the token" });
-          setToken(null);
-        } else setUser(resp.data);
+        setUser(resp.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        const errorData = err.response.data;
+        setError({ ...errorData });
+        setToken(null);
       })
       .finally(() => {
         setLoading((prevState) => !prevState);

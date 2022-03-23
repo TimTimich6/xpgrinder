@@ -1,8 +1,9 @@
+import { ErrorResponse } from "./../serverside/server";
 import axios from "axios";
 import dotenv from "dotenv";
 import commonHeaders, { getCookie } from "./headers";
 dotenv.config();
-interface userData {
+export interface userData {
   username: string;
   id: string;
   avatar: string;
@@ -10,21 +11,17 @@ interface userData {
   discriminator: string;
   phone: string;
 }
+
 export const selfData = async (token: string): Promise<userData> => {
-  const res: any = await axios
-    .get("https://discord.com/api/v9/users/@me", {
+  const res = await axios
+    .get<userData>("https://discord.com/api/v9/users/@me", {
       headers: {
         authorization: <string>token,
         cookie: await getCookie(),
         ...commonHeaders,
       },
     })
-    .then((resp) => resp.data)
-    .catch((err) => {
-      return {
-        error: "Couldnt get data on token",
-      };
-    });
+    .then((resp) => resp.data);
   return res;
 };
 // const token: string | undefined = process.env.MY_TOKEN;

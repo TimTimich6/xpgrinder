@@ -31,10 +31,7 @@ const CreateSever = (props) => {
         })
         .catch((err) => {
           console.log("Error when deactivating: ", err.response.data);
-          setError({
-            title: "Tracking Error",
-            description: "Something went wrong when deactivating the tracking",
-          });
+          setError(...err.response.data);
         });
     }
     setServers((prevState) => {
@@ -48,15 +45,13 @@ const CreateSever = (props) => {
     const invRegex = new RegExp("(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/.+[a-z]");
     if (invRegex.test(link)) {
       const code = link.slice(19);
-      const resp = await axios.get(`/api/invite/${code}`);
-      if (resp.data.error) {
-        setError({ title: "Invite failed", description: resp.data.error });
-        return null;
-      }
-      // console.log(resp);
-      return resp.data;
+      return axios
+        .get(`/api/invite/${code}`)
+        .then((resp) => resp.data)
+        .catch((err) => {
+          setError({ ...err.response.data });
+        });
     }
-    return null;
   };
   const handleServerAdd = async () => {
     setLoading(true);
