@@ -5,6 +5,7 @@ const TextButton = (props) => {
     <button
       className="textButton"
       style={{ backgroundColor: props.bgc, fontSize: props.fz, padding: `0.5rem ${props.pd}`, boxShadow: bx, color: props.color }}
+      type={props.type}
     >
       {props.children}
     </button>

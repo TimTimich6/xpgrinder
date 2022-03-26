@@ -51,8 +51,8 @@ app.get("/api/invite/:code", (req, res) => {
     });
 });
 
-app.get("/api/self/:token", (req, res) => {
-  const token: string = req.params.token;
+app.post("/api/self/", authKey, (req, res) => {
+  const token: string = req.body.token;
   selfData(token)
     .then((data) => res.status(200).json(data))
     .catch(() => {

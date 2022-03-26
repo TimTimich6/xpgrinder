@@ -11,11 +11,7 @@ const ServerStats = () => {
     <div className="settingsTotalContainer">
       <div className="settingsTopContainer">
         <span className="username">{user.username ? user.username + "#" + user.discriminator : "Input Token"}</span>
-        {loading === true ? (
-          <div className="loader" />
-        ) : (
-          <img className="pfp" src={user.username ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096` : null} alt="" />
-        )}
+        <img className="pfp" src={user.username ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096` : null} alt="" />
       </div>
       <div className="settingsMiddleContainer">
         <div className="leftSideStats">

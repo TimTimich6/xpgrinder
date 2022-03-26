@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 const CreateFilter = (props) => {
   const [filterInput, setFilterInput] = useState("");
   const [responseInput, setResponseInput] = useState("");
-  const { setError, key } = useContext(UserSettingsContext);
+  const { setError, key, setLoading } = useContext(UserSettingsContext);
   const { setServers, currentServer } = props;
   const addFilter = async (filter) => {
     if (!filter.filter || !filter.response) {
@@ -23,6 +23,7 @@ const CreateFilter = (props) => {
     setResponseInput("");
   };
   const setDefault = () => {
+    setLoading(true);
     axios
       .get("/api/filters", { headers: { "testing-key": key } })
       .then((resp) => {
@@ -37,6 +38,9 @@ const CreateFilter = (props) => {
       .catch((err) => {
         console.log("Filter default error");
         setError({ ...err.response.data });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   const clearFilters = () => {

@@ -1,4 +1,4 @@
-.loginTotal{
+.bcgFull{
     position:fixed;
     top:-18px;
     z-index:2;
@@ -34,4 +34,9 @@
     font-size: 1.6rem;
     width:80%;
     background-color:rgb(255, 255, 255);
+}
+
+.keyInput:focus, .keyInput:focus-visible{
+    outline: 3px solid rgb(64, 102, 173);
+    border: 0px none rgb(211, 211, 211);
 }

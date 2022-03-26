@@ -7,11 +7,14 @@ import { UserSettingsProvider } from "./UserSettingsContext.jsx";
 import Popup from "./Popup";
 import ErrorDisplay from "./ErrorDisplay";
 import Login from "./Login";
+import Loader from "./Loader";
 function App() {
   return (
-    <UserSettingsProvider>
-      <Login />
-      <div className="App">
+    <div className="App">
+      <UserSettingsProvider>
+        <Login />
+        <Loader />
+
         <ServerListProvider>
           <Popup />
           <ErrorDisplay />
@@ -21,8 +24,8 @@ function App() {
             <FilterList />
           </div>
         </ServerListProvider>
-      </div>
-    </UserSettingsProvider>
+      </UserSettingsProvider>
+    </div>
   );
 }
 

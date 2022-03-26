@@ -3,16 +3,14 @@ import TrackingPreview from "./TrackingPreview";
 import { useContext, useState } from "react";
 import { ServerListContext } from "../ServerListContext";
 import { UserSettingsContext } from "../UserSettingsContext";
-
-import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 
-const ServerList = (props) => {
+const ServerList = () => {
   const { servers, setServers, currentServer, setCurrentServer } = useContext(ServerListContext);
-  const { token, user, setError, key } = useContext(UserSettingsContext);
-  const [loading, setLoading] = useState(false);
+  const { token, user, setError, key, setLoading } = useContext(UserSettingsContext);
 
   const handleTracking = async () => {
+    setLoading(true);
     if (!servers[currentServer].tracking) {
       axios
         .post(
@@ -43,6 +41,9 @@ const ServerList = (props) => {
           const errorData = error.response.data;
           console.error(errorData);
           setError({ ...errorData });
+        })
+        .finally(() => {
+          setLoading(false);
         });
     } else {
       axios
@@ -65,13 +66,15 @@ const ServerList = (props) => {
         .catch((err) => {
           console.log("Error when deactivating: ", err.response.data);
           setError({ ...err.response.data });
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   };
   return (
     <div className="serverList">
       <h1 style={{ color: "white", fontSize: "2rem", marginTop: "1rem" }}>All Servers</h1>
-      {loading === true ? <div className="loader" /> : null}
       {servers.map((server, index) => {
         return (
           <div
@@ -93,13 +96,7 @@ const ServerList = (props) => {
           </div>
         );
       })}
-      <CreateSever
-        servers={servers}
-        setServers={setServers}
-        setCurrentServer={setCurrentServer}
-        setLoading={setLoading}
-        currentServer={currentServer}
-      />
+      <CreateSever servers={servers} setServers={setServers} setCurrentServer={setCurrentServer} currentServer={currentServer} />
     </div>
   );
 };

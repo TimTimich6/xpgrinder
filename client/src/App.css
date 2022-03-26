@@ -5,6 +5,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	overflow: hidden;
+}
+.noscroll{
+	overflow: hidden;
 }
 
 .appContainer{
@@ -14,5 +18,8 @@
 	align-items: center;
 	width: 50rem;
 	gap: 2rem;
+	overflow: hidden;
 }
+
+
 

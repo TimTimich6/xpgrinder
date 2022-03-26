@@ -17,13 +17,23 @@ export const UserSettingsProvider = (props) => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
     setLoading((prevState) => !prevState);
     axios
-      .get(`/api/self/${token}`)
+      .post(
+        `/api/self`,
+        {
+          token: token,
+        },
+        {
+          headers: {
+            "testing-key": key,
+          },
+        }
+      )
       .then((resp) => {
         console.log(resp.data);
         setUser(resp.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response.data);
         const errorData = err.response.data;
         setError({ ...errorData });
         setToken(null);
@@ -35,7 +45,7 @@ export const UserSettingsProvider = (props) => {
 
   return (
     <UserSettingsContext.Provider
-      value={{ token, setToken, logEverything, setLogEverything, altToken, setAltToken, user, loading, error, setError, key, setKey }}
+      value={{ token, setToken, logEverything, setLogEverything, altToken, setAltToken, user, loading, error, setError, key, setKey, setLoading }}
     >
       {props.children}
     </UserSettingsContext.Provider>

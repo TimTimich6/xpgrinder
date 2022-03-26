@@ -1,14 +1,16 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserSettingsContext } from "./UserSettingsContext";
 import "./Login.css";
 import TextButton from "./TextButton";
 import axios from "axios";
 const Login = () => {
-  const { key, setKey, setError } = useContext(UserSettingsContext);
+  const { key, setKey, setError, setLoading } = useContext(UserSettingsContext);
   const [input, setInput] = useState("");
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     console.log(input);
     if (input.length > 5) {
+      setLoading(true);
       axios
         .get(`/api/key`, {
           headers: {
@@ -21,6 +23,7 @@ const Login = () => {
             setKey(input);
             console.log("authorized");
           }
+          document.body.classList.remove("noscroll");
         })
         .catch((error) => {
           console.log(error.response.data);
@@ -30,25 +33,34 @@ const Login = () => {
         })
         .finally(() => {
           setInput("");
+          setLoading(false);
         });
     }
   };
+
+  useEffect(() => {
+    document.body.classList.add("noscroll");
+  }, []);
+
   return (
     <>
       {!key && (
-        <div className="loginTotal">
-          <div className="loginInner">
-            <h1>
-              Welcome to <span className="projectName">XP-GRINDER</span> Beta Testing
-            </h1>
-            <h2>Enter your testing key</h2>
-            <input className="keyInput" type="password" value={input} onChange={(e) => setInput(e.target.value)} />
-            <div className="buttonWrapper" onClick={handleSubmit}>
-              <TextButton bgc="#00A36C" fz="1.6rem" color="white" pd="2rem">
-                Submit Key
-              </TextButton>
+        <div className="bcgFull">
+          <form action="">
+            <div className="loginInner">
+              <h1>
+                Welcome to <span className="projectName">XP-GRINDER</span> Beta Testing
+              </h1>
+              <h2>Enter your testing key</h2>
+
+              <input className="keyInput" autoFocus type="password" value={input} onChange={(e) => setInput(e.target.value)} />
+              <div className="buttonWrapper" onClick={(e) => handleSubmit(e)}>
+                <TextButton bgc="#00A36C" fz="1.6rem" color="white" pd="2rem" type="submit">
+                  Submit Key
+                </TextButton>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </>

@@ -5,8 +5,8 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError, key } = useContext(UserSettingsContext);
-  const { setServers, setCurrentServer, servers, setLoading, currentServer } = props;
+  const { setError, key, setLoading } = useContext(UserSettingsContext);
+  const { setServers, setCurrentServer, servers, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
   };
