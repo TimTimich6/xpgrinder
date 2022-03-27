@@ -12,10 +12,10 @@ function App() {
   return (
     <div className="App">
       <UserSettingsProvider>
-        <Login />
-        <Loader />
-
         <ServerListProvider>
+          <Login />
+          <Loader />
+
           <Popup />
           <ErrorDisplay />
           <div className="appContainer">

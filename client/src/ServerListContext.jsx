@@ -12,16 +12,15 @@ const defaultServer = {
   },
   guildID: "934702825328504843",
   tracking: false,
-  id: "934702825328504843",
+  uuid: "934702825328504843",
 };
 export const ServerListContext = createContext();
 export const ServerListProvider = (props) => {
-  const [servers, setServers] = useState([defaultServer]);
+  const [servers, setServers] = useState([]);
   const [currentServer, setCurrentServer] = useState(servers.length - 1);
   const [openPopup, setOpenPopup] = useState(false);
 
   console.log("servers:", servers);
-
   return (
     <ServerListContext.Provider value={{ servers, setServers, currentServer, setCurrentServer, setOpenPopup, openPopup }}>
       {props.children}

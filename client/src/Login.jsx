@@ -3,15 +3,17 @@ import { UserSettingsContext } from "./UserSettingsContext";
 import "./Login.css";
 import TextButton from "./TextButton";
 import axios from "axios";
+import { ServerListContext } from "./ServerListContext";
 const Login = () => {
-  const { key, setKey, setError, setLoading } = useContext(UserSettingsContext);
+  const { key, setKey, setError, setLoading, setToken } = useContext(UserSettingsContext);
+  const { setServers } = useContext(ServerListContext);
   const [input, setInput] = useState("");
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(input);
     if (input.length > 5) {
       setLoading(true);
-      axios
+      await axios
         .get(`/api/key`, {
           headers: {
             "testing-key": input,
@@ -19,13 +21,19 @@ const Login = () => {
         })
         .then((resp) => {
           console.log(resp.data);
-          if (resp.status === 200) {
+          console.log(resp.data.userdata.servers);
+
+          if (resp.data.userdata) {
             setKey(input);
-            console.log("authorized");
-          }
+            setServers(resp.data.userdata.servers);
+            setToken(resp.data.userdata.token);
+            // setCurrentServer(-1);
+          } else setKey(input);
+          console.log("authorized");
           document.body.classList.remove("noscroll");
         })
         .catch((error) => {
+          console.log(error);
           console.log(error.response.data);
           const errorData = error.response.data;
           setError({ ...errorData });
@@ -33,8 +41,8 @@ const Login = () => {
         })
         .finally(() => {
           setInput("");
-          setLoading(false);
         });
+      setLoading(false);
     }
   };
 

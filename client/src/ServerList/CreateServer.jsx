@@ -5,35 +5,12 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError, key, setLoading } = useContext(UserSettingsContext);
+  const { setError, key, token, setLoading, setActive, active } = useContext(UserSettingsContext);
   const { setServers, setCurrentServer, servers, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
   };
   const deleteServer = async () => {
-    if (servers[currentServer].tracking == true) {
-      await axios
-        .delete("/api/track", {
-          data: {
-            id: servers[currentServer].id,
-          },
-          headers: {
-            "testing-key": key,
-          },
-        })
-        .then((response) => {
-          setServers((prevState) => {
-            return prevState.map((server, i) => {
-              if (i === currentServer) return { ...server, tracking: false };
-              return server;
-            });
-          });
-        })
-        .catch((err) => {
-          console.log("Error when deactivating: ", err.response.data);
-          setError(...err.response.data);
-        });
-    }
     setServers((prevState) => {
       return prevState.filter((server, index) => {
         return index !== currentServer;
@@ -65,7 +42,7 @@ const CreateSever = (props) => {
             settings: { useAI: false, dialogueMode: false, reply: false, responseTime: 5 },
             guildID: resp.guildID,
             tracking: false,
-            id: v4(),
+            uuid: v4(),
           });
           setCurrentServer(servers.length);
         }
@@ -74,13 +51,39 @@ const CreateSever = (props) => {
         setLoading(false);
       });
   };
-  const handleServerDelete = async () => {
+
+  const handleServerDelete = () => {
     setLoading(true);
     deleteServer();
     setCurrentServer(servers.length - 2);
-
     setLoading(false);
   };
+
+  const handleTracking = async () => {
+    setLoading(true);
+    if (!active) {
+      const data = await axios
+        .post(
+          "/api/track",
+          {
+            key,
+            token,
+            servers,
+          },
+          { headers: { "testing-key": key } }
+        )
+        .then((resp) => {
+          setActive(true);
+          return resp.data;
+        })
+        .catch((err) => setError({ ...err.response.data }));
+      console.log(data);
+    } else {
+      setActive(false);
+    }
+    setLoading(false);
+  };
+
   return (
     <>
       <div className="newServerContainer">
@@ -103,6 +106,14 @@ const CreateSever = (props) => {
           }}
         >
           <TextButton bgc="#BB3C3C">Delete Server</TextButton>
+        </div>
+        <div
+          className="buttonWrapper"
+          onClick={() => {
+            handleTracking();
+          }}
+        >
+          <TextButton bgc={!active ? "#BDB76B" : "gray"}>{!active ? "Track Selected" : "Stop Tracking"}</TextButton>
         </div>
       </div>
     </>

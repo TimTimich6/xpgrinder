@@ -4,6 +4,17 @@
 	gap: 0.9rem;
 	width: 100%;
 }
+
+.serversAll{
+	display: flex;
+	flex-direction: column;
+	gap: 0.9rem;
+}
+.active{
+	/* filter: grayscale(90%); */
+	filter: brightness(50%);
+	cursor:not-allowed;
+}
 .servererWrapper {
 	display: flex;
 	align-items: center;

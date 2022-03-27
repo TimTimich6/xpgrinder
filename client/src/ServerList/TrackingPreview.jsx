@@ -1,18 +1,25 @@
 import "./TrackingPreview.css";
 import { useContext } from "react";
-import ErrorStatus from "./ErrorStatus";
-import SuccessStatus from "./SuccessStatus";
-import WarningStatus from "./WarningStatus";
 import { ServerListContext } from "../ServerListContext";
 import TextButton from "../TextButton";
 const TrackingPreview = (props) => {
   const { setOpenPopup } = useContext(ServerListContext);
-
-  const handleTracking = props.handleTracking;
   const handlerOpenSettings = () => {
     setOpenPopup(true);
   };
 
+  const handleCheck = (event) => {
+    props.setServers((prevState) => {
+      return prevState.map((server, index) => {
+        if (index === props.index)
+          return {
+            ...server,
+            tracking: !props.tracking,
+          };
+        return server;
+      });
+    });
+  };
   return (
     <div className={props.selected === true ? "trackingTotal selected" : "trackingTotal"}>
       <div className="leftSide  ">
@@ -28,9 +35,9 @@ const TrackingPreview = (props) => {
         </div>
       </div>
       <div className="serverRightSide">
-        <div className="buttonWrapper" onClick={() => handleTracking()}>
-          <TextButton fz="1.4rem" pd="1.6rem" bgc="#a6bbff" bx="none">
-            {props.tracking == true ? "Active" : "Track"}
+        <div className="buttonWrapper" onClick={() => handleCheck()}>
+          <TextButton fz="1.4rem" pd="1.6rem" bgc={props.tracking ? "#81B622" : "#a6bbff"} bx="none">
+            {props.tracking == true ? "Ready" : "Select"}
           </TextButton>
         </div>
       </div>

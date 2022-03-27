@@ -1,8 +1,9 @@
+import * as mongo from "./mongocommands";
 import { WebSocket } from "ws";
 import express from "express";
 import readBin from "../utils/jsonBin";
 import getInviteData from "../discordapiutils/getInviteData";
-import { selfData, userData } from "../discordapiutils/selfData";
+import { selfData } from "../discordapiutils/selfData";
 import { Settings, trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
@@ -25,17 +26,11 @@ export interface ErrorResponse {
 }
 
 let trackingArray: WebSocketStorage[] = [];
-export interface TrackBody {
-  guildID: string;
-  filters: { filter: string; response: string }[];
-  token: string;
-  userID: string;
-  settings: Settings;
-  id: string;
-}
 
-app.get("/api/key", authKey, (req, res) => {
-  res.status(200).json({ message: "key successful authorized", key: req.headers["testing-key"] });
+app.get("/api/key", authKey, async (req, res) => {
+  const keyData = await mongo.getUser(<string>req.headers["testing-key"]);
+  if (keyData) res.status(200).json({ userdata: keyData, key: req.headers["testing-key"] });
+  else res.status(200).send("new key found");
 });
 
 app.get("/api/invite/:code", (req, res) => {
@@ -61,16 +56,8 @@ app.post("/api/self/", authKey, (req, res) => {
 });
 
 app.post("/api/track", authKey, checkTracking, async (req, res) => {
-  console.log("in track");
-  const body: TrackBody = req.body;
-  console.log(body);
-  const { guildID, filters, token, userID, settings, id } = body;
-  const finish = await trackserver(guildID, token, filters, settings, userID);
-  trackingArray.push({ websocket: finish, id: id });
-  res.status(200).json({ id });
-  console.log("adding id:", id);
-  const mappedArr = trackingArray.map((element) => element.id);
-  console.log(mappedArr);
+  await mongo.replaceKey(req.body);
+  res.status(200).json(req.body);
 });
 
 app.delete("/api/track", authKey, async (req, res) => {
@@ -100,6 +87,10 @@ app.get("/api/filters", authKey, (req, res) => {
       console.log("failed to get bin data");
       res.status(500).json({ title: "Filters Error", description: "Failed to fetch default filters" });
     });
+});
+
+app.get("/api/test", async (req, res) => {
+  res.json(await mongo.getUser("timkey"));
 });
 app.listen(port, () => {
   console.log("listening on port", port);

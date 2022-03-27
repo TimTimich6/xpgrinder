@@ -12,10 +12,11 @@ export const UserSettingsProvider = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [key, setKey] = useState(null);
+  const [active, setActive] = useState(null);
 
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
-    setLoading((prevState) => !prevState);
+    setLoading(true);
     axios
       .post(
         `/api/self`,
@@ -39,13 +40,29 @@ export const UserSettingsProvider = (props) => {
         setToken(null);
       })
       .finally(() => {
-        setLoading((prevState) => !prevState);
+        setLoading(false);
       });
   }, [token]);
 
   return (
     <UserSettingsContext.Provider
-      value={{ token, setToken, logEverything, setLogEverything, altToken, setAltToken, user, loading, error, setError, key, setKey, setLoading }}
+      value={{
+        token,
+        setToken,
+        logEverything,
+        setLogEverything,
+        altToken,
+        setAltToken,
+        user,
+        loading,
+        error,
+        setError,
+        key,
+        setKey,
+        setLoading,
+        active,
+        setActive,
+      }}
     >
       {props.children}
     </UserSettingsContext.Provider>

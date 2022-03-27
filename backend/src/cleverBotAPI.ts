@@ -1,5 +1,5 @@
 import axios from "axios";
-const key: string = <string>process.env.CLEVERBOT;
+const key: string = process.env.CLEVERBOT!;
 const receiveMessage = async (input?: string): Promise<string> => {
   const baseUrl: string = "https://www.cleverbot.com/getreply";
 
