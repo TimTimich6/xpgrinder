@@ -28,13 +28,24 @@ interface Filter {
 export interface Settings {
   dialogueMode: boolean;
   reply: boolean;
-  useAI: boolean;
+  useAI?: boolean;
   responseTime: number;
+  exactMatch: boolean;
+  percentResponse: number;
 }
+export interface Server {
+  name: string;
+  filters: { filter: string; response: string }[];
+  img: string;
+  settings: Settings;
+  guildID: string;
+  tracking: boolean;
+  uuid: string;
+}
+[];
 //indentifying payload sent
 
-export const trackserver = async (guildID: string, token: string, filters: Filter[], settings: Settings, user?: string): Promise<WebSocket> => {
-  console.log(filters);
+export const trackserver = async (servers: Server[], token: string, userid: string): Promise<WebSocket> => {
   const payload: Payload = {
     op: 2,
     d: {
@@ -51,7 +62,7 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
   // console.log(ws);
   ws.on("open", (): void => {
     ws.send(JSON.stringify(payload));
-    console.log("handshake opened");
+    console.log("handshake opened for", token);
   });
   ws.on("message", async (data: string): Promise<void> => {
     let payload: any = JSON.parse(data);
@@ -70,27 +81,25 @@ export const trackserver = async (guildID: string, token: string, filters: Filte
     switch (t) {
       case "MESSAGE_CREATE":
         const author: string = d.author.username;
-        // console.log(d);
-        if (d.guild_id === guildID && d.author.id !== user) {
-          //&& d.author.id !== "516369143046340608"
+        const server = servers.find((server) => d.guild_id === server.guildID);
+        if (server?.tracking && d.author.id !== userid) {
+          const filters = server.filters;
+          const settings = server.settings;
           const content: string = d.content;
-          console.log(getTime(), author, ": ", content);
-          if (settings.useAI == false && filters.some((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())) {
-            const filter: Filter = <Filter>filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase());
-            console.log(getTime(), "responding with:", filter.response, "in", settings.responseTime, "seconds");
-            await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
-              channel_id: d.channel_id,
-              guild_id: guildID,
-              message_id: d.id,
-            });
-          } else if (settings.useAI == true) {
-            const output: string = await receiveMessage(d.content);
-            console.log(getTime(), "responding with:", output);
-            await realType(output, d.channel_id, token, settings.responseTime, settings.reply, {
-              channel_id: d.channel_id,
-              guild_id: guildID,
-              message_id: d.id,
-            });
+          const filter: Filter | undefined = settings.exactMatch
+            ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
+            : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
+          if (filter) {
+            console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
+            const rand = Math.ceil(Math.random() * 100);
+            if (rand < settings.percentResponse) {
+              console.log("responding");
+              await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
+                channel_id: d.channel_id,
+                guild_id: server.guildID,
+                message_id: d.id,
+              });
+            }
           }
         }
         break;

@@ -5,7 +5,7 @@ import TextButton from "./TextButton";
 import axios from "axios";
 import { ServerListContext } from "./ServerListContext";
 const Login = () => {
-  const { key, setKey, setError, setLoading, setToken } = useContext(UserSettingsContext);
+  const { key, setKey, setError, setLoading, setToken, setActive } = useContext(UserSettingsContext);
   const { setServers } = useContext(ServerListContext);
   const [input, setInput] = useState("");
   const handleSubmit = async (e) => {
@@ -21,13 +21,11 @@ const Login = () => {
         })
         .then((resp) => {
           console.log(resp.data);
-          console.log(resp.data.userdata.servers);
-
           if (resp.data.userdata) {
             setKey(input);
             setServers(resp.data.userdata.servers);
             setToken(resp.data.userdata.token);
-            // setCurrentServer(-1);
+            setActive(resp.data.userdata.active);
           } else setKey(input);
           console.log("authorized");
           document.body.classList.remove("noscroll");

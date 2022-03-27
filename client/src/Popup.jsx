@@ -5,10 +5,13 @@ import TextButton from "./TextButton";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
   const server = servers[currentServer];
-  const aiRef = useRef();
+  // const aiRef = useRef();
   const dialogueRef = useRef();
   const replyRef = useRef();
   const timeRef = useRef();
+  const exactRef = useRef();
+  const percentRef = useRef();
+
   const handleCheck = (event) => {
     setServers((prevState) => {
       return prevState.map((server, index) => {
@@ -17,9 +20,10 @@ const Popup = () => {
             ...server,
             settings: {
               ...server.settings,
-              useAI: aiRef.current.checked,
+              // useAI: aiRef.current.checked,
               dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
+              exactMatch: exactRef.current.checked,
             },
           };
         return server;
@@ -34,10 +38,12 @@ const Popup = () => {
             ...server,
             settings: {
               ...server.settings,
-              useAI: aiRef.current.checked,
+              // useAI: aiRef.current.checked,
               dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
               responseTime: parseInt(timeRef.current.value),
+              exactMatch: exactRef.current.checked,
+              percentResponse: parseInt(percentRef.current.value),
             },
           };
         return server;
@@ -56,7 +62,7 @@ const Popup = () => {
               </h1>
             </div>
             <div className="popupBody">
-              <div className="serverSettingContainer">
+              {/* <div className="serverSettingContainer">
                 <span className="settingsCheckboxLabel">Use AI</span>
                 <input
                   type="checkbox"
@@ -65,9 +71,9 @@ const Popup = () => {
                   checked={server.settings.useAI}
                   ref={aiRef}
                 />
-              </div>
+              </div> */}
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Dialogue Mode</span>
+                <span className="settingsCheckboxLabel">Dialogue Mode (soon)</span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -99,6 +105,29 @@ const Popup = () => {
                   step="1"
                 />
               </div>
+              <div className="serverSettingContainer">
+                <span className="settingsCheckboxLabel">Exact Match</span>
+                <input
+                  type="checkbox"
+                  className="settingsCheckbox"
+                  onChange={(event) => handleCheck(event)}
+                  ref={exactRef}
+                  checked={server.settings.exactMatch}
+                />
+              </div>
+            </div>
+            <div className="serverSettingContainer">
+              <span className="settingsCheckboxLabel">Percent Response</span>
+              <input
+                type="number"
+                value={server.settings.percentResponse}
+                className="settingsInput"
+                onChange={(event) => handleInput(event)}
+                ref={percentRef}
+                min="0"
+                max="100"
+                step="20"
+              />
             </div>
             <div className="popupBottom">
               <div className="buttonWrapper" onClick={() => setOpenPopup(false)}>
@@ -115,22 +144,3 @@ const Popup = () => {
 };
 
 export default Popup;
-
-{
-  /* <div className="popupBody">
-  <div className="aiSettingContainer">
-    <span className="aiCheckboxLabel">Use AI</span>
-    <input type="checkbox" className="settingCheckbox" onChange={(event) => handleCheck(event)} checked={props.settings.useAI} ref={aiRef} />
-  </div>
-  <div className="aiSettingContainer">
-    <span className="aiCheckboxLabel">Dialogue Mode</span>
-    <input
-      type="checkbox"
-      className="settingCheckbox"
-      onChange={(event) => handleCheck(event)}
-      ref={dialogueRef}
-      checked={props.settings.dialogueMode}
-    />
-  </div>
-</div>; */
-}

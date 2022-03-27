@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError, key, token, setLoading, setActive, active } = useContext(UserSettingsContext);
+  const { setError, key, token, setLoading, setActive, active, user } = useContext(UserSettingsContext);
   const { setServers, setCurrentServer, servers, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
@@ -39,7 +39,7 @@ const CreateSever = (props) => {
             name: resp.guildName,
             filters: [],
             img: resp.serverIcon,
-            settings: { useAI: false, dialogueMode: false, reply: false, responseTime: 5 },
+            settings: { dialogueMode: false, reply: false, responseTime: 5, exactMatch: false, percentResponse: 50 },
             guildID: resp.guildID,
             tracking: false,
             uuid: v4(),
@@ -69,6 +69,8 @@ const CreateSever = (props) => {
             key,
             token,
             servers,
+            active: true,
+            userid: user.id,
           },
           { headers: { "testing-key": key } }
         )
@@ -79,6 +81,13 @@ const CreateSever = (props) => {
         .catch((err) => setError({ ...err.response.data }));
       console.log(data);
     } else {
+      const data = await axios
+        .delete("/api/track", { data: { key }, headers: { "testing-key": key } })
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => setError({ ...err.response.data }));
+      console.log(data);
       setActive(false);
     }
     setLoading(false);

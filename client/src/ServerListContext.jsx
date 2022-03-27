@@ -5,10 +5,11 @@ const defaultServer = {
   filters: [defaultFilter],
   img: "https://cdn.discordapp.com/icons/934702825328504843/fccaa27ede65334871fb5edf87b44f15.png?size=4096",
   settings: {
-    useAI: false,
     dialogueMode: false,
     reply: false,
     responseTime: 5,
+    exactMatch: true,
+    percentResponse: 50,
   },
   guildID: "934702825328504843",
   tracking: false,

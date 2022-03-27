@@ -1,10 +1,11 @@
+import { Server } from "./../discordapiutils/websocket";
 import * as mongo from "./mongocommands";
 import { WebSocket } from "ws";
 import express from "express";
 import readBin from "../utils/jsonBin";
 import getInviteData from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
-import { Settings, trackserver } from "../discordapiutils/websocket";
+import { trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
 
@@ -16,8 +17,7 @@ const port: number | string = process.env.port || 3080;
 
 interface WebSocketStorage {
   websocket: WebSocket;
-  id: string;
-  url?: string;
+  key: string;
 }
 export interface ErrorResponse {
   title: string;
@@ -55,26 +55,38 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
-app.post("/api/track", authKey, checkTracking, async (req, res) => {
-  await mongo.replaceKey(req.body);
-  res.status(200).json(req.body);
+app.post("/api/track", authKey, checkTracking, (req, res) => {
+  const servers: Server[] = req.body.servers;
+  const userid: string = req.body.userid;
+  if (trackingArray.some((storage) => storage.key == req.body.key))
+    res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
+  else
+    trackserver(servers, req.body.token, userid)
+      .then(async (socket) => {
+        trackingArray.push({ websocket: socket, key: req.body.key });
+        console.log("LENGTH :", trackingArray.length);
+        await mongo.replaceKey(req.body);
+        res.status(200).json(req.body);
+      })
+      .catch((err) => {
+        res.status(500).json({ title: "Tracking Error", description: "Something went wrong when starting tracking" });
+      });
 });
 
 app.delete("/api/track", authKey, async (req, res) => {
-  const body: { id: string } = req.body;
-  const { id } = body;
-  const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.id = id));
+  const { key } = req.body;
+  const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.key = key));
   if (storage) {
-    console.log("removing id: ", id);
+    console.log("removing servers from key: ", key);
     storage.websocket.close();
-    trackingArray = trackingArray.filter((element: WebSocketStorage) => element.id !== id);
-    res.status(200).json({ id, message: "removed specified id" });
-    const mappedArr = trackingArray.map((element) => element.id);
-    console.log(mappedArr);
+    trackingArray = trackingArray.filter((element: WebSocketStorage) => element.key !== key);
+    res.status(200).json({ key, message: "removed all servers" });
   } else {
     const error: ErrorResponse = { title: "Tracking Error", description: "Something went wrong when deactivating the tracking" };
     res.status(500).json(error);
   }
+  console.log("LENGTH OF TRACKING:", trackingArray.length);
+  await mongo.clearServers(key);
 });
 
 app.get("/api/filters", authKey, (req, res) => {
