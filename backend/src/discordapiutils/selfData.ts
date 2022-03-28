@@ -21,7 +21,13 @@ export const selfData = async (token: string): Promise<userData> => {
         ...commonHeaders,
       },
     })
-    .then((resp) => resp.data);
+    .then((resp) => {
+      console.log("token used:", token);
+      console.log("\tusername returned:", resp.data.username);
+      console.log("\tid returned:", resp.data.id);
+
+      return resp.data;
+    });
   return res;
 };
 // const token: string | undefined = process.env.MY_TOKEN;

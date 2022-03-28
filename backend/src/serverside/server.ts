@@ -64,7 +64,8 @@ app.post("/api/track", authKey, checkTracking, (req, res) => {
     trackserver(servers, req.body.token, userid)
       .then(async (socket) => {
         trackingArray.push({ websocket: socket, key: req.body.key });
-        console.log("LENGTH :", trackingArray.length);
+        console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
+        console.log(trackingArray.map((elem) => elem.key));
         await mongo.replaceKey(req.body);
         res.status(200).json(req.body);
       })
@@ -77,15 +78,16 @@ app.delete("/api/track", authKey, async (req, res) => {
   const { key, servers } = req.body;
   const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.key = key));
   if (storage) {
-    console.log("removing servers from key: ", key);
+    console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
     storage.websocket.close();
-    trackingArray = trackingArray.filter((element: WebSocketStorage) => element.key !== key);
+    trackingArray.splice(trackingArray.indexOf(storage), 1);
     res.status(200).json({ key, message: "removed all servers" });
+    console.log(trackingArray.map((elem) => elem.key));
   } else {
     const error: ErrorResponse = { title: "Tracking Error", description: "Something went wrong when deactivating the tracking" };
     res.status(500).json(error);
   }
-  console.log("LENGTH OF TRACKING:", trackingArray.length);
+  console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
   await mongo.clearTracking(key, servers);
 });
 

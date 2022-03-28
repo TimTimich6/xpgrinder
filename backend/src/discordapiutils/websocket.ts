@@ -2,6 +2,7 @@ import { WebSocket } from "ws";
 import { realType } from "./sendmessage";
 import { receiveMessage } from "../cleverBotAPI";
 import { getTime } from "../utils/logger";
+import { error } from "console";
 const token: string = <string>process.env.MY_TOKEN;
 
 interface Payload {
@@ -63,6 +64,13 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
   ws.on("open", (): void => {
     ws.send(JSON.stringify(payload));
     console.log("handshake opened for", token);
+    console.log(
+      "Servers: ",
+      servers.map((server) => {
+        return { name: server.name, tracking: server.tracking, settings: server.settings };
+      })
+    );
+    console.log("userid: ", userid);
   });
   ws.on("message", async (data: string): Promise<void> => {
     let payload: any = JSON.parse(data);
@@ -98,6 +106,8 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
                 channel_id: d.channel_id,
                 guild_id: server.guildID,
                 message_id: d.id,
+              }).catch((err) => {
+                console.log("Error caught when trying to respond");
               });
             }
           }
