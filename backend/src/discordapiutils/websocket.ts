@@ -91,7 +91,7 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
             : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
           if (filter) {
             console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
-            const rand = Math.ceil(Math.random() * 100);
+            const rand = Math.floor(Math.random() * 100);
             if (rand < settings.percentResponse) {
               console.log("responding");
               await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {

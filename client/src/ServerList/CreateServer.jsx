@@ -82,7 +82,7 @@ const CreateSever = (props) => {
       console.log(data);
     } else {
       const data = await axios
-        .delete("/api/track", { data: { key }, headers: { "testing-key": key } })
+        .delete("/api/track", { data: { key, servers }, headers: { "testing-key": key } })
         .then((resp) => {
           return resp.data;
         })

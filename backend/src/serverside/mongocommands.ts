@@ -1,4 +1,4 @@
-import { Server, Settings } from "./../discordapiutils/websocket";
+import { Server } from "./../discordapiutils/websocket";
 import { Document, MongoClient, WithId } from "mongodb";
 
 export interface KeyData {
@@ -26,9 +26,9 @@ export const replaceKey = async (user: KeyData): Promise<void> => {
     .updateOne({ key: user.key }, { $set: { ...user } }, { upsert: true });
 };
 
-export const clearServers = async (key: string): Promise<void> => {
+export const clearTracking = async (key: string, servers: Server[]): Promise<void> => {
   await client
     .db("xpgrinder")
     .collection("keys")
-    .updateOne({ key: key }, { $set: { servers: [] } }, { upsert: true });
+    .updateOne({ key: key }, { $set: { servers: servers, active: false } }, { upsert: true });
 };

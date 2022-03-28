@@ -93,7 +93,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Response Time</span>
+                <span className="settingsCheckboxLabel">Typing Time</span>
                 <input
                   type="number"
                   value={server.settings.responseTime}
@@ -101,8 +101,8 @@ const Popup = () => {
                   onChange={(event) => handleInput(event)}
                   ref={timeRef}
                   min="3"
-                  max="10"
-                  step="1"
+                  max="120"
+                  step="10"
                 />
               </div>
               <div className="serverSettingContainer">

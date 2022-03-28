@@ -14,15 +14,17 @@ const getPaste = async () => {
 export const checkTracking = (req: Request, res: Response, next: NextFunction) => {
   const body: KeyData = req.body;
   const { token, servers } = body;
+  let trackingcount = 0;
   servers.forEach((server) => {
     const { filters, settings } = server;
+    if (server.tracking) trackingcount++;
     if (filters.some((filter) => !filter.filter || !filter.response)) {
       res.status(500).json({ title: "Filter error", description: `Filters provided are either empty of invalid for ${server.name}`, code: 2 });
       return;
     } else if (filters.length == 0 && !settings.useAI) {
       res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
       return;
-    } else if (settings.responseTime <= 0 || settings.responseTime >= 15) {
+    } else if (settings.responseTime <= 0 || settings.responseTime >= 120) {
       res.status(500).json({ title: "Settings error", description: `Response time provided is out of range for ${server.name}`, code: 4 });
       return;
     } else if (settings.percentResponse <= 0 || settings.percentResponse > 100) {
@@ -30,9 +32,12 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
       return;
     }
   });
+
   if (!token) res.status(500).json({ title: "No token found", description: "Token provided is either invalid or not found", code: 1 });
   else if (servers.length > 2 || servers.length <= 0)
-    res.status(500).json({ title: "Servers Error", description: `Way too many servers or no servers to track`, code: 5 });
+    res.status(500).json({ title: "Servers Error", description: `Total server count out of max range [0-2]`, code: 5 });
+  else if (trackingcount <= 0 || trackingcount > 2)
+    res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of max range [1 - 2]`, code: 7 });
   if (!res.headersSent) next();
 };
 

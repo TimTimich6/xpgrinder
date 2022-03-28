@@ -74,7 +74,7 @@ app.post("/api/track", authKey, checkTracking, (req, res) => {
 });
 
 app.delete("/api/track", authKey, async (req, res) => {
-  const { key } = req.body;
+  const { key, servers } = req.body;
   const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.key = key));
   if (storage) {
     console.log("removing servers from key: ", key);
@@ -86,7 +86,7 @@ app.delete("/api/track", authKey, async (req, res) => {
     res.status(500).json(error);
   }
   console.log("LENGTH OF TRACKING:", trackingArray.length);
-  await mongo.clearServers(key);
+  await mongo.clearTracking(key, servers);
 });
 
 app.get("/api/filters", authKey, (req, res) => {
