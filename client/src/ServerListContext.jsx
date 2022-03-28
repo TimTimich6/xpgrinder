@@ -22,6 +22,7 @@ export const ServerListProvider = (props) => {
   const [openPopup, setOpenPopup] = useState(false);
 
   console.log("servers:", servers);
+  console.log(currentServer);
   return (
     <ServerListContext.Provider value={{ servers, setServers, currentServer, setCurrentServer, setOpenPopup, openPopup }}>
       {props.children}

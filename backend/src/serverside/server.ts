@@ -91,6 +91,10 @@ app.delete("/api/track", authKey, async (req, res) => {
   await mongo.clearTracking(key, servers);
 });
 
+app.delete("/api/servers", authKey, async (req, res) => {
+  await mongo.overwriteServers(<string>req.headers["testing-key"], req.body.servers);
+  res.status(200).json("overwrote servers with body");
+});
 app.get("/api/filters", authKey, (req, res) => {
   readBin("62394f7e7caf5d67836efb23")
     .then((binData) => {

@@ -8,7 +8,7 @@ const FilterList = () => {
   return (
     <div className="filterListContainer">
       <h1 style={{ color: "white", marginBottom: "1rem" }}>Filter List</h1>
-      {currentServer >= 0
+      {servers.length > 0 && currentServer >= 0
         ? servers[currentServer].filters.map((filter) => {
             return <FilterElement key={uuidv4()} filter={filter.filter} response={filter.response} />;
           })

@@ -10,7 +10,7 @@ const CreateSever = (props) => {
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
   };
-  const deleteServer = async () => {
+  const deleteServer = () => {
     setServers((prevState) => {
       return prevState.filter((server, index) => {
         return index !== currentServer;
@@ -52,10 +52,22 @@ const CreateSever = (props) => {
       });
   };
 
-  const handleServerDelete = () => {
+  const handleServerDelete = async () => {
     setLoading(true);
+    const newServers = servers.filter((server, index) => {
+      return index !== currentServer;
+    });
     deleteServer();
-    setCurrentServer(servers.length - 2);
+    console.log("new servers", newServers);
+    const data = await axios
+      .delete("/api/servers", { data: { servers: newServers }, headers: { "testing-key": key } })
+      .then((resp) => {
+        return resp.data;
+      })
+      .catch((err) => setError({ ...err.response.data }));
+    console.log(data);
+
+    setCurrentServer(newServers.length - 1);
     setLoading(false);
   };
 

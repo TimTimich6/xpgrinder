@@ -32,3 +32,10 @@ export const clearTracking = async (key: string, servers: Server[]): Promise<voi
     .collection("keys")
     .updateOne({ key: key }, { $set: { servers: servers, active: false } }, { upsert: true });
 };
+
+export const overwriteServers = async (key: string, servers: Server[]): Promise<void> => {
+  await client
+    .db("xpgrinder")
+    .collection("keys")
+    .updateOne({ key: key }, { $set: { servers: servers } }, { upsert: true });
+};
