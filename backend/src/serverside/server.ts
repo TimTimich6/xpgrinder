@@ -66,7 +66,6 @@ app.post("/api/track", authKey, checkTracking, async (req, res) => {
     let storageCell: TrackingStorage = { key: <string>req.headers["testing-key"] };
     const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
     const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
-    console.log(spamServers, regularTrack);
     if (regularTrack.length > 0) {
       const socket = await trackserver(regularTrack, req.body.token, userid).catch((err) => {
         res.status(500).json({ title: "Tracking Error", description: "Something went wrong when starting tracking" });
@@ -78,14 +77,13 @@ app.post("/api/track", authKey, checkTracking, async (req, res) => {
       for (const server of spamServers) {
         spamIntervals.push(await spamMessages(server.settings.spamChannel, req.body.token, server.settings.responseTime));
       }
-      console.log(spamIntervals);
       storageCell.intervals = spamIntervals;
     }
 
     trackingArray.push(storageCell);
     console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
     console.log(trackingArray.map((elem) => elem.key));
-    console.log(trackingArray);
+    req.body.key = <string>req.headers["testing-key"];
     await mongo.replaceKey(req.body);
     res.status(200).json(req.body);
   }
@@ -106,7 +104,6 @@ app.delete("/api/track", authKey, async (req, res) => {
     res.status(500).json({ title: "Tracking Error", description: "Something went wrong when deactivating the tracking" });
   }
   console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
-  console.log(trackingArray);
   await mongo.clearTracking(key, servers);
 });
 

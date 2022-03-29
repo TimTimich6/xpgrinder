@@ -14,17 +14,16 @@ const FilterList = () => {
       >
         Filter List {!showFilters && "(Hidden)"}
       </h1>
-      {showFilters && (
+
+      {showFilters && servers.length > 0 && currentServer >= 0 ? (
         <>
-          {servers.length > 0 && currentServer >= 0
-            ? servers[currentServer].filters.map((filter) => {
-                return <FilterElement key={uuidv4()} filter={filter.filter} response={filter.response} />;
-              })
-            : null}
+          {servers[currentServer].filters.map((filter) => {
+            return <FilterElement key={uuidv4()} filter={filter.filter} response={filter.response} />;
+          })}
 
           <CreateFilter setServers={setServers} currentServer={currentServer} />
         </>
-      )}
+      ) : null}
     </div>
   );
 };
