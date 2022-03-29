@@ -1,13 +1,14 @@
 import { Server } from "./../discordapiutils/websocket";
 import * as mongo from "./mongocommands";
 import { WebSocket } from "ws";
-import express from "express";
+import express, { application } from "express";
 import readBin from "../utils/jsonBin";
 import getInviteData from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
+import { spamMessages } from "../discordapiutils/sendmessage";
 
 dotenv.config();
 const app = express();
@@ -15,9 +16,10 @@ app.use(express.json());
 
 const port: number | string = process.env.port || 3080;
 
-interface WebSocketStorage {
-  websocket: WebSocket;
+interface TrackingStorage {
+  websocket?: WebSocket;
   key: string;
+  intervals?: NodeJS.Timer[];
 }
 export interface ErrorResponse {
   title: string;
@@ -25,7 +27,7 @@ export interface ErrorResponse {
   code?: number;
 }
 
-let trackingArray: WebSocketStorage[] = [];
+let trackingArray: TrackingStorage[] = [];
 
 app.get("/api/key", authKey, async (req, res) => {
   const keyData = await mongo.getUser(<string>req.headers["testing-key"]);
@@ -55,39 +57,56 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
-app.post("/api/track", authKey, checkTracking, (req, res) => {
+app.post("/api/track", authKey, checkTracking, async (req, res) => {
   const servers: Server[] = req.body.servers;
   const userid: string = req.body.userid;
   if (trackingArray.some((storage) => storage.key == req.body.key))
     res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
-  else
-    trackserver(servers, req.body.token, userid)
-      .then(async (socket) => {
-        trackingArray.push({ websocket: socket, key: req.body.key });
-        console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
-        console.log(trackingArray.map((elem) => elem.key));
-        await mongo.replaceKey(req.body);
-        res.status(200).json(req.body);
-      })
-      .catch((err) => {
+  else {
+    let storageCell: TrackingStorage = { key: <string>req.headers["testing-key"] };
+    const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
+    const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
+    console.log(spamServers, regularTrack);
+    if (regularTrack.length > 0) {
+      const socket = await trackserver(regularTrack, req.body.token, userid).catch((err) => {
         res.status(500).json({ title: "Tracking Error", description: "Something went wrong when starting tracking" });
       });
+      if (socket) storageCell.websocket = socket;
+    }
+    if (spamServers.length > 0) {
+      let spamIntervals: NodeJS.Timer[] = [];
+      for (const server of spamServers) {
+        spamIntervals.push(await spamMessages(server.settings.spamChannel, req.body.token, server.settings.responseTime));
+      }
+      console.log(spamIntervals);
+      storageCell.intervals = spamIntervals;
+    }
+
+    trackingArray.push(storageCell);
+    console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
+    console.log(trackingArray.map((elem) => elem.key));
+    console.log(trackingArray);
+    await mongo.replaceKey(req.body);
+    res.status(200).json(req.body);
+  }
 });
 
 app.delete("/api/track", authKey, async (req, res) => {
-  const { key, servers } = req.body;
-  const storage: WebSocketStorage | undefined = trackingArray.find((element) => (element.key = key));
+  const { servers } = req.body;
+  const key = <string>req.headers["testing-key"];
+  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.key == key);
   if (storage) {
     console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
-    storage.websocket.close();
+    if (storage.websocket) storage.websocket.close();
+    if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
     trackingArray.splice(trackingArray.indexOf(storage), 1);
-    res.status(200).json({ key, message: "removed all servers" });
+    res.status(200).json({ key, message: "stop tracking all servers" });
     console.log(trackingArray.map((elem) => elem.key));
   } else {
-    const error: ErrorResponse = { title: "Tracking Error", description: "Something went wrong when deactivating the tracking" };
-    res.status(500).json(error);
+    res.status(500).json({ title: "Tracking Error", description: "Something went wrong when deactivating the tracking" });
   }
   console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
+  console.log(trackingArray);
   await mongo.clearTracking(key, servers);
 });
 
@@ -95,6 +114,7 @@ app.delete("/api/servers", authKey, async (req, res) => {
   await mongo.overwriteServers(<string>req.headers["testing-key"], req.body.servers);
   res.status(200).json("overwrote servers with body");
 });
+
 app.get("/api/filters", authKey, (req, res) => {
   readBin("62394f7e7caf5d67836efb23")
     .then((binData) => {
@@ -109,6 +129,11 @@ app.get("/api/filters", authKey, (req, res) => {
 
 app.get("/api/test", async (req, res) => {
   res.json(await mongo.getUser("timkey"));
+});
+
+app.get("/api/servers", (req, res) => {
+  if (req.headers["testing-key"] == "timkey") res.status(200).json(trackingArray.map((elem) => elem.key));
+  else res.status(403).json("unauthorized key");
 });
 app.listen(port, () => {
   console.log("listening on port", port);

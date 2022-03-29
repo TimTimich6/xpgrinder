@@ -34,7 +34,7 @@
 	border: transparent rgb(17, 0, 255) 10px;
 	height: 2.5rem;
     font-size: 1.3rem;
-	width: 4rem;
+	width: auto;
 }
 .settingsCheckboxLabel {
 	font-size: 1.7rem;

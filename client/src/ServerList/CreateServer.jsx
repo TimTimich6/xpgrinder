@@ -39,7 +39,7 @@ const CreateSever = (props) => {
             name: resp.guildName,
             filters: [],
             img: resp.serverIcon,
-            settings: { dialogueMode: false, reply: false, responseTime: 5, exactMatch: false, percentResponse: 50 },
+            settings: { dialogueMode: false, reply: false, responseTime: 5, exactMatch: false, percentResponse: 50, spamChannel: "" },
             guildID: resp.guildID,
             tracking: false,
             uuid: v4(),
@@ -78,7 +78,6 @@ const CreateSever = (props) => {
         .post(
           "/api/track",
           {
-            key,
             token,
             servers,
             active: true,
@@ -94,12 +93,12 @@ const CreateSever = (props) => {
       console.log(data);
     } else {
       const data = await axios
-        .delete("/api/track", { data: { key, servers }, headers: { "testing-key": key } })
+        .delete("/api/track", { data: { servers }, headers: { "testing-key": key } })
         .then((resp) => {
           return resp.data;
         })
         .catch((err) => setError({ ...err.response.data }));
-      console.log(data);
+      if (data) console.log(data);
       setActive(false);
     }
     setLoading(false);

@@ -8,7 +8,6 @@ export const UserSettingsProvider = (props) => {
   const [user, setUser] = useState({});
   const [token, setToken] = useState(null);
   const [altToken, setAltToken] = useState(null);
-  const [logEverything, setLogEverything] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [key, setKey] = useState(null);
@@ -49,8 +48,6 @@ export const UserSettingsProvider = (props) => {
       value={{
         token,
         setToken,
-        logEverything,
-        setLogEverything,
         altToken,
         setAltToken,
         user,

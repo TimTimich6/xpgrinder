@@ -1,16 +1,16 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import { ServerListContext } from "./ServerListContext";
 import "./Popup.css";
 import TextButton from "./TextButton";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
   const server = servers[currentServer];
-  // const aiRef = useRef();
   const dialogueRef = useRef();
   const replyRef = useRef();
   const timeRef = useRef();
   const exactRef = useRef();
   const percentRef = useRef();
+  const spamRef = useRef();
 
   const handleCheck = (event) => {
     setServers((prevState) => {
@@ -20,7 +20,6 @@ const Popup = () => {
             ...server,
             settings: {
               ...server.settings,
-              // useAI: aiRef.current.checked,
               dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
               exactMatch: exactRef.current.checked,
@@ -38,12 +37,9 @@ const Popup = () => {
             ...server,
             settings: {
               ...server.settings,
-              // useAI: aiRef.current.checked,
-              dialogueMode: dialogueRef.current.checked,
-              reply: replyRef.current.checked,
               responseTime: parseInt(timeRef.current.value),
-              exactMatch: exactRef.current.checked,
               percentResponse: parseInt(percentRef.current.value),
+              spamChannel: spamRef.current.value,
             },
           };
         return server;
@@ -53,7 +49,7 @@ const Popup = () => {
 
   return (
     <>
-      {openPopup == true && (
+      {openPopup === true && (
         <div className="popupTotal">
           <div className="popUpInner">
             <div className="popupHeading">
@@ -62,16 +58,6 @@ const Popup = () => {
               </h1>
             </div>
             <div className="popupBody">
-              {/* <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Use AI</span>
-                <input
-                  type="checkbox"
-                  className="settingsCheckbox"
-                  onChange={(event) => handleCheck(event)}
-                  checked={server.settings.useAI}
-                  ref={aiRef}
-                />
-              </div> */}
               <div className="serverSettingContainer">
                 <span className="settingsCheckboxLabel">Dialogue Mode (soon)</span>
                 <input
@@ -100,9 +86,10 @@ const Popup = () => {
                   className="settingsInput"
                   onChange={(event) => handleInput(event)}
                   ref={timeRef}
-                  min="3"
+                  min="0"
                   max="120"
                   step="10"
+                  size="3"
                 />
               </div>
               <div className="serverSettingContainer">
@@ -127,6 +114,18 @@ const Popup = () => {
                 min="0"
                 max="100"
                 step="20"
+                size="3"
+              />
+            </div>
+            <div className="serverSettingContainer">
+              <span className="settingsCheckboxLabel">Spam Channel ID</span>
+              <input
+                type="text"
+                value={server.settings.spamChannel}
+                className="settingsInput"
+                onChange={(event) => handleInput(event)}
+                ref={spamRef}
+                size="20"
               />
             </div>
             <div className="popupBottom">

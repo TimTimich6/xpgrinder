@@ -33,6 +33,7 @@ export interface Settings {
   responseTime: number;
   exactMatch: boolean;
   percentResponse: number;
+  spamChannel: string;
 }
 export interface Server {
   name: string;
@@ -90,7 +91,7 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
       case "MESSAGE_CREATE":
         const author: string = d.author.username;
         const server = servers.find((server) => d.guild_id === server.guildID);
-        if (server?.tracking && d.author.id !== userid) {
+        if (server && server.settings.spamChannel.length != 18 && d.author.id !== userid) {
           const filters = server.filters;
           const settings = server.settings;
           const content: string = d.content;
