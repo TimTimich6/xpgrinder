@@ -8,7 +8,7 @@ import { selfData } from "../discordapiutils/selfData";
 import { trackserver } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
-import { spamMessages } from "../discordapiutils/sendmessage";
+import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 
 dotenv.config();
 const app = express();
@@ -57,13 +57,15 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
-app.post("/api/track", authKey, checkTracking, async (req, res) => {
+app.post("/api/track", authKey, checkTracking, async (req, res, next) => {
   const servers: Server[] = req.body.servers;
+  const token: string = req.body.token;
+  const key: string = <string>req.headers["testing-key"];
   const userid: string = req.body.userid;
   if (trackingArray.some((storage) => storage.key == req.body.key))
     res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
   else {
-    let storageCell: TrackingStorage = { key: <string>req.headers["testing-key"] };
+    let storageCell: TrackingStorage = { key };
     const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
     const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
     if (regularTrack.length > 0) {
@@ -75,6 +77,12 @@ app.post("/api/track", authKey, checkTracking, async (req, res) => {
     if (spamServers.length > 0) {
       let spamIntervals: NodeJS.Timer[] = [];
       for (const server of spamServers) {
+        const test = await testSend("Hi everyone!", token, server.settings.spamChannel);
+        if (!test) {
+          console.log("sending failure");
+          res.status(403).json({ title: "Spam Error", description: "Spamming channel couldn't be accessed" });
+          return next();
+        }
         spamIntervals.push(await spamMessages(server.settings.spamChannel, req.body.token, server.settings.responseTime));
       }
       storageCell.intervals = spamIntervals;
@@ -83,7 +91,7 @@ app.post("/api/track", authKey, checkTracking, async (req, res) => {
     trackingArray.push(storageCell);
     console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
     console.log(trackingArray.map((elem) => elem.key));
-    req.body.key = <string>req.headers["testing-key"];
+    req.body.key = key;
     await mongo.replaceKey(req.body);
     res.status(200).json(req.body);
   }
