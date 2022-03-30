@@ -6,16 +6,18 @@ import { ServerListContext } from "../ServerListContext";
 const FilterList = () => {
   const { servers, currentServer, setServers } = useContext(ServerListContext);
   const [showFilters, setShowFilters] = useState(true);
+  const spamOn = servers[currentServer] ? servers[currentServer].settings.spamChannel.length == 18 : false;
+
   return (
     <div className="filterListContainer">
       <h1
-        style={{ color: showFilters ? "white" : "gray", marginBottom: "1rem", cursor: "pointer" }}
+        style={{ color: showFilters ? (spamOn ? "#DF6464  " : "white") : "gray", marginBottom: "1rem", cursor: "pointer" }}
         onClick={() => setShowFilters((prevState) => !prevState)}
       >
-        Filter List {!showFilters && "(Hidden)"}
+        Filter List {!showFilters && "(Hidden)"} {spamOn && "(Off)"}
       </h1>
 
-      {showFilters && servers.length > 0 && currentServer >= 0 ? (
+      {showFilters && servers.length > 0 && currentServer >= 0 && !spamOn ? (
         <>
           {servers[currentServer].filters.map((filter) => {
             return <FilterElement key={uuidv4()} filter={filter.filter} response={filter.response} />;

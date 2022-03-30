@@ -11,6 +11,7 @@ const Popup = () => {
   const exactRef = useRef();
   const percentRef = useRef();
   const spamRef = useRef();
+  const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
   const handleCheck = (event) => {
     setServers((prevState) => {
@@ -49,7 +50,7 @@ const Popup = () => {
 
   return (
     <>
-      {openPopup === true && (
+      {server && server.settings && openPopup === true && (
         <div className="popupTotal">
           <div className="popUpInner">
             <div className="popupHeading">
@@ -59,7 +60,7 @@ const Popup = () => {
             </div>
             <div className="popupBody">
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Dialogue Mode (soon)</span>
+                <span className={`settingsCheckboxLabel settingDisabled`}>Dialogue Mode (soon)</span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -69,7 +70,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Reply</span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Reply</span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -79,7 +80,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Typing Time</span>
+                <span className={`settingsCheckboxLabel`}>Typing Time</span>
                 <input
                   type="number"
                   value={server.settings.responseTime}
@@ -93,7 +94,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Exact Match</span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Exact Match</span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -104,7 +105,7 @@ const Popup = () => {
               </div>
             </div>
             <div className="serverSettingContainer">
-              <span className="settingsCheckboxLabel">Percent Response</span>
+              <span className={`settingsCheckboxLabel ${spamOn || server.settings.exactMatch ? "settingDisabled" : null}`}>Percent Response</span>
               <input
                 type="number"
                 value={server.settings.percentResponse}

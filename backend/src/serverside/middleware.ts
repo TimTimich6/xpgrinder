@@ -35,7 +35,8 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
     }
   });
 
-  if (!token) res.status(500).json({ title: "No token found", description: "Token provided is either invalid or not found", code: 1 });
+  if (!token || token == "N/A")
+    res.status(500).json({ title: "No token found", description: "Token provided is either invalid or not found", code: 1 });
   else if (servers.length > 2 || servers.length <= 0)
     res.status(500).json({ title: "Servers Error", description: `Total server count out of max range [0-2]`, code: 5 });
   else if (trackingcount <= 0 || trackingcount > 2)

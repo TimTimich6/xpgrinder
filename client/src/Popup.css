@@ -60,4 +60,7 @@
     align-items: center;
 }
 
-    
+.settingDisabled{
+    font-weight: bold;
+    color:#DF3B3B !important;
+}
