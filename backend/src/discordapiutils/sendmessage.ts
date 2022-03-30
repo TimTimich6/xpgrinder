@@ -78,3 +78,15 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
 // });
 
 // spamMessages("936904237064007704", "NTA2Mjc0ODAwMDI5NjYzMjYz.Yim9Gg.Kz0dy9xtXCSEZv95_-O6vAvBlD8", 5);
+
+export const testSend = async (message: string, token: string, channelID: string): Promise<boolean> => {
+  const response = await postMessage(message, channelID, token).catch((err) => false);
+  if (!response) return false;
+  if (response.id) {
+    await waitTime(1);
+    await deleteMessage(channelID, response.id, token).catch((err) => console.log("error when deleting a test message"));
+    console.log("channel test successful");
+    return true;
+  }
+  return false;
+};
