@@ -10,7 +10,8 @@
 	align-items: center;
 }
 .username {
-	font-size: 2rem;
+	font-size: 3rem;
+	letter-spacing: 2px;
 	font-weight: bold;
 	color: rgb(41, 117, 41);
 }
@@ -49,12 +50,12 @@
 	box-shadow: 1px 4px 2px rgb(10, 10, 10);
 }
 .containerTitle {
-	font-size: 1.4rem;
+	font-size: 1.6rem;
 	font-weight: 800;
 	color: rgb(233, 233, 233);
 }
 .containerOutput {
-	font-size: 1.2rem;
+	font-size: 1.6rem;
 	font-weight: 400;
 	color: rgb(186, 160, 235);
 	display: flex;
@@ -77,5 +78,5 @@
 	height: 2.5rem;
 	border-radius: 0.6rem;
 	padding: 0.5rem;
-	font-size: 1.3rem;
+	font-size: 1.4rem;
 }

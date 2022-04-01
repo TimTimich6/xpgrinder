@@ -23,11 +23,12 @@
 }
 .errorTitle{
     color:rgb(151, 24, 24);
+    font-size: 3rem;
     text-align: center;
 }
 .errorDescription{
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.7rem;
     font-weight: 500;
     word-break: keep-all;
 }

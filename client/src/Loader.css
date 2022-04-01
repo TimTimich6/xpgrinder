@@ -5,16 +5,6 @@
     align-items: center;
 }
 
-.loaderMain{
-    font-size: 5rem;
-     color:goldenrod;
-    
-
-}
-.loaderDesc{
-    font-size: 3rem;
-   color: white;
-}
 
 .loader {
   border: 64px solid #f3f3f3; /* Light grey */

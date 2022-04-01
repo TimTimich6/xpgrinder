@@ -131,7 +131,7 @@ const Popup = () => {
             </div>
             <div className="popupBottom">
               <div className="buttonWrapper" onClick={() => setOpenPopup(false)}>
-                <TextButton bgc="rgb(23, 149, 118)" fz="1.7rem">
+                <TextButton bgc="rgb(23, 149, 118)" pd="1rem" fz="2rem">
                   Close Settings
                 </TextButton>
               </div>

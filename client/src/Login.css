@@ -10,7 +10,12 @@
     width:100vw;
     background-color:rgba(32, 29, 29, 0.95)
 }
-
+.welcomeText{
+    font-size: 2.7rem;
+}
+.welcomeDesc{
+    font-size: 2rem;
+}
 .loginInner{
     color:rgb(36, 26, 28);
     background-color:rgb(221, 235, 241);
@@ -19,7 +24,7 @@
     display: flex;
     flex-direction:column;
     align-items: center;
-    gap:1rem;
+    gap:1.5rem;
     box-shadow: 1px 4px 2px rgb(10, 10, 10);
 }
 .projectName{
@@ -32,7 +37,7 @@
 	padding: 0.2rem 0.5rem;
 	font-weight: 600;
     font-size: 1.6rem;
-    width:80%;
+    width:60%;
     background-color:rgb(255, 255, 255);
 }
 

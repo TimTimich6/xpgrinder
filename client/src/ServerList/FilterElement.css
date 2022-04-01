@@ -1,6 +1,6 @@
 .filterElement {
 	display: grid;
-	grid-template-columns: 15% 80%;
+	grid-template-columns: 20% 80%;
 	font-weight: 600;
 	align-items: center;
 	word-wrap: break-word;
@@ -9,15 +9,13 @@
 }
 
 .flWord {
-	font-size: 1.4rem;
+	font-size: 1.5rem;
 	color: rgb(23, 149, 118);
 	
 }
 .flText {
-	font-size: 1.2rem;
+	font-size: 1.4rem;
 	color: rgb(61, 73, 110);
-
-
 }
 .filterListContainer {
 	display: flex;

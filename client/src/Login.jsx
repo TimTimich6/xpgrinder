@@ -54,14 +54,14 @@ const Login = () => {
         <div className="bcgFull">
           <form action="">
             <div className="loginInner">
-              <h1>
+              <h1 className="welcomeText">
                 Welcome to <span className="projectName">XP-GRINDER</span> Beta Testing
               </h1>
-              <h2>Enter your testing key</h2>
+              <h2 className="welcomeDesc">Enter your testing key</h2>
 
               <input className="keyInput" autoFocus type="password" value={input} onChange={(e) => setInput(e.target.value)} />
               <div className="buttonWrapper" onClick={(e) => handleSubmit(e)}>
-                <TextButton bgc="#00A36C" fz="1.6rem" color="white" pd="2rem" type="submit">
+                <TextButton bgc="#00A36C" fz="2.6rem" color="white" pd="2.34rem" type="submit">
                   Submit Key
                 </TextButton>
               </div>
