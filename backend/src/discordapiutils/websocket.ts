@@ -93,7 +93,6 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
         const author: string = d.author.username;
         const server = servers.find((server) => d.guild_id === server.guildID);
         const channelOK = server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
-        console.log(channelOK);
         if (server && server.settings.spamChannel.length != 18 && d.author.id !== userid && channelOK) {
           const filters = server.filters;
           const settings = server.settings;

@@ -19,8 +19,6 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   servers.forEach((server) => {
     const { filters, settings } = server;
     const channels = settings.channels.trim();
-    // console.log(channels);
-    // console.log(channels.match(channelsRegex));
 
     if (server.tracking) trackingcount++;
     if (filters.some((filter) => !filter.filter || !filter.response)) {
