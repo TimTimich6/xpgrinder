@@ -62,7 +62,7 @@ app.post("/api/track", authKey, checkTracking, async (req, res, next) => {
   const token: string = req.body.token;
   const key: string = <string>req.headers["testing-key"];
   const userid: string = req.body.userid;
-  if (trackingArray.some((storage) => storage.key == req.body.key))
+  if (trackingArray.some((storage) => storage.key == key))
     res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
   else {
     let storageCell: TrackingStorage = { key };

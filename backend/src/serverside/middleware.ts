@@ -15,22 +15,33 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   const body: KeyData = req.body;
   const { token, servers } = body;
   let trackingcount = 0;
+  const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
   servers.forEach((server) => {
     const { filters, settings } = server;
+    const channels = settings.channels.trim();
+    // console.log(channels);
+    // console.log(channels.match(channelsRegex));
+
     if (server.tracking) trackingcount++;
     if (filters.some((filter) => !filter.filter || !filter.response)) {
       res.status(500).json({ title: "Filter error", description: `Filters provided are either empty of invalid for ${server.name}`, code: 2 });
       return;
-    } else if (filters.length == 0 && settings.spamChannel.length != 18) {
+    } else if (settings.useAI == false && filters.length == 0 && settings.spamChannel.length != 18) {
       res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
       return;
-    } else if (settings.spamChannel.length != 18 && (settings.responseTime <= 0 || settings.responseTime >= 120)) {
+    } else if (settings.spamChannel.length > 0 && !settings.spamChannel.match(channelsRegex)) {
+      res.status(500).json({ title: "Settings error", description: `Spam Channel regex didn't pass for ${server.name}`, code: 10 });
+      return;
+    } else if (settings.spamChannel.match(channelsRegex) && (settings.responseTime <= 0 || settings.responseTime >= 120)) {
       res.status(500).json({ title: "Settings error", description: `Response time provided is out of range for ${server.name}`, code: 4 });
       return;
     } else if (settings.spamChannel.length == 18 && (settings.responseTime < 5 || settings.responseTime > 120)) {
       res.status(500).json({ title: "Settings Error", description: `Spam Channel is set but typing time is out of range`, code: 8 });
     } else if (settings.percentResponse <= 0 || settings.percentResponse > 100) {
       res.status(500).json({ title: "Settings error", description: `Percent response provided is out of range for ${server.name}`, code: 6 });
+      return;
+    } else if (channels.length > 0 && !channels.match(channelsRegex)) {
+      res.status(500).json({ title: "Settings error", description: `Specific Channels don't pass the regex for ${server.name}`, code: 9 });
       return;
     }
   });

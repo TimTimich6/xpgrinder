@@ -1,0 +1,188 @@
+<DOCTYPE! html>
+	<!-- YOUR NAME HERE -->
+
+	<head>
+		<title> Some Title </title>
+		<script>
+
+			var leagues = []
+
+
+
+
+			function Leagues(name, sport, teams, maxteamcap, commissioner) {
+				this.name = name;
+				this.sport = sport;
+				this.teams = teams;
+				this.maxteamcap = maxteamcap;
+				this.commissioner = commissioner;
+
+				this.newteamcap = function (newteamcap) {
+					this.maxteamcap += newteamcap;
+
+					this.newcomissioner = function (newcomissioner) {
+						this.commissioner == newcomissioner;
+					}
+					this.newname = function (newname) {
+						this.name == newname;
+					}
+				}
+			}
+
+			function Teams(name, mascot, players, area, maxplayercap, manager, wins, losses) {
+				this.name = name;
+				this.mascot = mascot;
+				this.players = players;
+				this.area = area;
+				this.maxplayercap = maxplayercap;
+				this.manager = manager;
+				this.wins = wins;
+				this.losses = losses;
+
+				this.newname = function (newname) {
+					this.name == newname;
+				}
+				this.newmascot = function (newmascot) {
+					this.mascot == newmascot;
+				}
+				this.newmanager = function (newmanager) {
+					this.manager == newmanager;
+				}
+				this.newplayercap = function (newplayercap) {
+					this.maxplayercap += newplayercap;
+				}
+			}
+
+			function Players(name, position, age, weight, highschool) {
+				this.name = name;
+				this.position = position;
+				this.age = age;
+				this.weight = weight;
+				this.highschool = highschool;
+
+			}
+
+			var bballPlayer1 = new Players("Ryan", "SF", 19, 180, "East highschool");
+			var bballPlayer2 = new Players("Garrett", "C", 19, 115, "West highschool");
+			var bballPlayer3 = new Players("Laz", "SF", 20, 90, "East highschool");
+			var bballPlayer4 = new Players("Jake", "C", 20, 190, "North highschool");
+			var fballPlayer1 = new Players("Devin", "QB", 18, 140, "South highschool");
+			var fballPlayer2 = new Players("Aiden", "RB", 18, 180, "South highschool");
+			var fballPlayer3 = new Players("John", "QB", 21, 180, "North highschool");
+			var fballPlayer4 = new Players("Zack", "RB", 20, 140, "South highschool");
+			var laxPlayer1 = new Players("Sean", "Attack", 17, 170, "West highschool");
+			var laxPlayer2 = new Players("Nate", "Defend", 18, 165, "East highschool");
+			var laxPlayer3 = new Players("Mike", "Attack", 16, 180, "North highschool");
+			var laxPlayer4 = new Players("Chris", "Defend", 17, 150, "South highschool");
+			//;(name, mascot, players, area, maxplayercap, manager, wins, losses)
+			var bballTeam1 = new Teams("Warriors", "The worm", [bballPlayer1, bballPlayer2], "pittsburgh", 3, "Johnson", 3, 6);
+			var bballTeam2 = new Teams("Bulls", "Benny", [bballPlayer3, bballPlayer4], "chicago", 3, "Fitz", 4, 5);
+			var fballTeam1 = new Teams("Steelers", "Steelman", [fballPlayer1, fballPlayer2], "pittsburgh", 3, 2, 3);
+			var fballTeam2 = new Teams("Browns", "Brownman", [fballPlayer3, fballPlayer4], "cleveland", 3, 3, 2);
+			var laxTeam1 = new Teams("Presidents", "Mr Washington", [laxPlayer1, laxPlayer2], "washington", 3, 4, 5);
+			var laxTeam2 = new Teams("Bruins", "Mr Lax", [laxPlayer3, laxPlayer4], "boston", 3, 5, 4);
+			var laxLeague1 = new Leagues("NLL", "lacrosse", [laxTeam1, laxTeam2], 3, "Sean Mccaffrey");
+			var bballLeague1 = new Leagues("NBA", "basketball", [bballTeam1, bballTeam2], 3, "Adam Silver");
+			var fballLeague1 = new Leagues("NFL", "football", [fballTeam1, fballTeam2], 3, "John Comissioner");
+
+			leagues.push(bballLeague1)
+			leagues.push(fballLeague1)
+			leagues.push(laxLeague1)
+
+
+
+			function findBestRecord(givenLeague) {
+				var bestRecord = 0
+				for (leaguesIndex = 0; leaguesIndex < givenLeague.teams.length; leaguesIndex++) {
+					if (givenLeague.teams[leaguesIndex].wins > bestRecord) {
+						bestRecord = givenLeague.teams[leaguesIndex].wins;
+					}
+				}
+				return bestRecord;
+			}
+
+
+			function findWinPercent(givenLeague) {
+				var bestWinPercent = 0
+				for (leaguesIndex = 0; leaguesIndex < givenLeague.teams.length; leaguesIndex++) {
+					if (givenLeague.teams[leaguesIndex].wins / (givenLeague.teams[leaguesIndex].losses + givenLeague.teams[leaguesIndex].wins) > bestWinPercent) {
+						bestWinPercent = givenLeague.teams[leaguesIndex].wins / givenLeague.teams[leaguesIndex].losses;
+					}
+				}
+				return bestWinPercent;
+			}
+
+			function findAge(givenLeague) {
+				var highestAverageAge = 0
+				for (teamsIndex = 0; teamsIndex < givenLeague.teams.length; teamsIndex++) {
+					var sum = 0
+					for (playersIndex = 0; playersIndex < givenLeague.teams[teamsIndex].players.length; playersIndex++) {
+						sum += givenLeague.teams[teamsIndex].players[playersIndex].age
+						// console.log(sum,givenLeague.teams[leaguesIndex].players[playersIndex].name,givenLeague.teams[leaguesIndex].players[playersIndex].age);
+						if (sum / 2 > highestAverageAge) {
+							highestAverageAge = sum / 2
+						}
+
+					}
+				}
+				return highestAverageAge;
+			}
+
+			function findSportAvgWeight() {
+
+				var highestAvgWeight = 0;
+				var sport = ""
+				for (leaguesIndex = 0; leaguesIndex < leagues.length; leaguesIndex++) {
+					var sportWeight = 0
+					for (teamsIndex = 0; teamsIndex < leagues[leaguesIndex].teams.length; teamsIndex++) {
+						for (playersIndex = 0; playersIndex < leagues[leaguesIndex].teams[teamsIndex].players.length; playersIndex++) {
+							sportWeight += leagues[leaguesIndex].teams[teamsIndex].players[playersIndex].weight
+						}
+					}
+					if (sportWeight / 4 > highestAvgWeight) {
+						highestAvgWeight = sportWeight / 4
+						sport = leagues[leaguesIndex].sport
+					}
+				}
+				return sport;
+			}
+
+		
+				console.log(findWinPercent(bballLeague1));
+				console.log(findAge(bballLeague1));
+				console.log(findSportAvgWeight());
+				console.log(findAvgAgePosition());
+
+
+
+	function findAvgAgePosition() {
+
+				var highestAvgAge = 0;
+				var position=""
+				var positions=[]
+				for (leaguesIndex = 0; leaguesIndex < leagues.length; leaguesIndex++) {
+					for (teamsIndex = 0; teamsIndex < leagues[leaguesIndex].teams.length; teamsIndex++) {
+						var positionAge = 0
+						for (playersIndex = 0; playersIndex < leagues[leaguesIndex].teams[teamsIndex].players.length; playersIndex++) {
+							positionAge = leagues[leaguesIndex].teams[teamsIndex].players[playersIndex].age
+							positions.push(leagues[leaguesIndex].teams[teamsIndex].players[playersIndex].position)
+							if (positionAge> highestAvgAge) {
+								highestAvgAge = positionAge
+								position=leagues[leaguesIndex].teams[teamsIndex].players[playersIndex].position
+							}
+						}
+					}
+					
+				}
+				return position;
+			} 
+			
+		</script>
+	</head>
+
+	<body>
+	</body>
+
+	</html>
+
+	

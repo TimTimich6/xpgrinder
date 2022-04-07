@@ -11,6 +11,8 @@ const Popup = () => {
   const exactRef = useRef();
   const percentRef = useRef();
   const spamRef = useRef();
+  const aiRef = useRef();
+  const channelsRef = useRef();
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
   const handleCheck = (event) => {
@@ -24,6 +26,7 @@ const Popup = () => {
               dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
               exactMatch: exactRef.current.checked,
+              useAI: aiRef.current.checked,
             },
           };
         return server;
@@ -41,6 +44,7 @@ const Popup = () => {
               responseTime: parseInt(timeRef.current.value),
               percentResponse: parseInt(percentRef.current.value),
               spamChannel: spamRef.current.value,
+              channels: channelsRef.current.value,
             },
           };
         return server;
@@ -70,6 +74,28 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Assist with AI</span>
+                <input
+                  type="checkbox"
+                  className="settingsCheckbox"
+                  onChange={(event) => handleCheck(event)}
+                  ref={aiRef}
+                  checked={server.settings.useAI}
+                  disabled={spamOn}
+                />
+              </div>
+              <div className="serverSettingContainer">
+                <span className="settingsCheckboxLabel">Specific Channels</span>
+                <input
+                  type="text"
+                  value={server.settings.channels}
+                  className="settingsInput"
+                  onChange={(event) => handleInput(event)}
+                  ref={channelsRef}
+                  size="20"
+                />
+              </div>
+              <div className="serverSettingContainer">
                 <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Reply</span>
                 <input
                   type="checkbox"
@@ -77,6 +103,7 @@ const Popup = () => {
                   onChange={(event) => handleCheck(event)}
                   ref={replyRef}
                   checked={server.settings.reply}
+                  disabled={spamOn}
                 />
               </div>
               <div className="serverSettingContainer">
@@ -101,6 +128,7 @@ const Popup = () => {
                   onChange={(event) => handleCheck(event)}
                   ref={exactRef}
                   checked={server.settings.exactMatch}
+                  disabled={spamOn}
                 />
               </div>
             </div>
@@ -116,6 +144,7 @@ const Popup = () => {
                 max="100"
                 step="20"
                 size="3"
+                disabled={spamOn || server.settings.exactMatch}
               />
             </div>
             <div className="serverSettingContainer">

@@ -1,8 +1,8 @@
 import { WebSocket } from "ws";
 import { realType } from "./sendmessage";
-import { receiveMessage } from "../cleverBotAPI";
 import { getTime } from "../utils/logger";
 import { error } from "console";
+import { generateAIResponse } from "../utils/other";
 const token: string = <string>process.env.MY_TOKEN;
 
 interface Payload {
@@ -29,11 +29,12 @@ interface Filter {
 export interface Settings {
   dialogueMode: boolean;
   reply: boolean;
-  useAI?: boolean;
+  useAI: boolean;
   responseTime: number;
   exactMatch: boolean;
   percentResponse: number;
   spamChannel: string;
+  channels: string;
 }
 export interface Server {
   name: string;
@@ -91,7 +92,9 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
       case "MESSAGE_CREATE":
         const author: string = d.author.username;
         const server = servers.find((server) => d.guild_id === server.guildID);
-        if (server && server.settings.spamChannel.length != 18 && d.author.id !== userid) {
+        const channelOK = server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
+        console.log(channelOK);
+        if (server && server.settings.spamChannel.length != 18 && d.author.id !== userid && channelOK) {
           const filters = server.filters;
           const settings = server.settings;
           const content: string = d.content;
@@ -110,6 +113,21 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
               }).catch((err) => {
                 console.log("Error caught when trying to respond");
               });
+            }
+          } else if (server.settings.useAI) {
+            const rand = Math.floor(Math.random() * 100);
+            if (rand < settings.percentResponse) {
+              const response = await generateAIResponse(content);
+              if (response) {
+                console.log("respondin with AI", response);
+                await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+                  channel_id: d.channel_id,
+                  guild_id: server.guildID,
+                  message_id: d.id,
+                }).catch((err) => {
+                  console.log("Error caught when trying to respond");
+                });
+              }
             }
           }
         }
