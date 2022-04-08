@@ -24,6 +24,9 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
     if (filters.some((filter) => !filter.filter || !filter.response)) {
       res.status(500).json({ title: "Filter error", description: `Filters provided are either empty of invalid for ${server.name}`, code: 2 });
       return;
+    } else if (settings.percentResponse <= 0 || settings.percentResponse > 100) {
+      res.status(500).json({ title: "Settings error", description: `Response time  ${server.name}`, code: 13 });
+      return;
     } else if (settings.useAI == false && filters.length == 0 && settings.spamChannel.length != 18) {
       res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
       return;
@@ -32,6 +35,14 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
       return;
     } else if (settings.spamChannel.match(channelsRegex) && (settings.responseTime <= 0 || settings.responseTime >= 120)) {
       res.status(500).json({ title: "Settings error", description: `Response time provided is out of range for ${server.name}`, code: 4 });
+      return;
+    } else if (!settings.channels.match(channelsRegex) && settings.useAI) {
+      res.status(500).json({ title: "Settings error", description: `You must have specific channels to use AI for ${server.name}`, code: 11 });
+      return;
+    } else if (settings.useAI && settings.percentResponse > 15) {
+      res
+        .status(500)
+        .json({ title: "Settings error", description: `Percent response must be range (0,15] when using AI for ${server.name}`, code: 12 });
       return;
     } else if (settings.spamChannel.length == 18 && (settings.responseTime < 5 || settings.responseTime > 120)) {
       res.status(500).json({ title: "Settings Error", description: `Spam Channel is set but typing time is out of range`, code: 8 });
