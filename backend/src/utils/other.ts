@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 let prompt = `The following is a conversation with a random person. Both Person1 and Person2 are friendly, humorous, and helpful. Person1 and Person2 are talking about an NFT project that they both are interested in buying. They also love the Solana cryptocurrency. They are anticipating this NFT project and can't wait for it. The project is at a fair price and the utility is good.\n\n
