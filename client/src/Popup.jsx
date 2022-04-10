@@ -13,6 +13,7 @@ const Popup = () => {
   const spamRef = useRef();
   const aiRef = useRef();
   const channelsRef = useRef();
+  const giveawayRef = useRef();
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
   const handleCheck = (event) => {
@@ -45,6 +46,7 @@ const Popup = () => {
               percentResponse: parseInt(percentRef.current.value),
               spamChannel: spamRef.current.value,
               channels: channelsRef.current.value,
+              giveaway: giveawayRef.current.value,
             },
           };
         return server;
@@ -71,6 +73,7 @@ const Popup = () => {
                   onChange={(event) => handleCheck(event)}
                   ref={dialogueRef}
                   checked={server.settings.dialogueMode}
+                  disabled={spamOn}
                 />
               </div>
               <div className="serverSettingContainer">
@@ -85,7 +88,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className="settingsCheckboxLabel">Specific Channels</span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Specific Channels</span>
                 <input
                   type="text"
                   value={server.settings.channels}
@@ -93,6 +96,7 @@ const Popup = () => {
                   onChange={(event) => handleInput(event)}
                   ref={channelsRef}
                   size="20"
+                  disabled={spamOn}
                 />
               </div>
               <div className="serverSettingContainer">
@@ -148,7 +152,7 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span className="settingsCheckboxLabel">Spam Channel ID</span>
+              <span className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}>Spam ChannelID</span>
               <input
                 type="text"
                 value={server.settings.spamChannel}
@@ -156,6 +160,18 @@ const Popup = () => {
                 onChange={(event) => handleInput(event)}
                 ref={spamRef}
                 size="20"
+              />
+            </div>
+            <div className="serverSettingContainer">
+              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Giveaway ChannelID</span>
+              <input
+                type="text"
+                value={server.settings.giveaway}
+                className="settingsInput"
+                onChange={(event) => handleInput(event)}
+                ref={giveawayRef}
+                size="20"
+                disabled={spamOn}
               />
             </div>
             <div className="popupBottom">

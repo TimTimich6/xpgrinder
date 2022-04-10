@@ -16,24 +16,34 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   const { token, servers } = body;
   let trackingcount = 0;
   const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
+  const channelRegex = /^\d{18}$/g;
+  const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
+  // const emojiRegex = /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/;
+
   servers.forEach((server) => {
     const { filters, settings } = server;
     const channels = settings.channels.trim();
 
     if (server.tracking) trackingcount++;
-    if (filters.some((filter) => !filter.filter || !filter.response)) {
+    if (typeof settings.giveaway == "undefined") {
+      res.status(500).json({ title: "Outdated version", description: `Set any value for giveaway to fix error for ${server.name}`, code: 15 });
+      return;
+    } else if (filters.some((filter) => !filter.filter || !filter.response)) {
       res.status(500).json({ title: "Filter error", description: `Filters provided are either empty of invalid for ${server.name}`, code: 2 });
       return;
     } else if (settings.percentResponse <= 0 || settings.percentResponse > 100) {
       res.status(500).json({ title: "Settings error", description: `Response time  ${server.name}`, code: 13 });
       return;
-    } else if (settings.useAI == false && filters.length == 0 && settings.spamChannel.length != 18) {
+    } else if (settings.giveaway.length > 0 && !settings.giveaway.match(channelRegex)) {
+      res.status(500).json({ title: "Settings error", description: `Giveaway Channel doesn't pass the regex for ${server.name}`, code: 14 });
+      return;
+    } else if (settings.useAI == false && !settings.giveaway.match(channelRegex) && filters.length == 0 && settings.spamChannel.length != 18) {
       res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
       return;
-    } else if (settings.spamChannel.length > 0 && !settings.spamChannel.match(channelsRegex)) {
+    } else if (settings.spamChannel.length > 0 && !settings.spamChannel.match(channelRegex)) {
       res.status(500).json({ title: "Settings error", description: `Spam Channel regex didn't pass for ${server.name}`, code: 10 });
       return;
-    } else if (settings.spamChannel.match(channelsRegex) && (settings.responseTime <= 0 || settings.responseTime >= 120)) {
+    } else if (settings.spamChannel.match(channelRegex) && (settings.responseTime <= 0 || settings.responseTime >= 120)) {
       res.status(500).json({ title: "Settings error", description: `Response time provided is out of range for ${server.name}`, code: 4 });
       return;
     } else if (!settings.channels.match(channelsRegex) && settings.useAI) {
@@ -55,10 +65,10 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
     }
   });
 
-  if (!token || token == "N/A")
-    res.status(500).json({ title: "No token found", description: "Token provided is either invalid or not found", code: 1 });
+  if (!token || token == "N/A") res.status(500).json({ title: "Token Error", description: "Token provided is either invalid or not found", code: 1 });
   else if (servers.length > 2 || servers.length <= 0)
     res.status(500).json({ title: "Servers Error", description: `Total server count out of max range [0-2]`, code: 5 });
+  else if (!token.match(tokenRegex)) res.status(500).json({ title: "Token Error", description: `Token failed regex requirement`, code: 5 });
   else if (trackingcount <= 0 || trackingcount > 2)
     res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of max range [1 - 2]`, code: 7 });
 

@@ -48,6 +48,7 @@ const CreateSever = (props) => {
               spamChannel: "",
               useAI: false,
               channels: "",
+              giveaway: "",
             },
             guildID: resp.guildID,
             tracking: false,
