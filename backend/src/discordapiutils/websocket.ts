@@ -1,13 +1,13 @@
 import { WebSocket } from "ws";
-import { realType } from "./sendmessage";
+import { reactMessage, realType } from "./sendmessage";
 import { getTime } from "../utils/logger";
-import { error } from "console";
 import { generateAIResponse } from "../utils/other";
+import waitTime from "../utils/waitTime";
 const token: string = <string>process.env.MY_TOKEN;
 
 interface Payload {
   op: number;
-  d: Data | number;
+  d?: Data | number;
   s?: number;
   t?: string;
 }
@@ -35,6 +35,8 @@ export interface Settings {
   percentResponse: number;
   spamChannel: string;
   channels: string;
+  giveaway: string;
+  emoji: string;
 }
 export interface Server {
   name: string;
@@ -45,7 +47,7 @@ export interface Server {
   tracking: boolean;
   uuid: string;
 }
-[];
+
 //indentifying payload sent
 
 export const trackserver = async (servers: Server[], token: string, userid: string): Promise<WebSocket> => {
@@ -74,52 +76,40 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
     );
     console.log("userid: ", userid);
   });
+
+  // const reacted: string[] = [];
   ws.on("message", async (data: string): Promise<void> => {
     let payload: any = JSON.parse(data);
     const { t, s, op, d } = payload;
-    // console.log(payload);
-    switch (op) {
-      case 10:
-        const { heartbeat_interval }: { heartbeat_interval: number } = d;
-        heartbeat(heartbeat_interval);
-        console.log("beat");
-        break;
+    if (d) {
+      const server = servers.find((server) => d.guild_id === server.guildID);
+      switch (op) {
+        case 10:
+          const { heartbeat_interval }: { heartbeat_interval: number } = d;
+          heartbeat(heartbeat_interval);
+          console.log("beat");
+          break;
 
-      default:
-        break;
-    }
-    switch (t) {
-      case "MESSAGE_CREATE":
-        const author: string = d.author.username;
-        const server = servers.find((server) => d.guild_id === server.guildID);
-        const channelOK = server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
-        if (server && server.settings.spamChannel.length != 18 && d.author.id !== userid && channelOK) {
-          const filters = server.filters;
-          const settings = server.settings;
-          const content: string = d.content;
-          const filter: Filter | undefined = settings.exactMatch
-            ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
-            : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
-          if (filter) {
-            console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
-            const rand = Math.floor(Math.random() * 100);
-            if (rand < settings.percentResponse) {
-              console.log("responding");
-              await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
-                channel_id: d.channel_id,
-                guild_id: server.guildID,
-                message_id: d.id,
-              }).catch((err) => {
-                console.log("Error caught when trying to respond");
-              });
-            }
-          } else if (server.settings.useAI) {
-            const rand = Math.floor(Math.random() * 100);
-            if (rand < settings.percentResponse) {
-              const response = await generateAIResponse(content);
-              if (response) {
-                console.log("respondin with AI", response);
-                await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+        default:
+          break;
+      }
+      switch (t) {
+        case "MESSAGE_CREATE":
+          const author: string = d.author.username;
+          const channelOK = server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
+          if (server && d.author.id !== userid && channelOK) {
+            const filters = server.filters;
+            const settings = server.settings;
+            const content: string = d.content;
+            const filter: Filter | undefined = settings.exactMatch
+              ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
+              : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
+            if (filter) {
+              console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
+              const rand = Math.floor(Math.random() * 100);
+              if (rand < settings.percentResponse) {
+                console.log("responding");
+                await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
                   channel_id: d.channel_id,
                   guild_id: server.guildID,
                   message_id: d.id,
@@ -128,11 +118,41 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
                 });
               }
             }
+            // else if (server.settings.useAI) {
+            //   const rand = Math.floor(Math.random() * 100);
+            //   if (rand < settings.percentResponse) {
+            //     const response = await generateAIResponse(content);
+            //     if (response) {
+            //       console.log("respondin with AI", response);
+            //       await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+            //         channel_id: d.channel_id,
+            //         guild_id: server.guildID,
+            //         message_id: d.id,
+            //       }).catch((err) => {
+            //         console.log("Error caught when trying to respond");
+            //       });
+            //     }
+            //   }
+            // }
           }
-        }
-        break;
-      default:
-        break;
+
+          break;
+        case "MESSAGE_REACTION_ADD":
+          const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
+          if (server && server.settings.giveaway == d.channel_id && d.user_id != userid) {
+            await waitTime(3);
+            await reactMessage(d.channel_id, d.message_id, d.emoji.name, token).then((resp) => {
+              console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
+              return resp;
+            });
+            // reacted.push(checkReact);
+            // console.log("reacted", reacted);
+          }
+          // if (reacted.includes(checkReact)) console.log("already reacted to", checkReact);
+          break;
+        default:
+          break;
+      }
     }
   });
   const heartbeat = (ms: number): NodeJS.Timer => {
@@ -142,5 +162,3 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
   };
   return ws;
 };
-
-// trackserver();

@@ -90,3 +90,25 @@ export const testSend = async (message: string, token: string, channelID: string
   }
   return false;
 };
+
+//https://apps.timwhitlock.info/emoji/tables/unicode
+export const reactMessage = async (channelID: string, messageID: string, rxn: string, token: string): Promise<void> => {
+  const encoded = encodeURIComponent(rxn);
+  const resp = await axios
+    .put(
+      `https://discord.com/api/v9/channels/${channelID}/messages/${messageID}/reactions/${encoded}/%40me`,
+      {},
+      {
+        headers: {
+          cookie: await getCookie(),
+          authorization: token,
+          ...commonHeaders,
+        },
+      }
+    )
+    .catch((err) => {
+      if (err.response && err.response.data) console.log("err reacting", err.response.data.code, err.response.data.message);
+    });
+};
+
+// reactMessage("936904237064007704", "962440096618020864", "😆", "NTE2MzY5MTQzMDQ2MzQwNjA4.Yi5Jgw.Ixs8bay3l-HAYj5-z7ioSRdy46M");
