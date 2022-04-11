@@ -5,7 +5,7 @@ import express, { application } from "express";
 import readBin from "../utils/jsonBin";
 import getInviteData from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
-import { trackserver } from "../discordapiutils/websocket";
+import { SocketTracker } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
@@ -17,7 +17,7 @@ app.use(express.json());
 const port: number | string = process.env.port || 3080;
 
 interface TrackingStorage {
-  websocket?: WebSocket;
+  websocket?: SocketTracker;
   key: string;
   intervals?: NodeJS.Timer[];
 }
@@ -69,7 +69,7 @@ app.post("/api/track", authKey, checkTracking, async (req, res, next) => {
     const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
     const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
     if (regularTrack.length > 0) {
-      const socket = trackserver(regularTrack, req.body.token, userid);
+      const socket = new SocketTracker(req.body.token, regularTrack, req.body.webhook);
       if (socket) storageCell.websocket = socket;
     }
     if (spamServers.length > 0) {
@@ -101,7 +101,7 @@ app.delete("/api/track", authKey, async (req, res) => {
   const storage: TrackingStorage | undefined = trackingArray.find((element) => element.key == key);
   if (storage) {
     console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
-    if (storage.websocket) storage.websocket.close();
+    if (storage.websocket) storage.websocket.stop();
     if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
     trackingArray.splice(trackingArray.indexOf(storage), 1);
     res.status(200).json({ key, message: "stop tracking all servers" });

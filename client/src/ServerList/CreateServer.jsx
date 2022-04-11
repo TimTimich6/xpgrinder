@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError, key, token, setLoading, setActive, active, user } = useContext(UserSettingsContext);
+  const { setError, key, token, setLoading, setActive, active, user, webhook } = useContext(UserSettingsContext);
   const { setServers, setCurrentServer, servers, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
@@ -92,6 +92,7 @@ const CreateSever = (props) => {
             servers,
             active: true,
             userid: user.id,
+            webhook: webhook,
           },
           { headers: { "testing-key": key } }
         )

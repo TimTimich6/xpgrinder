@@ -7,12 +7,11 @@ const defaultError = { title: "error title", description: "error description" };
 export const UserSettingsProvider = (props) => {
   const [user, setUser] = useState({});
   const [token, setToken] = useState(null);
-  const [altToken, setAltToken] = useState(null);
+  const [webhook, setWebhook] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [key, setKey] = useState(null);
   const [active, setActive] = useState(null);
-
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
     setLoading(true);
@@ -48,8 +47,8 @@ export const UserSettingsProvider = (props) => {
       value={{
         token,
         setToken,
-        altToken,
-        setAltToken,
+        webhook,
+        setWebhook,
         user,
         loading,
         error,

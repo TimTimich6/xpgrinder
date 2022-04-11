@@ -10,6 +10,7 @@ export interface userData {
   email: string;
   discriminator: string;
   phone: string;
+  verified: boolean;
 }
 
 export const selfData = async (token: string): Promise<userData> => {

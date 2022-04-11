@@ -5,6 +5,7 @@ export interface KeyData {
   key: string;
   token: string;
   servers: Server[];
+  webhook: string;
 }
 const uri: string = "mongodb+srv://tim:tallkitten47@cluster0.k1aaw.mongodb.net/xpgrinder?retryWrites=true&w=majority";
 const client = new MongoClient(uri);

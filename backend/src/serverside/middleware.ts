@@ -19,7 +19,7 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   const channelRegex = /^\d{18}$/g;
   const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
   // const emojiRegex = /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/;
-
+  const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
   servers.forEach((server) => {
     const { filters, settings } = server;
     const channels = settings.channels.trim();
@@ -66,11 +66,12 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   });
 
   if (!token || token == "N/A") res.status(500).json({ title: "Token Error", description: "Token provided is either invalid or not found", code: 1 });
-  else if (servers.length > 2 || servers.length <= 0)
-    res.status(500).json({ title: "Servers Error", description: `Total server count out of max range [0-2]`, code: 5 });
+  else if (servers.length > 6 || servers.length <= 0)
+    res.status(500).json({ title: "Servers Error", description: `Total server count out of range [0-5]`, code: 5 });
   else if (!token.match(tokenRegex)) res.status(500).json({ title: "Token Error", description: `Token failed regex requirement`, code: 5 });
   else if (trackingcount <= 0 || trackingcount > 2)
-    res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of max range [1 - 2]`, code: 7 });
+    res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 2]`, code: 7 });
+  else if (!webhookRegex.test(body.webhook)) res.status(500).json({ title: "Webhook Error", description: `Webhook doesn't pass regex`, code: 19 });
 
   if (!res.headersSent) next();
 };

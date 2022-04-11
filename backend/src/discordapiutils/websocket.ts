@@ -1,9 +1,11 @@
+import { Guild } from "./invitetoken";
 import { WebSocket } from "ws";
 import { reactMessage, realType } from "./sendmessage";
 import { getTime } from "../utils/logger";
 import { generateAIResponse } from "../utils/other";
 import waitTime from "../utils/waitTime";
-import axios from "axios";
+import webhook from "./webhook";
+import { userData } from "./selfData";
 const token: string = <string>process.env.MY_TOKEN;
 
 interface Payload {
@@ -49,172 +51,199 @@ export interface Server {
   uuid: string;
 }
 
-//indentifying payload sent
-const socketurl = "https://discord.com/api/webhooks/962882014640504892/IO59x6FeCMwsV9zPsLr9rkVm4XOTCGGp-qurD6f0dfrZREAgfEfXNlCiOdQda9o5zPZ8";
-export const trackserver = (servers: Server[], token: string, userid: string): WebSocket => {
-  let session_id: string;
-  let lastSeq: number | undefined;
-  let lastAck = Date.now();
-  const payload: Payload = {
-    op: 2,
-    d: {
-      token: token,
-      // intents: 513,
-      properties: {
-        $os: "linux",
-        $browser: "chrome",
-        $device: "chrome",
+export class SocketTracker {
+  readonly token: string;
+  readonly servers: Server[];
+  user: userData | undefined;
+  socket: WebSocket;
+  session_id: string | undefined;
+  lastSeq: number | undefined;
+  lastAck = Date.now();
+  wh: webhook | undefined;
+  url: string;
+  hbInterval: NodeJS.Timer | undefined;
+  constructor(token: string, servers: Server[], url: string) {
+    this.token = token;
+    this.servers = servers;
+    this.socket = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
+    this.url = url;
+    const payload: Payload = {
+      op: 2,
+      d: {
+        token: token,
+        // intents: 513,
+        properties: {
+          $os: "linux",
+          $browser: "chrome",
+          $device: "chrome",
+        },
       },
-    },
-  };
-  let ws: WebSocket = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
+    };
+    this.socket.on("open", (): void => {
+      this.socket.send(JSON.stringify(payload));
+      console.log("handshake opened for", token);
+      console.log(
+        "Servers: ",
+        servers.map((server) => {
+          return { name: server.name, tracking: server.tracking, settings: server.settings };
+        })
+      );
+    });
 
-  ws.on("open", (): void => {
-    ws.send(JSON.stringify(payload));
-    console.log("handshake opened for", token);
-    console.log(
-      "Servers: ",
-      servers.map((server) => {
-        return { name: server.name, tracking: server.tracking, settings: server.settings };
-      })
-    );
-    console.log("userid: ", userid);
-  });
-
-  ws.on("message", async (data: string): Promise<void> => {
-    let payload: any = JSON.parse(data);
-    const { t, s, op, d } = payload;
-    if (s) lastSeq = s;
-    switch (op) {
-      case 10:
-        const { heartbeat_interval }: { heartbeat_interval: number } = d;
-        sendEmbed(op, "inital heartbeat sent", "5efc03");
-        heartbeat(heartbeat_interval);
-        break;
-      case 11:
-        lastAck = Date.now();
-        // console.log("ack received, op:", op);
-        // sendEmbed(op, "ack received", "#038cfc");
-        break;
-      case 7:
-        sendEmbed(op, "reconnect received", "fc0f03");
-        await waitTime(1);
-        ws = await reconnect();
-        break;
-      case 6:
-        console.log("op 6 received ");
-        break;
-      case 1:
-        console.log("op 1 received, sending heartbeat ");
-        sendEmbed(op, "emergency heartbeat sent", "fc8803");
-        ws.send(JSON.stringify({ op: 1, d: null }));
-        break;
-      default:
-        break;
-    }
-    if (d) {
-      const server = servers.find((server) => d.guild_id === server.guildID);
-      switch (t) {
-        case "READY":
-          console.log("ready occured");
-          let payload: any = JSON.parse(data);
-          session_id = payload.d.session_id;
-          console.log("session", session_id);
+    this.socket.on("message", async (data: string): Promise<void> => {
+      let payload: any = JSON.parse(data);
+      const { t, s, op, d } = payload;
+      if (s) this.lastSeq = s;
+      switch (op) {
+        case 10:
+          const { heartbeat_interval }: { heartbeat_interval: number } = d;
+          this.wh?.sendEvent(op, "Heartbeat Interval sent", "5efc03");
+          this.hbInterval = this.heartbeat(heartbeat_interval);
           break;
-        case "RECONNECT":
-          console.log("reconnect event occured");
+        case 11:
+          this.lastAck = Date.now();
+          // console.log("ack received, op:", op);
+          // this.wh?..sendEvent(op, "ack received", "#038cfc");
           break;
-        case "RESUME":
-          console.log("resume response");
+        case 7:
+          this.wh?.sendEvent(op, "reconnect received", "fc0f03");
+          await waitTime(1);
+          this.socket = this.reconnect();
           break;
-        case "MESSAGE_CREATE":
-          const author: string = d.author.username;
-          const channelOK = server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
-          if (server && d.author.id !== userid && channelOK) {
-            const filters = server.filters;
-            const settings = server.settings;
-            const content: string = d.content;
-            const filter: Filter | undefined = settings.exactMatch
-              ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
-              : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
-            if (filter) {
-              console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
-              const rand = Math.floor(Math.random() * 100);
-              if (rand < settings.percentResponse) {
-                console.log("responding");
-                await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
-                  channel_id: d.channel_id,
-                  guild_id: server.guildID,
-                  message_id: d.id,
-                }).catch((err) => {
-                  console.log("Error caught when trying to respond");
-                });
-              }
-            }
-            // else if (server.settings.useAI) {
-            //   const rand = Math.floor(Math.random() * 100);
-            //   if (rand < settings.percentResponse) {
-            //     const response = await generateAIResponse(content);
-            //     if (response) {
-            //       console.log("respondin with AI", response);
-            //       await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
-            //         channel_id: d.channel_id,
-            //         guild_id: server.guildID,
-            //         message_id: d.id,
-            //       }).catch((err) => {
-            //         console.log("Error caught when trying to respond");
-            //       });
-            //     }
-            //   }
-            // }
-          }
-
+        case 6:
+          console.log("op 6 received ");
           break;
-        case "MESSAGE_REACTION_ADD":
-          // const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
-          if (server && server.settings.giveaway == d.channel_id && d.user_id != userid) {
-            await waitTime(3);
-            await reactMessage(d.channel_id, d.message_id, d.emoji.name, token).then((resp) => {
-              console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
-              return resp;
-            });
-          }
+        case 1:
+          console.log("op 1 received, sending heartbeat ");
+          this.wh?.sendEvent(op, "emergency heartbeat sent", "fc8803");
+          this.socket.send(JSON.stringify({ op: 1, d: null }));
           break;
         default:
           break;
       }
-    }
-  });
+      if (d) {
+        const server = this.servers.find((server) => d.guild_id === server.guildID);
+        switch (t) {
+          case "READY":
+            console.log("ready occured");
+            let payload: any = JSON.parse(data);
+            // console.log(payload.d.user);
+            this.user = payload.d.user;
+            this.session_id = payload.d.session_id;
+            console.log("session", this.session_id);
 
-  ws.on("error", async (err) => {
-    console.log("Web socket error occured");
-    ws = reconnect();
-  });
+            if (this.user) {
+              console.log(this.url);
+              this.wh = new webhook(this.token, this.url, this.user);
+              this.wh.sendUser();
+            }
+            break;
+          case "RECONNECT":
+            console.log("reconnect event occured");
+            break;
+          case "RESUME":
+            console.log("resume response");
+            break;
+          case "MESSAGE_CREATE":
+            const author: string = d.author.username;
+            const channelOK =
+              server && server.settings.channels.length >= 18 ? (server.settings.channels.includes(d.channel_id) ? true : false) : true;
+            if (server && d.author.id !== this.user?.id && channelOK) {
+              const filters = server.filters;
+              const settings = server.settings;
+              const content: string = d.content;
+              const filter: Filter | undefined = settings.exactMatch
+                ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
+                : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
+              if (filter) {
+                console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
+                const rand = Math.floor(Math.random() * 100);
+                if (rand < settings.percentResponse) {
+                  console.log("responding");
+                  await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
+                    channel_id: d.channel_id,
+                    guild_id: server.guildID,
+                    message_id: d.id,
+                  }).catch((err) => {
+                    console.log("Error caught when trying to respond");
+                  });
+                  this.wh?.sendInteraction(t, `Replied to message with filter ${filter.response}`, server, d.channel_id, d.id);
+                }
+              }
+              // else if (server.settings.useAI) {
+              //   const rand = Math.floor(Math.random() * 100);
+              //   if (rand < settings.percentResponse) {
+              //     const response = await generateAIResponse(content);
+              //     if (response) {
+              //       console.log("respondin with AI", response);
+              //       await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+              //         channel_id: d.channel_id,
+              //         guild_id: server.guildID,
+              //         message_id: d.id,
+              //       }).catch((err) => {
+              //         console.log("Error caught when trying to respond");
+              //       });
+              //     }
+              //   }
+              // }
+            }
 
-  const heartbeat = (ms: number): NodeJS.Timer => {
+            break;
+          case "MESSAGE_REACTION_ADD":
+            // const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
+            if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id) {
+              console.log(d);
+
+              await waitTime(3);
+              await reactMessage(d.channel_id, d.message_id, d.emoji.name, token).then((resp) => {
+                console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
+                const detail = `Reaction ${d.emoji.name} in${d.channel_id + "/" + d.message_id}`;
+                this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
+                return resp;
+              });
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
+    this.socket.on("error", async (err) => {
+      console.log("Web socket error occured");
+      this.socket = this.reconnect();
+    });
+  }
+
+  stop() {
+    this.socket.close();
+    if (this.hbInterval) clearInterval(this.hbInterval);
+    this.wh?.sendEvent("Stopped tracker", "User requested to stop tracking", "0");
+    return;
+  }
+  heartbeat = (ms: number): NodeJS.Timer => {
     return setInterval(async () => {
-      ws.send(JSON.stringify({ op: 1, d: lastSeq ?? null }));
+      this.socket.send(JSON.stringify({ op: 1, d: this.lastSeq ?? null }));
       await waitTime(3);
-      if (Date.now() > lastAck + 3000) {
-        sendEmbed(11, "zombied ack", "fc2403");
+      if (Date.now() > this.lastAck + 3000) {
+        this.wh?.sendEvent(11, "zombied ack", "fc2403");
         // ws = reconnect();
       }
     }, ms);
   };
-
-  const reconnect = (): WebSocket => {
-    ws.close();
+  reconnect = (): WebSocket => {
+    this.socket.close();
     let newWs = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
     console.log("attempting to reconnect and resume");
     newWs.on("open", () => {
-      sendEmbed(6, "reopened websocket", "03fcb5");
-      ws.send(
+      this.wh?.sendEvent(6, "reopened websocket", "03fcb5");
+      this.socket.send(
         JSON.stringify({
           op: 6,
           d: {
-            token: token,
-            session_id: session_id,
-            seq: lastSeq,
+            token: this.token,
+            session_id: this.session_id,
+            seq: this.lastSeq,
           },
         }),
         (err) => console.log("reopened websocket", err)
@@ -222,32 +251,4 @@ export const trackserver = (servers: Server[], token: string, userid: string): W
     });
     return newWs;
   };
-  return ws;
-};
-
-const sendEmbed = (op: number, description: string, color: string) => {
-  const time = new Date(Date.now()).toLocaleTimeString();
-  const decimalColor = parseInt(color, 16);
-  const body = {
-    content: null,
-    embeds: [
-      {
-        title: "WebSocket event",
-        description: description,
-        color: decimalColor,
-        fields: [
-          {
-            name: "Time",
-            value: time,
-          },
-          {
-            name: "Op",
-            value: op,
-          },
-        ],
-      },
-    ],
-  };
-  const jsonToSend = JSON.stringify(body);
-  axios.post(socketurl, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
-};
+}
