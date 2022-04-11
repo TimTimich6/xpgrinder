@@ -51,7 +51,7 @@ export interface Server {
 
 //indentifying payload sent
 const socketurl = "https://discord.com/api/webhooks/962882014640504892/IO59x6FeCMwsV9zPsLr9rkVm4XOTCGGp-qurD6f0dfrZREAgfEfXNlCiOdQda9o5zPZ8";
-export const trackserver = async (servers: Server[], token: string, userid: string): Promise<WebSocket> => {
+export const trackserver = (servers: Server[], token: string, userid: string): WebSocket => {
   let session_id: string;
   let lastSeq: number | undefined;
   let lastAck = Date.now();
@@ -188,7 +188,7 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
 
   ws.on("error", async (err) => {
     console.log("Web socket error occured");
-    ws = await reconnect();
+    ws = reconnect();
   });
 
   const heartbeat = (ms: number): NodeJS.Timer => {
@@ -197,12 +197,12 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
       await waitTime(3);
       if (Date.now() > lastAck + 3000) {
         sendEmbed(11, "zombied ack", "fc2403");
-        ws = await reconnect();
+        // ws = reconnect();
       }
     }, ms);
   };
 
-  const reconnect = async (): Promise<WebSocket> => {
+  const reconnect = (): WebSocket => {
     ws.close();
     let newWs = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
     console.log("attempting to reconnect and resume");
@@ -224,7 +224,6 @@ export const trackserver = async (servers: Server[], token: string, userid: stri
   };
   return ws;
 };
-//https://discord.com/api/webhooks/962882014640504892/IO59x6FeCMwsV9zPsLr9rkVm4XOTCGGp-qurD6f0dfrZREAgfEfXNlCiOdQda9o5zPZ8
 
 const sendEmbed = (op: number, description: string, color: string) => {
   const time = new Date(Date.now()).toLocaleTimeString();

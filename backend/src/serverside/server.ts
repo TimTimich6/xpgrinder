@@ -69,9 +69,7 @@ app.post("/api/track", authKey, checkTracking, async (req, res, next) => {
     const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
     const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
     if (regularTrack.length > 0) {
-      const socket = await trackserver(regularTrack, req.body.token, userid).catch((err) => {
-        res.status(500).json({ title: "Tracking Error", description: "Something went wrong when starting tracking" });
-      });
+      const socket = trackserver(regularTrack, req.body.token, userid);
       if (socket) storageCell.websocket = socket;
     }
     if (spamServers.length > 0) {
