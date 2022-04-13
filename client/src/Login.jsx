@@ -5,7 +5,7 @@ import TextButton from "./TextButton";
 import axios from "axios";
 import { ServerListContext } from "./ServerListContext";
 const Login = () => {
-  const { key, setKey, setError, setLoading, setToken, setActive } = useContext(UserSettingsContext);
+  const { key, setKey, setError, setLoading, setToken, setActive, setWebhook } = useContext(UserSettingsContext);
   const { setServers } = useContext(ServerListContext);
   const [input, setInput] = useState("");
   const handleSubmit = async (e) => {
@@ -25,6 +25,7 @@ const Login = () => {
             setKey(input);
             setServers(resp.data.userdata.servers);
             setToken(resp.data.userdata.token);
+            setWebhook(resp.data.userdata.webhook);
             setActive(resp.data.userdata.active);
           } else setKey(input);
           console.log("authorized");

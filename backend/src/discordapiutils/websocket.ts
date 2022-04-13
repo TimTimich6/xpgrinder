@@ -1,3 +1,5 @@
+//written by timlol#0001
+
 import { Guild } from "./invitetoken";
 import { WebSocket } from "ws";
 import { reactMessage, realType } from "./sendmessage";
@@ -106,7 +108,7 @@ export class SocketTracker {
           // this.wh?..sendEvent(op, "ack received", "#038cfc");
           break;
         case 7:
-          this.wh?.sendEvent(op, "reconnect received", "fc0f03");
+          this.wh?.sendEvent(op, "Reconnect Call received", "fc0f03");
           await waitTime(1);
           this.socket = this.reconnect();
           break;
@@ -167,37 +169,36 @@ export class SocketTracker {
                   }).catch((err) => {
                     console.log("Error caught when trying to respond");
                   });
-                  this.wh?.sendInteraction(t, `Replied to message with filter ${filter.response}`, server, d.channel_id, d.id);
+                  this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
+                }
+              } else if (server.settings.useAI) {
+                const rand = Math.floor(Math.random() * 100);
+                if (rand < settings.percentResponse && content.length < 40) {
+                  console.log("generating AI");
+                  const response = await generateAIResponse(content);
+                  if (response) {
+                    console.log("AI response:", response);
+                    this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
+                    await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+                      channel_id: d.channel_id,
+                      guild_id: server.guildID,
+                      message_id: d.id,
+                    }).catch((err) => {
+                      console.log("Error caught when trying to respond");
+                    });
+                  }
                 }
               }
-              // else if (server.settings.useAI) {
-              //   const rand = Math.floor(Math.random() * 100);
-              //   if (rand < settings.percentResponse) {
-              //     const response = await generateAIResponse(content);
-              //     if (response) {
-              //       console.log("respondin with AI", response);
-              //       await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
-              //         channel_id: d.channel_id,
-              //         guild_id: server.guildID,
-              //         message_id: d.id,
-              //       }).catch((err) => {
-              //         console.log("Error caught when trying to respond");
-              //       });
-              //     }
-              //   }
-              // }
             }
 
             break;
           case "MESSAGE_REACTION_ADD":
             // const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
             if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id) {
-              console.log(d);
-
               await waitTime(3);
               await reactMessage(d.channel_id, d.message_id, d.emoji.name, token).then((resp) => {
                 console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
-                const detail = `Reaction ${d.emoji.name} in${d.channel_id + "/" + d.message_id}`;
+                const detail = `Reaction with ${d.emoji.name}`;
                 this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
                 return resp;
               });
@@ -226,7 +227,7 @@ export class SocketTracker {
       this.socket.send(JSON.stringify({ op: 1, d: this.lastSeq ?? null }));
       await waitTime(3);
       if (Date.now() > this.lastAck + 3000) {
-        this.wh?.sendEvent(11, "zombied ack", "fc2403");
+        this.wh?.sendEvent(11, "Error: Zombied ACK", "fc2403");
         // ws = reconnect();
       }
     }, ms);
@@ -234,9 +235,8 @@ export class SocketTracker {
   reconnect = (): WebSocket => {
     this.socket.close();
     let newWs = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
-    console.log("attempting to reconnect and resume");
     newWs.on("open", () => {
-      this.wh?.sendEvent(6, "reopened websocket", "03fcb5");
+      this.wh?.sendEvent(6, "Reopened Websocket", "03fcb5");
       this.socket.send(
         JSON.stringify({
           op: 6,
