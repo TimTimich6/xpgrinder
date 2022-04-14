@@ -8,6 +8,7 @@ import { generateAIResponse } from "../utils/other";
 import waitTime from "../utils/waitTime";
 import webhook from "./webhook";
 import { userData } from "./selfData";
+import { emojiRegex } from "../serverside/middleware";
 const token: string = <string>process.env.MY_TOKEN;
 
 interface Payload {
@@ -31,6 +32,7 @@ interface Filter {
   filter: string;
   response: string;
 }
+
 export interface Settings {
   dialogueMode: boolean;
   reply: boolean;
@@ -99,16 +101,14 @@ export class SocketTracker {
       switch (op) {
         case 10:
           const { heartbeat_interval }: { heartbeat_interval: number } = d;
-          this.wh?.sendEvent(op, "Heartbeat Interval sent", "5efc03");
+          webhook.sentHeartbeat(url, heartbeat_interval, "green");
           this.hbInterval = this.heartbeat(heartbeat_interval);
           break;
         case 11:
           this.lastAck = Date.now();
-          // console.log("ack received, op:", op);
-          // this.wh?..sendEvent(op, "ack received", "#038cfc");
           break;
         case 7:
-          this.wh?.sendEvent(op, "Reconnect Call received", "fc0f03");
+          this.wh?.sendEvent(op, "Reconnect Call received", "orange");
           await waitTime(1);
           this.socket = this.reconnect();
           break;
@@ -116,8 +116,7 @@ export class SocketTracker {
           console.log("op 6 received ");
           break;
         case 1:
-          console.log("op 1 received, sending heartbeat ");
-          this.wh?.sendEvent(op, "emergency heartbeat sent", "fc8803");
+          this.wh?.sendEvent(op, "Emergency heartbeat sent", "yellow");
           this.socket.send(JSON.stringify({ op: 1, d: null }));
           break;
         default:
@@ -142,6 +141,12 @@ export class SocketTracker {
             break;
           case "RECONNECT":
             console.log("reconnect event occured");
+            this.wh?.sendEvent(
+              "Reconnect request received",
+              "Possibility of failure to reconnect to websocket may occur. Please contant timlol if it happens",
+              "orange"
+            );
+
             break;
           case "RESUME":
             console.log("resume response");
@@ -168,12 +173,13 @@ export class SocketTracker {
                     message_id: d.id,
                   }).catch((err) => {
                     console.log("Error caught when trying to respond");
+                    this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
                   });
                   this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
                 }
               } else if (server.settings.useAI) {
                 const rand = Math.floor(Math.random() * 100);
-                if (rand < settings.percentResponse && content.length < 40) {
+                if (rand < settings.percentResponse && content.length < 40 && !emojiRegex.test(content)) {
                   console.log("generating AI");
                   const response = await generateAIResponse(content);
                   if (response) {
@@ -185,6 +191,7 @@ export class SocketTracker {
                       message_id: d.id,
                     }).catch((err) => {
                       console.log("Error caught when trying to respond");
+                      this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
                     });
                   }
                 }
@@ -196,12 +203,14 @@ export class SocketTracker {
             // const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
             if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id) {
               await waitTime(3);
-              await reactMessage(d.channel_id, d.message_id, d.emoji.name, token).then((resp) => {
-                console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
-                const detail = `Reaction with ${d.emoji.name}`;
-                this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
-                return resp;
-              });
+              await reactMessage(d.channel_id, d.message_id, d.emoji.name, token)
+                .then((resp) => {
+                  console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
+                  const detail = `Reaction with ${d.emoji.name}`;
+                  this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
+                  return resp;
+                })
+                .catch((_) => this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO REACT TO MESSAGE", server, d.channel_id, d.message_id));
             }
             break;
           default:
@@ -219,24 +228,25 @@ export class SocketTracker {
   stop() {
     this.socket.close();
     if (this.hbInterval) clearInterval(this.hbInterval);
-    this.wh?.sendEvent("Stopped tracker", "User requested to stop tracking", "0");
+    this.wh?.sendEvent("Stopped tracker", "User requested to stop tracking", "black");
     return;
   }
   heartbeat = (ms: number): NodeJS.Timer => {
-    return setInterval(async () => {
+    const beatInterval = setInterval(async () => {
       this.socket.send(JSON.stringify({ op: 1, d: this.lastSeq ?? null }));
       await waitTime(3);
       if (Date.now() > this.lastAck + 3000) {
-        this.wh?.sendEvent(11, "Error: Zombied ACK", "fc2403");
-        // ws = reconnect();
+        this.wh?.sendEvent(11, "Error: Zombied ACK, please restart tracking and notify timlol#0001 about the error", "red");
+        clearInterval(beatInterval);
       }
     }, ms);
+    return beatInterval;
   };
   reconnect = (): WebSocket => {
     this.socket.close();
     let newWs = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
     newWs.on("open", () => {
-      this.wh?.sendEvent(6, "Reopened Websocket", "03fcb5");
+      this.wh?.sendEvent(6, "Reopened Websocket", "green");
       this.socket.send(
         JSON.stringify({
           op: 6,

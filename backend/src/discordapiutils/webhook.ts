@@ -4,18 +4,20 @@ import axios from "axios";
 import { userData } from "./selfData";
 import commonHeaders, { getCookie } from "./headers";
 
+type Color = "red" | "green" | "purple" | "yellow" | "orange" | "black" | "blue";
 export default class WebHooks {
   readonly token;
   readonly url;
   user: userData;
+
   constructor(token: string, url: string, user: userData) {
     this.token = token;
     this.url = url;
     this.user = user;
   }
-  sendEvent = (title: number | string, description: string, color: string) => {
+  sendEvent = (title: number | string, description: string, color: Color) => {
     const time = new Date(Date.now()).toLocaleTimeString();
-    const decimalColor = parseInt(color, 16);
+    const decimalColor = parseInt(ColorToInt[color], 16);
     const body = {
       content: null,
       embeds: [
@@ -52,7 +54,7 @@ export default class WebHooks {
       embeds: [
         {
           title: this.token.substring(0, 6) + "...",
-          color: parseInt("A414F1", 16),
+          color: parseInt(ColorToInt.purple, 16),
           fields: [
             {
               name: "Username",
@@ -100,7 +102,7 @@ export default class WebHooks {
       embeds: [
         {
           title: "Interaction Occurred",
-          color: parseInt("0EE9F4", 16),
+          color: parseInt(ColorToInt.blue, 16),
           fields: [
             {
               name: "Type",
@@ -145,4 +147,42 @@ export default class WebHooks {
     const jsonToSend = JSON.stringify(body);
     axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
   };
+
+  static sentHeartbeat = (url: string, ms: number, color: Color) => {
+    const time = new Date(Date.now()).toLocaleTimeString();
+    const decimalColor = parseInt(ColorToInt[color], 16);
+    const body = {
+      content: null,
+      embeds: [
+        {
+          title: "Heartbeat Interval Sent",
+          description: "Initalized heartbeat with Discord Gateway",
+          color: decimalColor,
+          fields: [
+            {
+              name: "Interval",
+              value: `${ms} milliseconds`,
+            },
+          ],
+          footer: {
+            text: time,
+          },
+        },
+      ],
+      username: "XP-GRINDER",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+    };
+    const jsonToSend = JSON.stringify(body);
+    axios.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+  };
 }
+
+const ColorToInt = {
+  green: "9FE2BF",
+  red: "DE3163",
+  orange: "FF7F50",
+  yellow: "DFFF00",
+  blue: "6495ED",
+  black: "0",
+  purple: "A020F0",
+};

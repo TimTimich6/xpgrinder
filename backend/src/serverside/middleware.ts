@@ -11,6 +11,9 @@ export const getPaste = async (id: string) => {
   });
   return data;
 };
+
+export const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
+
 export const checkTracking = (req: Request, res: Response, next: NextFunction) => {
   const body: KeyData = req.body;
   const { token, servers } = body;
@@ -18,7 +21,6 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
   const channelRegex = /^\d{18}$/g;
   const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
-  // const emojiRegex = /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/;
   const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
   servers.forEach((server) => {
     const { filters, settings } = server;

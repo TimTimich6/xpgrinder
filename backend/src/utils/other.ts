@@ -1,5 +1,6 @@
 import { url } from "inspector";
 import { Configuration, OpenAIApi } from "openai";
+import { emojiRegex } from "../serverside/middleware";
 
 const configuration = new Configuration({
   apiKey: "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",
@@ -10,10 +11,10 @@ export const generateAIResponse = async (message: string): Promise<string | unde
   const response = await openai
     .createCompletionFromModel({
       prompt,
-      model: "ada:ft-personal-2022-04-12-08-58-29",
-      temperature: 1,
+      model: "ada:ft-personal-2022-04-14-02-38-57",
+      temperature: 0.6,
       max_tokens: 30,
-      top_p: 0.25,
+      top_p: 0.7,
       frequency_penalty: 0.3,
       presence_penalty: 0.27,
       stop: ["\n", "\n\n"],
@@ -24,5 +25,3 @@ export const generateAIResponse = async (message: string): Promise<string | unde
 
   if (response.data.choices) return response.data.choices[0].text.trim();
 };
-
-generateAIResponse("When is mint happening?").then((res) => console.log(res));
