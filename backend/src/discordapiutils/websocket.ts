@@ -116,8 +116,9 @@ export class SocketTracker {
           console.log("op 6 received ");
           break;
         case 1:
-          this.wh?.sendEvent(op, "Emergency heartbeat sent", "yellow");
           this.socket.send(JSON.stringify({ op: 1, d: null }));
+          this.wh?.sendEvent(op, "Emergency heartbeat sent", "yellow");
+
           break;
         default:
           break;
@@ -177,23 +178,20 @@ export class SocketTracker {
                   });
                   this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
                 }
-              } else if (server.settings.useAI) {
-                const rand = Math.floor(Math.random() * 100);
-                if (rand < settings.percentResponse && content.length < 40 && !emojiRegex.test(content)) {
-                  console.log("generating AI");
-                  const response = await generateAIResponse(content);
-                  if (response) {
-                    console.log("AI response:", response);
-                    this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
-                    await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
-                      channel_id: d.channel_id,
-                      guild_id: server.guildID,
-                      message_id: d.id,
-                    }).catch((err) => {
-                      console.log("Error caught when trying to respond");
-                      this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
-                    });
-                  }
+              } else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
+                console.log("generating AI");
+                const response = await generateAIResponse(content);
+                if (response) {
+                  console.log("AI response:", response);
+                  this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
+                  await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+                    channel_id: d.channel_id,
+                    guild_id: server.guildID,
+                    message_id: d.id,
+                  }).catch(() => {
+                    console.log("Error caught when trying to respond");
+                    this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
+                  });
                 }
               }
             }
@@ -262,3 +260,9 @@ export class SocketTracker {
     return newWs;
   };
 }
+
+const checkAI = (content: string, random: number): boolean => {
+  const rand = Math.floor(Math.random() * 100) < random;
+  if (rand && content.length > 2 && content.length < 40 && !emojiRegex.test(content) && !/\d{18}/g.test(content)) return true;
+  return false;
+};

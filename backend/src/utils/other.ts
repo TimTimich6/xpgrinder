@@ -1,6 +1,4 @@
-import { url } from "inspector";
 import { Configuration, OpenAIApi } from "openai";
-import { emojiRegex } from "../serverside/middleware";
 
 const configuration = new Configuration({
   apiKey: "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",
@@ -12,11 +10,11 @@ export const generateAIResponse = async (message: string): Promise<string | unde
     .createCompletionFromModel({
       prompt,
       model: "ada:ft-personal-2022-04-14-02-38-57",
-      temperature: 0.6,
+      temperature: 0.8,
       max_tokens: 30,
       top_p: 0.7,
       frequency_penalty: 0.3,
-      presence_penalty: 0.27,
+      presence_penalty: 0.3,
       stop: ["\n", "\n\n"],
       stream: false,
       best_of: 1,

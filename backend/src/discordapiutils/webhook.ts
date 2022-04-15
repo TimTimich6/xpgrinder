@@ -156,7 +156,7 @@ export default class WebHooks {
       embeds: [
         {
           title: "Heartbeat Interval Sent",
-          description: "Initalized heartbeat with Discord Gateway",
+          description: "Initialized heartbeat with Discord Gateway",
           color: decimalColor,
           fields: [
             {
