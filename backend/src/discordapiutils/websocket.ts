@@ -66,6 +66,7 @@ export class SocketTracker {
   wh: webhook | undefined;
   url: string;
   hbInterval: NodeJS.Timer | undefined;
+  alreadyReacted: string[] = [];
   constructor(token: string, servers: Server[], url: string) {
     this.token = token;
     this.servers = servers;
@@ -198,17 +199,21 @@ export class SocketTracker {
 
             break;
           case "MESSAGE_REACTION_ADD":
-            // const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
-            if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id) {
+            const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
+            if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id && !this.alreadyReacted.includes(checkReact)) {
               await waitTime(3);
               await reactMessage(d.channel_id, d.message_id, d.emoji.name, token)
                 .then((resp) => {
                   console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
                   const detail = `Reaction with ${d.emoji.name}`;
+                  this.alreadyReacted.push(checkReact);
                   this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
                   return resp;
                 })
-                .catch((_) => this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO REACT TO MESSAGE", server, d.channel_id, d.message_id));
+                .catch(() => {
+                  console.log("react catch statement");
+                  this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO REACT TO MESSAGE", server, d.channel_id, d.message_id);
+                });
             }
             break;
           default:
