@@ -28,6 +28,12 @@ const CreateSever = (props) => {
         .catch((err) => {
           setError({ ...err.response.data });
         });
+    } else if (link.match(/^\d{18}$/)) {
+      return {
+        guildID: link,
+        guildName: link,
+        serverIcon: "./xpgrinder.png",
+      };
     }
   };
   const handleServerAdd = async () => {
