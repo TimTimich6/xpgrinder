@@ -81,4 +81,4 @@ export const getGuildData = async (guildID: string, token: string): Promise<guil
 };
 
 // getInviteData("4rPyXPPS");
-getGuildData("934702825328504843", "NTE2MzY5MTQzMDQ2MzQwNjA4.YkiK8Q.rzRmzkknTE5oaRYu3cOJACAqNqE");
+// getGuildData("934702825328504843", "NTE2MzY5MTQzMDQ2MzQwNjA4.YkiK8Q.rzRmzkknTE5oaRYu3cOJACAqNqE");

@@ -1,6 +1,5 @@
 //written by timlol#0001
 
-import { Guild } from "./invitetoken";
 import { WebSocket } from "ws";
 import { reactMessage, realType } from "./sendmessage";
 import { getTime } from "../utils/logger";
@@ -70,12 +69,39 @@ export class SocketTracker {
   constructor(token: string, servers: Server[], url: string) {
     this.token = token;
     this.servers = servers;
-    this.socket = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
+    this.socket = this.createSocket();
     this.url = url;
+  }
+
+  stop() {
+    this.socket.close();
+    if (this.hbInterval) clearInterval(this.hbInterval);
+    this.wh?.sendEvent("Stopped tracker", "WebSocket stop event called", "black");
+    return;
+  }
+  heartbeat = (ms: number): NodeJS.Timer => {
+    const beatInterval = setInterval(async () => {
+      this.socket.send(JSON.stringify({ op: 1, d: this.lastSeq ?? null }));
+      await waitTime(3);
+      if (Date.now() > this.lastAck + 3000) {
+        this.wh?.sendEvent(11, "Error: Zombied ACK, restarting tracking", "red");
+        this.reconnect();
+      }
+    }, ms);
+    return beatInterval;
+  };
+  reconnect = () => {
+    this.stop();
+    this.socket = this.createSocket();
+    this.wh?.sendEvent(0, "Attempting at restarting tracking. If you see this and the bot runs fine afterwards please tell timlol", "red");
+  };
+
+  createSocket = () => {
+    const sock = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
     const payload: Payload = {
       op: 2,
       d: {
-        token: token,
+        token: this.token,
         // intents: 513,
         properties: {
           $os: "linux",
@@ -84,25 +110,25 @@ export class SocketTracker {
         },
       },
     };
-    this.socket.on("open", (): void => {
-      this.socket.send(JSON.stringify(payload));
-      console.log("handshake opened for", token);
+    sock.on("open", (): void => {
+      sock.send(JSON.stringify(payload));
+      console.log("handshake opened for", this.token);
       console.log(
         "Servers: ",
-        servers.map((server) => {
+        this.servers.map((server) => {
           return { name: server.name, tracking: server.tracking, settings: server.settings };
         })
       );
     });
 
-    this.socket.on("message", async (data: string): Promise<void> => {
+    sock.on("message", async (data: string): Promise<void> => {
       let payload: any = JSON.parse(data);
       const { t, s, op, d } = payload;
       if (s) this.lastSeq = s;
       switch (op) {
         case 10:
           const { heartbeat_interval }: { heartbeat_interval: number } = d;
-          webhook.sentHeartbeat(url, heartbeat_interval, "green");
+          webhook.sentHeartbeat(this.url, heartbeat_interval, "green");
           this.hbInterval = this.heartbeat(heartbeat_interval);
           break;
         case 11:
@@ -111,15 +137,14 @@ export class SocketTracker {
         case 7:
           this.wh?.sendEvent(op, "Reconnect Call received", "orange");
           await waitTime(1);
-          this.socket = this.reconnect();
+          this.reconnect();
           break;
         case 6:
           console.log("op 6 received ");
           break;
         case 1:
-          this.socket.send(JSON.stringify({ op: 1, d: null }));
+          sock.send(JSON.stringify({ op: 1, d: null }));
           this.wh?.sendEvent(op, "Emergency heartbeat sent", "yellow");
-
           break;
         default:
           break;
@@ -169,7 +194,7 @@ export class SocketTracker {
                 const rand = Math.floor(Math.random() * 100);
                 if (rand < settings.percentResponse) {
                   console.log("responding");
-                  await realType(filter.response, d.channel_id, token, settings.responseTime, settings.reply, {
+                  await realType(filter.response, d.channel_id, this.token, settings.responseTime, settings.reply, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
@@ -191,7 +216,7 @@ export class SocketTracker {
                 if (response) {
                   console.log("AI response:", response);
                   this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
-                  await realType(response, d.channel_id, token, settings.responseTime, settings.reply, {
+                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
@@ -214,7 +239,7 @@ export class SocketTracker {
             const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
             if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id && !this.alreadyReacted.includes(checkReact)) {
               await waitTime(3);
-              await reactMessage(d.channel_id, d.message_id, d.emoji.name, token)
+              await reactMessage(d.channel_id, d.message_id, d.emoji.name, this.token)
                 .then((resp) => {
                   console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
                   const detail = `Reaction with ${d.emoji.name}`;
@@ -234,47 +259,11 @@ export class SocketTracker {
       }
     });
 
-    this.socket.on("error", async (err) => {
+    sock.on("error", async (err) => {
       console.log("Web socket error occured");
-      this.socket = this.reconnect();
+      this.reconnect();
     });
-  }
-
-  stop() {
-    this.socket.close();
-    if (this.hbInterval) clearInterval(this.hbInterval);
-    this.wh?.sendEvent("Stopped tracker", "User requested to stop tracking", "black");
-    return;
-  }
-  heartbeat = (ms: number): NodeJS.Timer => {
-    const beatInterval = setInterval(async () => {
-      this.socket.send(JSON.stringify({ op: 1, d: this.lastSeq ?? null }));
-      await waitTime(3);
-      if (Date.now() > this.lastAck + 3000) {
-        this.wh?.sendEvent(11, "Error: Zombied ACK, please restart tracking and notify timlol#0001 about the error", "red");
-        clearInterval(beatInterval);
-      }
-    }, ms);
-    return beatInterval;
-  };
-  reconnect = (): WebSocket => {
-    this.socket.close();
-    let newWs = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
-    newWs.on("open", () => {
-      this.wh?.sendEvent(6, "Reopened Websocket", "green");
-      this.socket.send(
-        JSON.stringify({
-          op: 6,
-          d: {
-            token: this.token,
-            session_id: this.session_id,
-            seq: this.lastSeq,
-          },
-        }),
-        (err) => console.log("reopened websocket", err)
-      );
-    });
-    return newWs;
+    return sock;
   };
 }
 

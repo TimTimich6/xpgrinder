@@ -5,7 +5,6 @@ import TextButton from "./TextButton";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
   const server = servers[currentServer];
-  const dialogueRef = useRef();
   const replyRef = useRef();
   const timeRef = useRef();
   const exactRef = useRef();
@@ -24,7 +23,6 @@ const Popup = () => {
             ...server,
             settings: {
               ...server.settings,
-              dialogueMode: dialogueRef.current.checked,
               reply: replyRef.current.checked,
               exactMatch: exactRef.current.checked,
               useAI: aiRef.current.checked,
