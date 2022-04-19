@@ -3,7 +3,7 @@ import * as mongo from "./mongocommands";
 import { WebSocket } from "ws";
 import express, { application } from "express";
 import readBin from "../utils/jsonBin";
-import getInviteData from "../discordapiutils/getInviteData";
+import { getInviteData } from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
 import dotenv from "dotenv";

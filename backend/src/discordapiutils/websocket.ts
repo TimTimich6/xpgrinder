@@ -173,9 +173,15 @@ export class SocketTracker {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
-                  }).catch((err) => {
+                  }).catch(() => {
                     console.log("Error caught when trying to respond");
-                    this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
+                    this.wh?.sendInteraction(
+                      t,
+                      "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
+                      server,
+                      d.channel_id,
+                      d.message_id
+                    );
                   });
                   this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
                 }
@@ -191,7 +197,13 @@ export class SocketTracker {
                     message_id: d.id,
                   }).catch(() => {
                     console.log("Error caught when trying to respond");
-                    this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE", server, d.channel_id, d.message_id);
+                    this.wh?.sendInteraction(
+                      t,
+                      "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
+                      server,
+                      d.channel_id,
+                      d.message_id
+                    );
                   });
                 }
               }

@@ -124,7 +124,7 @@ const CreateSever = (props) => {
   return (
     <>
       <div className="newServerContainer">
-        <label className="srWord">Link</label>
+        <label className="srWord">Link/ID</label>
         <input onChange={(e) => setLink(e.target.value)} type="text" required className="srText" />
       </div>
       <div className="buttonsServer">

@@ -65,7 +65,7 @@ const Popup = () => {
               </h1>
             </div>
             <div className="popupBody">
-              <div className="serverSettingContainer">
+              {/* <div className="serverSettingContainer">
                 <span className={`settingsCheckboxLabel settingDisabled`}>Dialogue Mode (soon)</span>
                 <input
                   type="checkbox"
@@ -75,7 +75,7 @@ const Popup = () => {
                   checked={server.settings.dialogueMode}
                   disabled={spamOn}
                 />
-              </div>
+              </div> */}
               <div className="serverSettingContainer">
                 <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Assist with AI</span>
                 <input

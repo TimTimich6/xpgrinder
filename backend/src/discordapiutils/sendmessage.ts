@@ -8,6 +8,39 @@ interface messageRef {
   guild_id: string;
   message_id: string;
 }
+export interface Message {
+  id: string;
+  type: number;
+  content: string;
+  channel_id: string;
+  author: Author;
+  attachments: any[];
+  embeds: any[];
+  mentions: any[];
+  mention_roles: any[];
+  pinned: boolean;
+  mention_everyone: boolean;
+  tts: boolean;
+  timestamp: string;
+  edited_timestamp: null;
+  flags: number;
+  components: any[];
+  referenced_message: null;
+}
+export type ErrorMessage = {
+  code: number;
+  global: boolean;
+  message: string;
+  retry_after?: number;
+};
+
+export interface Author {
+  id: string;
+  username: string;
+  avatar: string;
+  discriminator: string;
+  public_flags: number;
+}
 export const postMessage = async (message: string, channelID: string, token: string, ref?: messageRef): Promise<any> => {
   const response: Response = await fetch(`https://discord.com/api/v9/channels/${channelID}/messages`, {
     headers: {
@@ -18,26 +51,29 @@ export const postMessage = async (message: string, channelID: string, token: str
     body: JSON.stringify({ content: message, message_reference: ref ? ref : null }),
     method: "POST",
   });
-  const body = await response.json();
+  const body: Message | ErrorMessage = await response.json();
+  if ("code" in body) throw new Error(body.message);
   return body;
 };
 
-// postReply("hi", "936904237064007704", "NTE2MzY5MTQzMDQ2MzQwNjA4.XZLCPg.iWJInN-nQJan6OD4a8zum6bVJIg");
 export const startTyping = async (channelID: string, token: string): Promise<void> => {
   await axios.post(`https://discord.com/api/v9/channels/${channelID}/typing`, undefined, {
     headers: { cookie: await getCookie(), authorization: token, ...commonHeaders },
   });
 };
 
-export const realType = async (message: string, channelID: string, token: string, time: number, reply: boolean, ref: messageRef): Promise<any> => {
+export const realType = async (message: string, channelID: string, token: string, time: number, reply: boolean, ref?: messageRef): Promise<any> => {
   await waitTime(3);
   await startTyping(channelID, token);
   await waitTime(time);
-  let response: Response;
+  let response: Message;
   if (reply) response = await postMessage(message, channelID, token, ref);
   else response = await postMessage(message, channelID, token);
+
   return response;
 };
+
+// realType("hi", "961438859676221461", "NTA2Mjc0ODAwMDI5NjYzMjYz.Yim9Gg.Kz0dy9xtXCSEZv95_-O6vAvBlD8", 2, false);
 export const deleteMessage = async (channelID: string, messageID: string, token: string): Promise<void> => {
   axios
     .delete(`https://discord.com/api/v9/channels/${channelID}/messages/${messageID}`, {
@@ -73,10 +109,6 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
   }, delay * 1000);
   return spamInterval;
 };
-// realType("hi", "936904237064007704", "NTE2MzY5MTQzMDQ2MzQwNjA4.XZLCPg.iWJInN-nQJan6OD4a8zum6bVJIg", 1).then((resp) => {
-//   console.log(resp);
-// });
-
 // spamMessages("936904237064007704", "NTA2Mjc0ODAwMDI5NjYzMjYz.Yim9Gg.Kz0dy9xtXCSEZv95_-O6vAvBlD8", 5);
 
 export const testSend = async (message: string, token: string, channelID: string): Promise<boolean> => {
