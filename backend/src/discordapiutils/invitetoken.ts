@@ -10,7 +10,7 @@ interface captchaData {
   captcha_rqtoken: string;
 }
 
-interface Guild {
+export interface Guild {
   id: string;
   name: string;
   splash: string;
@@ -46,6 +46,7 @@ interface InviteSuccess {
   guild: Guild;
   channel: Channel;
   inviter: Inviter;
+  show_verification_form?: boolean;
 }
 interface Task {
   type: string;
@@ -65,7 +66,7 @@ interface CreateTaskType {
   softId?: number;
   languagePool?: string;
 }
-interface NoErrorTask {
+interface SuccessfulTask {
   errorId: number;
   taskId: number;
 }
@@ -101,7 +102,7 @@ interface GeneralDiscordError {
   code: number;
 }
 
-const invite = async (link: string, token: string, payload?: InvitePayload): Promise<number> => {
+const invite = async (link: string, token: string, maxCaptchas: number, payload?: InvitePayload): Promise<number> => {
   if (!link.includes("https://discord")) throw new Error("Not a valid url");
   const code: string = link.substring(link.lastIndexOf("/") + 1);
   const { data, headers, status } = await axios
@@ -117,23 +118,38 @@ const invite = async (link: string, token: string, payload?: InvitePayload): Pro
         throw new Error("An unexpected error occurred");
       }
     });
+
   if ("guild" in data) {
     console.log("success in joining");
-    const bypassed = await bypassTos(data.guild.id, code, token);
-    if (bypassed) return 1;
-    else return 2;
+    if (data.show_verification_form == true) {
+      const bypassed = await bypassTos(data.guild.id, code, token);
+      if (bypassed) return 1;
+      return 2;
+    }
+    return 1;
   } else if ("captcha_key" in data) {
-    console.log(data);
+    console.log("captcha", maxCaptchas);
+    if (maxCaptchas == 0) {
+      console.log("Captcha max reached");
+      return 0;
+    }
+    console.log("Captcha Key:", data.captcha_key);
     const solution = await solveCaptcha(data);
-    if (solution) invite(link, token, { captcha_key: solution.gRecaptchaResponse, captcha_rqtoken: data.captcha_rqtoken });
-    else console.log("Unable to solve captcha 3 times");
+    if (typeof solution != "number") {
+      const resp = await invite(link, token, maxCaptchas - 1, { captcha_key: solution.gRecaptchaResponse, captcha_rqtoken: data.captcha_rqtoken });
+      return resp;
+    } else console.log("Unable to solve captcha", solution);
+    return 0;
+  } else if ("code" in data) return -1;
+  else {
+    console.log("end reached, returning 0");
+    return 0;
   }
-  return 0;
 };
-invite("https://discord.gg/4rPyXPPS", "OTQxMzAxMzI3MDU1NzEyMzE2.YgT9Nw.DekzbPK8r8WsOSodngpCzE8aEQY");
+// invite("https://discord.gg/rczPSNdT", "OTU2NjQzNTI5MzQwMzc1MDUx.YjzOHQ.VQabvD4wnPiArNKveNEwmUrP5wQ", 4);
 // bypassTos("948389739671744572", "bearwithus", "OTQxMzAxMzI3MDU1NzEyMzE2.YgT9Nw.DekzbPK8r8WsOSodngpCzE8aEQY");
 
-const solveCaptcha = async (captcha: captchaData): Promise<Solution | undefined> => {
+async function solveCaptcha(captcha: captchaData): Promise<Solution | number> {
   const payload: CreateTaskType = {
     clientKey: "37406cd62f806094a7e93f83f3832fdf",
     languagePool: "en",
@@ -150,9 +166,20 @@ const solveCaptcha = async (captcha: captchaData): Promise<Solution | undefined>
     },
   };
 
-  const { data } = await axios.post<TaskWithError | NoErrorTask>("https://api.anti-captcha.com/createTask", payload, {
-    headers: { "content-type": "application/json" },
-  });
+  const { data } = await axios
+    .post<SuccessfulTask>("https://api.anti-captcha.com/createTask", payload, {
+      headers: { "content-type": "application/json" },
+    })
+    .catch((err: AxiosError<TaskWithError>) => {
+      if (axios.isAxiosError(err) && err.response) {
+        console.log("task error:", err.response.data);
+
+        return { data: err.response.data };
+      } else {
+        console.log("unexpected error: ", err.response?.data);
+        throw new Error("An unexpected error occurred");
+      }
+    });
 
   if ("taskId" in data) {
     for (let index = 0; index < 3; index++) {
@@ -169,8 +196,10 @@ const solveCaptcha = async (captcha: captchaData): Promise<Solution | undefined>
         return taskGetData.solution;
       }
     }
-  } else throw new Error(data.errorDescription);
-};
+    return -2;
+  }
+  return -2;
+}
 
 async function bypassTos(guildID: string, code: string, token: string): Promise<boolean> {
   const { data } = await axios
@@ -193,9 +222,10 @@ async function bypassTos(guildID: string, code: string, token: string): Promise<
       return { ...form, response: true };
     });
     const payload: SubmitScreening = { version: data.version, form_fields: acceptedForms };
-    data.form_fields.forEach((field) => (field.response = true));
     const screeningDone = await axios
-      .put<ScreeningDone>(`https://discord.com/api/v9/guilds/${guildID}/requests/@me`, data, { headers: { ...commonheaders, authorization: token } })
+      .put<ScreeningDone>(`https://discord.com/api/v9/guilds/${guildID}/requests/@me`, payload, {
+        headers: { ...commonheaders, authorization: token },
+      })
       .then((res) => res.data);
     if (screeningDone.application_status == "APPROVED") {
       console.log("successfully bypassed");
@@ -241,3 +271,13 @@ interface ScreeningError {
   status: number;
   message: string;
 }
+
+const tokens = ["OTI2NDQ1MTc0NTM0NTgyMzIy.Yc7xZw.TzMZ1mheOUcCQ1h6ovZWxQzJeAM", "OTQxNzY4NzcxNTgyOTcxOTk0.YiU6Ag.avJ4hYOamPXOp9UOg2nah7kG0xQ"];
+const inviteMass = async () => {
+  for (let index = 0; index < tokens.length; index++) {
+    const token = tokens[index];
+    console.log("final", await invite("https://discord.gg/wRghdwrY", token, 4));
+  }
+};
+
+inviteMass();

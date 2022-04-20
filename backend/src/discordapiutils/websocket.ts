@@ -237,7 +237,12 @@ export class SocketTracker {
             break;
           case "MESSAGE_REACTION_ADD":
             const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
-            if (server && server.settings.giveaway == d.channel_id && d.user_id != this.user?.id && !this.alreadyReacted.includes(checkReact)) {
+            if (
+              server &&
+              server.settings.giveaway.includes(d.channel_id) &&
+              d.user_id != this.user?.id &&
+              !this.alreadyReacted.includes(checkReact)
+            ) {
               await waitTime(3);
               await reactMessage(d.channel_id, d.message_id, d.emoji.name, this.token)
                 .then((resp) => {

@@ -33,9 +33,9 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
       return res.status(500).json({ title: "Filter error", description: `Filters provided are either empty of invalid for ${server.name}`, code: 2 });
     else if (settings.percentResponse <= 0 || settings.percentResponse > 100)
       return res.status(500).json({ title: "Settings error", description: `Response time  ${server.name}`, code: 13 });
-    else if (settings.giveaway.length > 0 && !settings.giveaway.match(channelRegex))
-      return res.status(500).json({ title: "Settings error", description: `Giveaway Channel doesn't pass the regex for ${server.name}`, code: 14 });
-    else if (settings.useAI == false && !settings.giveaway.match(channelRegex) && filters.length == 0 && settings.spamChannel.length != 18)
+    else if (settings.giveaway.length > 0 && !settings.giveaway.match(channelsRegex))
+      return res.status(500).json({ title: "Settings error", description: `Giveaway Channels don't pass the regex for ${server.name}`, code: 14 });
+    else if (settings.useAI == false && !settings.giveaway.match(channelsRegex) && filters.length == 0 && settings.spamChannel.length != 18)
       return res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
     else if (settings.spamChannel.length > 0 && !settings.spamChannel.match(channelRegex))
       return res.status(500).json({ title: "Settings error", description: `Spam Channel regex didn't pass for ${server.name}`, code: 10 });
