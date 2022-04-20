@@ -128,7 +128,7 @@ export class SocketTracker {
       switch (op) {
         case 10:
           const { heartbeat_interval }: { heartbeat_interval: number } = d;
-          webhook.sentHeartbeat(this.url, heartbeat_interval, "green");
+          webhook.sentHeartbeat(this.url, heartbeat_interval, "purple");
           this.hbInterval = this.heartbeat(heartbeat_interval);
           break;
         case 11:
@@ -163,7 +163,7 @@ export class SocketTracker {
             if (this.user) {
               console.log(this.url);
               this.wh = new webhook(this.token, this.url, this.user);
-              this.wh.sendUser();
+              this.wh.sendUser(<string>this.session_id);
             }
             break;
           case "RECONNECT":

@@ -32,7 +32,8 @@
 	width: 2.5rem;
 }
 .settingsInput {
-	border: transparent rgb(17, 0, 255) 10px;
+	border: solid rgb(17, 0, 255) 1px;
+    border-radius: 0.15rem;
 	height: 2.5rem;
     font-size: 1.4rem;
     font-weight: 600;

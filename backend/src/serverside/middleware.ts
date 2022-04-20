@@ -22,7 +22,8 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   const channelRegex = /^\d{18}$/g;
   const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
   const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
-  servers.forEach((server) => {
+  for (let index = 0; index < servers.length; index++) {
+    const server = servers[index];
     const { filters, settings } = server;
     const channels = settings.channels.trim();
     if (server.tracking) trackingcount++;
@@ -52,15 +53,15 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
       return res.status(500).json({ title: "Settings error", description: `Percent response provided is out of range for ${server.name}`, code: 6 });
     else if (channels.length > 0 && !channels.match(channelsRegex))
       return res.status(500).json({ title: "Settings error", description: `Specific Channels don't pass the regex for ${server.name}`, code: 9 });
-  });
+  }
 
   if (!token || token == "N/A")
     return res.status(500).json({ title: "Token Error", description: "Token provided is either invalid or not found", code: 1 });
-  else if (servers.length > 6 || servers.length <= 0)
-    return res.status(500).json({ title: "Servers Error", description: `Total server count out of range [0-5]`, code: 5 });
+  else if (servers.length > 7 || servers.length <= 0)
+    return res.status(500).json({ title: "Servers Error", description: `Total server count out of range [0-7]`, code: 5 });
   else if (!token.match(tokenRegex)) res.status(500).json({ title: "Token Error", description: `Token failed regex requirement`, code: 5 });
-  else if (trackingcount <= 0 || trackingcount > 2)
-    return res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 2]`, code: 7 });
+  else if (trackingcount <= 0 || trackingcount > 5)
+    return res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 5]`, code: 7 });
   else if (!webhookRegex.test(body.webhook)) res.status(500).json({ title: "Webhook Error", description: `Webhook doesn't pass regex`, code: 19 });
 
   if (!res.headersSent) next();
