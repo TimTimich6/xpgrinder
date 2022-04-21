@@ -55,6 +55,7 @@ const CreateSever = (props) => {
               useAI: false,
               channels: "",
               giveaway: "",
+              temperature: 60,
             },
             guildID: resp.guildID,
             tracking: false,

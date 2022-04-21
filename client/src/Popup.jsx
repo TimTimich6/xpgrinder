@@ -13,6 +13,7 @@ const Popup = () => {
   const aiRef = useRef();
   const channelsRef = useRef();
   const giveawayRef = useRef();
+  const spontaneityRef = useRef();
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
   const handleCheck = (event) => {
@@ -45,6 +46,7 @@ const Popup = () => {
               spamChannel: spamRef.current.value,
               channels: channelsRef.current.value,
               giveaway: giveawayRef.current.value,
+              temperature: parseInt(spontaneityRef.current.value),
             },
           };
         return server;
@@ -63,17 +65,6 @@ const Popup = () => {
               </h1>
             </div>
             <div className="popupBody">
-              {/* <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel settingDisabled`}>Dialogue Mode (soon)</span>
-                <input
-                  type="checkbox"
-                  className="settingsCheckbox"
-                  onChange={(event) => handleCheck(event)}
-                  ref={dialogueRef}
-                  checked={server.settings.dialogueMode}
-                  disabled={spamOn}
-                />
-              </div> */}
               <div className="serverSettingContainer">
                 <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Assist with AI</span>
                 <input
@@ -83,6 +74,21 @@ const Popup = () => {
                   ref={aiRef}
                   checked={server.settings.useAI}
                   disabled={spamOn}
+                />
+              </div>
+
+              <div className="serverSettingContainer">
+                <span className={`settingsCheckboxLabel ${spamOn || !server.settings.useAI ? "settingDisabled" : null}`}>AI Spontaneity</span>
+                <input
+                  type="number"
+                  value={server.settings.temperature}
+                  className="settingsInput"
+                  onChange={(event) => handleInput(event)}
+                  ref={spontaneityRef}
+                  min="0"
+                  max="100"
+                  step="10"
+                  size="3"
                 />
               </div>
               <div className="serverSettingContainer">

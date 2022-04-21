@@ -272,12 +272,12 @@ interface ScreeningError {
   message: string;
 }
 
-const tokens = ["OTI2NDQ1MTc0NTM0NTgyMzIy.Yc7xZw.TzMZ1mheOUcCQ1h6ovZWxQzJeAM", "OTQxNzY4NzcxNTgyOTcxOTk0.YiU6Ag.avJ4hYOamPXOp9UOg2nah7kG0xQ"];
-const inviteMass = async () => {
-  for (let index = 0; index < tokens.length; index++) {
-    const token = tokens[index];
-    console.log("final", await invite("https://discord.gg/wRghdwrY", token, 4));
-  }
-};
+// const tokens = ["OTU2NjAyMjY4NTQxNjc3NjM5.YjynqA.W_T_ILwgguNQ7Rd1W5cLjpd29iA", "OTQxNzUzNzI4MTY2NDEyMzE4.YiQRZA.U9iZ81igkz8JHPzBpfe_pKkApt4"];
+// const inviteMass = async () => {
+//   for (let index = 0; index < tokens.length; index++) {
+//     const token = tokens[index];
+//     invite("https://discord.gg/wRghdwrY", token, 4);
+//   }
+// };
 
-inviteMass();
+// inviteMass();

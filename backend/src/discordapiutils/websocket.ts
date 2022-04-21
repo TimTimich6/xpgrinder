@@ -43,6 +43,7 @@ export interface Settings {
   channels: string;
   giveaway: string;
   emoji: string;
+  temperature: number;
 }
 export interface Server {
   name: string;
@@ -212,7 +213,9 @@ export class SocketTracker {
                 }
               } else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
                 console.log("generating AI");
-                const response = await generateAIResponse(content);
+                const response = await generateAIResponse(content, settings.temperature).catch(() => {
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
+                });
                 if (response) {
                   console.log("AI response:", response);
                   this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
