@@ -1,4 +1,3 @@
-import { ErrorResponse } from "./../serverside/server";
 import axios from "axios";
 import dotenv from "dotenv";
 import commonHeaders, { getCookie } from "./headers";

@@ -21,12 +21,11 @@ interface TrackingStorage {
   key: string;
   intervals?: NodeJS.Timer[];
 }
-export interface ErrorResponse {
-  title: string;
-  description: string;
-  code?: number;
-}
 
+export interface Example {
+  prompt: string;
+  completion: string;
+}
 let trackingArray: TrackingStorage[] = [];
 
 app.get("/api/key", authKey, async (req, res) => {
@@ -133,10 +132,20 @@ app.get("/api/test", async (req, res) => {
   res.json(await mongo.getUser("timkey"));
 });
 
+app.post("/api/example", authKey, async (req, res) => {
+  const { prompt, completion } = req.body;
+  if (prompt.length <= 0 || completion.length <= 0) res.status(500).json({ title: "Upload Error", description: "Invalid upload data detected" });
+  else {
+    await mongo.uploadExample(<string>req.headers["testing-key"], { prompt, completion });
+    res.status(200).json("Uploaded example successfully");
+  }
+});
+
 app.get("/api/servers", (req, res) => {
   if (req.headers["testing-key"] == "timkey") res.status(200).json(trackingArray.map((elem) => elem.key));
   else res.status(403).json("unauthorized key");
 });
+
 app.listen(port, () => {
   console.log("listening on port", port);
 });

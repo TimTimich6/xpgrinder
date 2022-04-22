@@ -8,6 +8,7 @@ import Popup from "./Popup";
 import ErrorDisplay from "./ErrorDisplay";
 import Login from "./Login";
 import Loader from "./Loader";
+import TrainAI from "./TrainAI";
 function App() {
   return (
     <div className="App">
@@ -15,11 +16,11 @@ function App() {
         <ServerListProvider>
           <Login />
           <Loader />
-
           <Popup />
           <ErrorDisplay />
           <div className="appContainer">
             <ServerStats />
+            <TrainAI />
             <ServerList />
             <FilterList />
           </div>

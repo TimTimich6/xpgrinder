@@ -1,5 +1,6 @@
 import { Server } from "./../discordapiutils/websocket";
 import { Document, MongoClient, WithId } from "mongodb";
+import { Example } from "./server";
 
 export interface KeyData {
   key: string;
@@ -39,4 +40,8 @@ export const overwriteServers = async (key: string, servers: Server[]): Promise<
     .db("xpgrinder")
     .collection("keys")
     .updateOne({ key: key }, { $set: { servers: servers } }, { upsert: true });
+};
+
+export const uploadExample = async (key: string, example: Example): Promise<void> => {
+  await client.db("xpgrinder").collection("examples").insertOne({ key: key, prompt: example.prompt, completion: example.completion });
 };

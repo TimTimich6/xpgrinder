@@ -3,7 +3,6 @@ import TrackingPreview from "./TrackingPreview";
 import { useContext, useState } from "react";
 import { ServerListContext } from "../ServerListContext";
 import { UserSettingsContext } from "../UserSettingsContext";
-import axios from "axios";
 
 const ServerList = () => {
   const { servers, setServers, currentServer, setCurrentServer } = useContext(ServerListContext);
