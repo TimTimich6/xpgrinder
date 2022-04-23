@@ -39,6 +39,8 @@ const TrainAI = () => {
       <div className="trainAIBody">
         <div className="sampleAI">
           <p className="sampleText">To help use improve our AI, you can provide examples which it will be trained upon. Below is a sample example</p>
+          <p className="sampleText green">10 Responses = 1 USD</p>
+
           <div className="sampleExample">
             <h2 className="samplePrompt">Message: another day grinding for whitelist</h2>
             <h2 className="sampleResponse">Response: Keep working you got this</h2>

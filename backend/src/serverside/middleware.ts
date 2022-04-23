@@ -1,32 +1,24 @@
 import { KeyData } from "./mongocommands";
 import { NextFunction, Request, Response } from "express";
-import PasteClient from "pastebin-api";
-
-export const getPaste = async (id: string) => {
-  const client = new PasteClient("JREh35B5lwRes-iUQrrWp8Hr7wv4Y2LC");
-  const token = await client.login("Timtimich", "mintmachines");
-  const data = await client.getRawPasteByKey({
-    pasteKey: id,
-    userKey: token,
-  });
-  return data;
-};
-
+import { getPaste } from "../utils/dataRetreriver";
+export const getTokens = async () => {};
 export const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
-
+const invRegex = new RegExp("(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/.+[a-z]");
+const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
+const channelRegex = /^\d{18}$/g;
+const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
+const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
 export const checkTracking = (req: Request, res: Response, next: NextFunction) => {
   const body: KeyData = req.body;
   const { token, servers } = body;
   let trackingcount = 0;
-  const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
-  const channelRegex = /^\d{18}$/g;
-  const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
-  const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
+  let aiuses = 0;
   for (let index = 0; index < servers.length; index++) {
     const server = servers[index];
     const { filters, settings } = server;
     const channels = settings.channels.trim();
     if (server.tracking) trackingcount++;
+    if (server.tracking && server.settings.useAI == true) aiuses++;
     if (typeof settings.giveaway == "undefined")
       return res.status(500).json({ title: "Outdated version", description: `Set any value for giveaway to fix error for ${server.name}`, code: 15 });
     else if (settings.useAI && (settings.temperature > 100 || settings.temperature <= 0 || isNaN(settings.temperature)))
@@ -68,8 +60,71 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
   else if (trackingcount <= 0 || trackingcount > 5)
     return res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 5]`, code: 7 });
   else if (!webhookRegex.test(body.webhook)) res.status(500).json({ title: "Webhook Error", description: `Webhook doesn't pass regex`, code: 19 });
+  else if (aiuses > 2)
+    return res
+      .status(500)
+      .json({ title: "Servers Error", description: `You can only use AI on 2 servers at a time, the rest can be spam or filter based`, code: 23 });
 
   if (!res.headersSent) next();
+};
+
+export interface InviteRequest {
+  amount: number;
+  captcha: number;
+  channelID: string;
+  concurrent: boolean;
+  delay: number;
+  guildID: string;
+  inviteLink: string;
+  messageID: string;
+  message: string;
+  reaction: string;
+  webhook: string;
+  guildName: string;
+  serverLogo: string;
+}
+export const checkInvite = async (req: Request, res: Response, next: NextFunction) => {
+  const params: InviteRequest = req.body;
+  const keys = Object.keys(params);
+  if (!keys.includes("amount")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("captcha")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("channelID")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("delay")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("guildID")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("inviteLink")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("messageID")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("message")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("reaction")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("webhook")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("guildName")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("serverLogo")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("concurrent")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+
+  params.channelID = params.channelID.trim();
+  params.guildID = params.guildID.trim();
+  params.messageID = params.messageID.trim();
+  params.reaction = params.reaction.trim();
+  params.message = params.message.trim();
+  params.inviteLink = params.inviteLink.trim();
+  params.webhook = params.webhook.trim();
+  params.serverLogo = params.serverLogo.trim();
+
+  if (params.amount <= 0 || params.amount >= 16) return res.status(500).json({ title: "Invite error", description: `Amount is out of range [1,15]` });
+  if (!params.webhook.match(webhookRegex)) return res.status(500).json({ title: "Invite error", description: `Webhook is not valid` });
+  if (params.delay <= 1 || params.delay >= 120) return res.status(500).json({ title: "Invite error", description: `Delay is out of range [2,120]` });
+  if (params.guildID.length != 18) return res.status(500).json({ title: "Invite error", description: `Invite link is not set` });
+  if (!invRegex.test(params.inviteLink)) return res.status(500).json({ title: "Invite error", description: `Invite link is not valid` });
+  if (params.captcha <= 0 || params.captcha >= 4)
+    return res.status(500).json({ title: "Invite error", description: `Captcha is out of range [1,3]` });
+  if (params.reaction.length >= 1 && !params.reaction.match(emojiRegex))
+    return res.status(500).json({ title: "Invite error", description: `Reaction emoji is invalid` });
+  if (params.reaction.match(emojiRegex) && (!params.messageID.match(channelRegex) || !params.channelID.match(channelRegex)))
+    return res.status(500).json({ title: "Invite error", description: `Reaction is present but messageID or channelID are not valid` });
+  if (params.reaction.match(emojiRegex) && (!params.messageID.match(channelRegex) || !params.channelID.match(channelRegex)))
+    return res.status(500).json({ title: "Invite error", description: `Reaction is present but messageID or channelID are not valid` });
+  if (params.message.length >= 1 && !params.channelID.match(channelRegex))
+    return res.status(500).json({ title: "Invite error", description: `Message to send is present but channelID is not valid` });
+  next();
 };
 
 export const authKey = async (req: Request, res: Response, next: NextFunction) => {

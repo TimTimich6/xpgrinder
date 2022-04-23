@@ -4,7 +4,7 @@ import axios from "axios";
 import { userData } from "./selfData";
 import commonHeaders, { getCookie } from "./headers";
 
-type Color = "red" | "green" | "purple" | "yellow" | "orange" | "black" | "blue";
+export type Color = "red" | "green" | "purple" | "yellow" | "orange" | "black" | "blue";
 export default class WebHooks {
   readonly token;
   readonly url;
@@ -181,7 +181,7 @@ export default class WebHooks {
   };
 }
 
-const ColorToInt = {
+export const ColorToInt = {
   green: "9FE2BF",
   red: "DE3163",
   orange: "FF7F50",
@@ -190,14 +190,3 @@ const ColorToInt = {
   black: "0",
   purple: "A020F0",
 };
-
-export interface Webhook {
-  type: number;
-  id: string;
-  name: string;
-  avatar: string;
-  channel_id: string;
-  guild_id: string;
-  application_id: null;
-  token: string;
-}

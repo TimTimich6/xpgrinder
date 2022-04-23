@@ -37,10 +37,17 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const headers_1 = __importStar(require("./headers"));
 dotenv_1.default.config();
 const selfData = (token) => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield axios_1.default.get('https://discord.com/api/v9/users/@me', {
-        headers: Object.assign({ authorization: token, cookie: yield (0, headers_1.getCookie)() }, headers_1.default)
+    const res = yield axios_1.default
+        .get("https://discord.com/api/v9/users/@me", {
+        headers: Object.assign({ authorization: token, cookie: yield (0, headers_1.getCookie)() }, headers_1.default),
+    })
+        .then((resp) => {
+        console.log("token used:", token);
+        console.log("\tusername returned:", resp.data.username);
+        console.log("\tid returned:", resp.data.id);
+        return resp.data;
     });
-    return res.data;
+    return res;
 });
 exports.selfData = selfData;
 // const token: string | undefined = process.env.MY_TOKEN;

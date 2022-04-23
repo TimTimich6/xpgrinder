@@ -1,4 +1,4 @@
-import { getPaste } from "./../serverside/middleware";
+import { getPaste } from "./../utils/dataRetreriver";
 import commonHeaders, { getCookie } from "./headers";
 import fetch, { Response } from "node-fetch";
 import axios from "axios";

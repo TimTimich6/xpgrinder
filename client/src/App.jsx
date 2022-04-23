@@ -9,6 +9,7 @@ import ErrorDisplay from "./ErrorDisplay";
 import Login from "./Login";
 import Loader from "./Loader";
 import TrainAI from "./TrainAI";
+import Inviter from "./Invite/Inviter";
 function App() {
   return (
     <div className="App">
@@ -23,6 +24,7 @@ function App() {
             <TrainAI />
             <ServerList />
             <FilterList />
+            <Inviter />
           </div>
         </ServerListProvider>
       </UserSettingsProvider>

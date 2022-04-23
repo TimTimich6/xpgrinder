@@ -277,6 +277,6 @@ export class SocketTracker {
 
 const checkAI = (content: string, random: number): boolean => {
   const rand = Math.floor(Math.random() * 100) < random;
-  if (rand && content.length > 2 && content.length < 40 && !emojiRegex.test(content) && !/\d{18}/g.test(content)) return true;
+  if (rand && content.length > 2 && content.length < 30 && !emojiRegex.test(content) && !/\d{18}/g.test(content)) return true;
   return false;
 };

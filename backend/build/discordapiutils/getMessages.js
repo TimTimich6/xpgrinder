@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMessages = void 0;
 const axios_1 = __importDefault(require("axios"));
 const headers_1 = __importDefault(require("./headers"));
-const getMessages = (channelID, limit = 5, token) => __awaiter(void 0, void 0, void 0, function* () {
+const getMessages = (channelID, limit = 1, token) => __awaiter(void 0, void 0, void 0, function* () {
     const resp = yield axios_1.default.get(`https://discord.com/api/v9/channels/${channelID}/messages?limit=${limit}`, {
         headers: Object.assign({ authorization: token }, headers_1.default),
     });
@@ -23,6 +23,10 @@ const getMessages = (channelID, limit = 5, token) => __awaiter(void 0, void 0, v
     return messages;
 });
 exports.getMessages = getMessages;
-(0, exports.getMessages)("779580415199019042", undefined, "NTE2MzY5MTQzMDQ2MzQwNjA4.XZLCPg.iWJInN-nQJan6OD4a8zum6bVJIg").then((response) => {
+(0, exports.getMessages)("95790573247125500", 1, "NTA2Mjc0ODAwMDI5NjYzMjYz.Yim9Gg.Kz0dy9xtXCSEZv95_-O6vAvBlD8")
+    .then((response) => {
     console.log(response);
+})
+    .catch((err) => {
+    console.log("ERROR: ", err.response.data.message, "CODE: ", err.response.data.code);
 });

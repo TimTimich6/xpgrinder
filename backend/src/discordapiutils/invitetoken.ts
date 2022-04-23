@@ -2,6 +2,8 @@ import axios, { AxiosError } from "axios";
 import waitTime from "../utils/waitTime";
 import commonheaders, { userAgent } from "./headers";
 
+const clientKey = "898dc14ab0768f8250193ed2d4af4666";
+const TwoCapKey = "d3bcb4eeed1069b8dccb8219f9b0ab7e";
 interface captchaData {
   captcha_key: string[];
   captcha_sitekey: string;
@@ -60,35 +62,54 @@ interface Task {
   };
 }
 
-interface CreateTaskType {
+interface CreateTaskAnti {
   clientKey: string;
   task: Task;
   softId?: number;
   languagePool?: string;
 }
-interface SuccessfulTask {
-  errorId: number;
+interface CreateTask2Cap {
+  key: string;
+  method: "hcaptcha";
+  sitekey: string;
+  pageurl: string;
+  invisible?: boolean;
+  data: string;
+  userAgent: string;
+  json: 1;
+}
+interface SuccessfulTaskAnti {
+  errorId: 0;
   taskId: number;
 }
 
-interface TaskWithError {
+interface TaskWithErrorAnti {
   errorId: number;
   errorCode: string;
   errorDescription: string;
 }
 
-interface TaskSolved {
+interface TaskSolvedAnti {
   errorId: number;
   status: string;
-  solution: Solution;
+  solution: SolutionAnti;
   cost: string;
   ip: string;
   createTime: number;
   endTime: number;
   solveCount: string;
 }
+interface SuccessfulCreate2Cap {
+  status: 1;
+  request: string;
+}
 
-interface Solution {
+interface TwoCapCreateError {
+  status: 0;
+  request: string;
+  error_text?: string;
+}
+interface SolutionAnti {
   gRecaptchaResponse: string;
 }
 
@@ -102,10 +123,10 @@ interface GeneralDiscordError {
   code: number;
 }
 
-const invite = async (link: string, token: string, maxCaptchas: number, payload?: InvitePayload): Promise<number> => {
+export const invite = async (link: string, token: string, maxCaptchas: number, payload?: InvitePayload): Promise<number> => {
   if (!link.includes("https://discord")) throw new Error("Not a valid url");
   const code: string = link.substring(link.lastIndexOf("/") + 1);
-  const { data, headers, status } = await axios
+  const { data } = await axios
     .post<InviteSuccess>(`https://discord.com/api/v9/invites/${code}`, payload || {}, { headers: { ...commonheaders, authorization: token } })
     .catch((err: AxiosError<captchaData | GeneralDiscordError>) => {
       if (axios.isAxiosError(err) && err.response?.status == 400) {
@@ -128,18 +149,20 @@ const invite = async (link: string, token: string, maxCaptchas: number, payload?
     }
     return 1;
   } else if ("captcha_key" in data) {
-    console.log("captcha", maxCaptchas);
+    console.log("captcha left", maxCaptchas);
     if (maxCaptchas == 0) {
       console.log("Captcha max reached");
       return 0;
     }
     console.log("Captcha Key:", data.captcha_key);
-    const solution = await solveCaptcha(data);
-    if (typeof solution != "number") {
-      const resp = await invite(link, token, maxCaptchas - 1, { captcha_key: solution.gRecaptchaResponse, captcha_rqtoken: data.captcha_rqtoken });
+    const solution = await solveCaptcha2Captcha(data);
+    if (typeof solution == "number") return -2;
+    if (typeof solution == "string") {
+      console.log("solution", solution.slice(-5));
+      const resp = await invite(link, token, maxCaptchas - 1, { captcha_key: solution, captcha_rqtoken: data.captcha_rqtoken });
       return resp;
     } else console.log("Unable to solve captcha", solution);
-    return 0;
+    return -2;
   } else if ("code" in data) return -1;
   else {
     console.log("end reached, returning 0");
@@ -149,31 +172,30 @@ const invite = async (link: string, token: string, maxCaptchas: number, payload?
 // invite("https://discord.gg/rczPSNdT", "OTU2NjQzNTI5MzQwMzc1MDUx.YjzOHQ.VQabvD4wnPiArNKveNEwmUrP5wQ", 4);
 // bypassTos("948389739671744572", "bearwithus", "OTQxMzAxMzI3MDU1NzEyMzE2.YgT9Nw.DekzbPK8r8WsOSodngpCzE8aEQY");
 
-async function solveCaptcha(captcha: captchaData): Promise<Solution | number> {
-  const payload: CreateTaskType = {
-    clientKey: "37406cd62f806094a7e93f83f3832fdf",
+async function solveCaptchaAnti(captcha: captchaData): Promise<string | number | TaskWithErrorAnti> {
+  const payload: CreateTaskAnti = {
+    clientKey,
     languagePool: "en",
     task: {
       type: "HCaptchaTaskProxyless",
       websiteURL: "https://discord.com/channels/@me",
       websiteKey: captcha.captcha_sitekey,
       isInvisible: false,
-      userAgent: userAgent,
+      userAgent,
       enterprisePayload: {
         rqdata: captcha.captcha_rqdata,
-        sentry: true,
+        sentry: false,
       },
     },
   };
 
   const { data } = await axios
-    .post<SuccessfulTask>("https://api.anti-captcha.com/createTask", payload, {
+    .post<SuccessfulTaskAnti>("https://api.anti-captcha.com/createTask", payload, {
       headers: { "content-type": "application/json" },
     })
-    .catch((err: AxiosError<TaskWithError>) => {
+    .catch((err: AxiosError<TaskWithErrorAnti>) => {
       if (axios.isAxiosError(err) && err.response) {
         console.log("task error:", err.response.data);
-
         return { data: err.response.data };
       } else {
         console.log("unexpected error: ", err.response?.data);
@@ -185,22 +207,74 @@ async function solveCaptcha(captcha: captchaData): Promise<Solution | number> {
     for (let index = 0; index < 3; index++) {
       await waitTime(20);
       const taskGetData = await axios
-        .post<TaskWithError | TaskSolved>(
+        .post<TaskWithErrorAnti | TaskSolvedAnti>(
           "https://api.anti-captcha.com/getTaskResult",
-          { clientKey: "37406cd62f806094a7e93f83f3832fdf", taskId: data.taskId },
+          { clientKey, taskId: data.taskId },
           { headers: { "content-type": "application/json" } }
         )
         .then((resp) => resp.data);
       if ("solution" in taskGetData) {
-        console.log("solution received");
-        return taskGetData.solution;
+        // console.log("successful solution",taskGetData);
+        return taskGetData.solution.gRecaptchaResponse;
       }
     }
     return -2;
   }
-  return -2;
+  console.log("failed data", data);
+  return data;
 }
 
+async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | number | TwoCapCreateError> {
+  const payload: CreateTask2Cap = {
+    key: TwoCapKey,
+    method: "hcaptcha",
+    json: 1,
+    sitekey: captcha.captcha_sitekey,
+    data: captcha.captcha_rqdata,
+    userAgent: userAgent,
+    pageurl: "https://discord.com/channels/@me",
+  };
+  const url = `http://2captcha.com/in.php?key=${payload.key}&method=hcaptcha&sitekey=${payload.sitekey}&pageurl=${payload.pageurl}}&data=${payload.data}&json=1&useragent=${payload.userAgent}`;
+
+  const { data } = await axios
+    .post<SuccessfulCreate2Cap>(url, payload, {
+      headers: { "content-type": "application/json" },
+    })
+    .catch((err: AxiosError<TwoCapCreateError>) => {
+      if (axios.isAxiosError(err) && err.response) {
+        console.log("task error:", err.response.data);
+        return { data: err.response.data };
+      } else {
+        console.log("unexpected error: ", err.response?.data);
+        throw new Error("An unexpected error occurred");
+      }
+    });
+  console.log(data);
+  if ("status" in data && data.status == 1) {
+    for (let index = 0; index < 3; index++) {
+      await waitTime(20);
+      const taskGetData = await axios
+        .get<string>(`http://2captcha.com/res.php&key=${TwoCapKey}&action=get&id=${data.request}&json=1`)
+        .then((resp) => resp.data)
+        .catch((err: AxiosError<string>) => {
+          if (axios.isAxiosError(err) && err.response) {
+            console.log("get task 2cap error", err.response.data);
+            return null;
+          } else {
+            console.log("unexpected error: ", err.response?.data);
+            throw new Error("An unexpected error occurred");
+          }
+        });
+      if (taskGetData) {
+        console.log("successful solution 2cap", taskGetData);
+        return taskGetData;
+      }
+    }
+    return -2;
+  }
+  console.log("failed data", data);
+  return data;
+}
 async function bypassTos(guildID: string, code: string, token: string): Promise<boolean> {
   const { data } = await axios
     .get<ScreeningForm>(`https://discord.com/api/v9/guilds/${guildID}/member-verification?with_guild=false&invite_code=${code}`, {
@@ -271,13 +345,3 @@ interface ScreeningError {
   status: number;
   message: string;
 }
-
-// const tokens = ["OTU2NjAyMjY4NTQxNjc3NjM5.YjynqA.W_T_ILwgguNQ7Rd1W5cLjpd29iA", "OTQxNzUzNzI4MTY2NDEyMzE4.YiQRZA.U9iZ81igkz8JHPzBpfe_pKkApt4"];
-// const inviteMass = async () => {
-//   for (let index = 0; index < tokens.length; index++) {
-//     const token = tokens[index];
-//     invite("https://discord.gg/wRghdwrY", token, 4);
-//   }
-// };
-
-// inviteMass();

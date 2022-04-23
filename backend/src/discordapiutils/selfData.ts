@@ -1,7 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import commonHeaders, { getCookie } from "./headers";
-dotenv.config();
 export interface userData {
   username: string;
   id: string;
