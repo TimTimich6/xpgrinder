@@ -1,0 +1,104 @@
+.redText{
+    color:rgb(222, 91, 91)
+}
+
+.inviterTotal{
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+    width:100%;
+}
+
+.inviterBody{
+    
+    display: flex;
+    flex-direction:column;
+    gap:1rem;
+    
+    
+}
+.guild{
+    display: flex;
+    gap:1rem;
+
+}
+.guildLogo{
+    height:8rem;
+    border-top-left-radius:0.6rem;
+    border-bottom-left-radius:0.6rem
+
+}
+.guildMiddle{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap:0.4rem;
+}
+
+.guildName{
+    font-size: 1.6rem;
+}
+.impressive{
+    color:chocolate;
+}
+.green{
+    color:green;
+}
+.guildLink{
+    font-size: 1.6rem;
+    font-weight: 600;
+    color:rgb(119, 94, 202);
+}
+.inviterSettingsTotal{
+  display: flex;
+  padding:1rem;
+  flex-direction:column;
+  gap:1rem;
+}
+
+.inviterSettings{
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
+}
+.rounded{
+    border-radius: 0.6rem;
+    background-color:white;
+    box-shadow: 1px 4px 2px rgb(10, 10, 10);
+}
+.inviterOption{
+    display:flex;
+    gap:1rem;
+    align-items:center;
+}
+
+.optionLabel{
+    font-size: 2rem;
+    font-weight: 800;
+    color:rgb(80, 128, 152);
+}
+.optionInput{
+    border: solid rgb(160, 160, 160) 2px;
+    border-radius: 0.15rem;
+
+    padding:0.5rem;
+    height: 100%;
+    
+}
+.inviterOption{
+    height:3rem;
+}
+
+.IText{
+    width: auto;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+.ICheck{
+    width: 3rem;
+}
+.inviterButtons{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom:1rem;
+}
