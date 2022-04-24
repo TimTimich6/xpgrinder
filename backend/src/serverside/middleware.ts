@@ -1,4 +1,4 @@
-import { KeyData } from "./mongocommands";
+import { getUses, KeyData } from "./mongocommands";
 import { NextFunction, Request, Response } from "express";
 import { getPaste } from "../utils/dataRetreriver";
 export const getTokens = async () => {};
@@ -29,7 +29,13 @@ export const checkTracking = (req: Request, res: Response, next: NextFunction) =
       return res.status(500).json({ title: "Settings error", description: `Response time  ${server.name}`, code: 13 });
     else if (settings.giveaway.length > 0 && !settings.giveaway.trim().match(channelsRegex))
       return res.status(500).json({ title: "Settings error", description: `Giveaway Channels don't pass the regex for ${server.name}`, code: 14 });
-    else if (settings.useAI == false && !settings.giveaway.trim().match(channelsRegex) && filters.length == 0 && settings.spamChannel.length != 18)
+    else if (
+      !settings.useAI &&
+      server.tracking &&
+      !settings.giveaway.trim().match(channelsRegex) &&
+      filters.length == 0 &&
+      settings.spamChannel.length != 18
+    )
       return res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
     else if (settings.spamChannel.length > 0 && !settings.spamChannel.trim().match(channelRegex))
       return res.status(500).json({ title: "Settings error", description: `Spam Channel regex didn't pass for ${server.name}`, code: 10 });
@@ -82,6 +88,7 @@ export interface InviteRequest {
   webhook: string;
   guildName: string;
   serverLogo: string;
+  verbose: boolean;
 }
 export const checkInvite = async (req: Request, res: Response, next: NextFunction) => {
   const params: InviteRequest = req.body;
@@ -99,6 +106,7 @@ export const checkInvite = async (req: Request, res: Response, next: NextFunctio
   if (!keys.includes("guildName")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
   if (!keys.includes("serverLogo")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
   if (!keys.includes("concurrent")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+  if (!keys.includes("verbose")) return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
 
   params.channelID = params.channelID.trim();
   params.guildID = params.guildID.trim();
@@ -108,14 +116,12 @@ export const checkInvite = async (req: Request, res: Response, next: NextFunctio
   params.inviteLink = params.inviteLink.trim();
   params.webhook = params.webhook.trim();
   params.serverLogo = params.serverLogo.trim();
-
   if (params.amount <= 0 || params.amount >= 16) return res.status(500).json({ title: "Invite error", description: `Amount is out of range [1,15]` });
   if (!params.webhook.match(webhookRegex)) return res.status(500).json({ title: "Invite error", description: `Webhook is not valid` });
   if (params.delay <= 1 || params.delay >= 120) return res.status(500).json({ title: "Invite error", description: `Delay is out of range [2,120]` });
   if (params.guildID.length != 18) return res.status(500).json({ title: "Invite error", description: `Invite link is not set` });
   if (!invRegex.test(params.inviteLink)) return res.status(500).json({ title: "Invite error", description: `Invite link is not valid` });
-  if (params.captcha <= 0 || params.captcha >= 4)
-    return res.status(500).json({ title: "Invite error", description: `Captcha is out of range [1,3]` });
+  if (params.captcha < 0 || params.captcha >= 4) return res.status(500).json({ title: "Invite error", description: `Captcha is out of range [0,3]` });
   if (params.reaction.length >= 1 && !params.reaction.match(emojiRegex))
     return res.status(500).json({ title: "Invite error", description: `Reaction emoji is invalid` });
   if (params.reaction.match(emojiRegex) && (!params.messageID.match(channelRegex) || !params.channelID.match(channelRegex)))
@@ -143,4 +149,14 @@ export const authKey = async (req: Request, res: Response, next: NextFunction) =
       res.status(404).json({ title: "Key not found", description: "Enter a valid key to use the XP Grinder" });
     }
   }
+};
+
+export const checkUses = async (req: Request, res: Response, next: NextFunction) => {
+  const key = <string>req.headers["testing-key"];
+  const uses = await getUses(key);
+  if (uses) {
+    if (uses + parseInt(req.body.amount) > 15)
+      return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });
+  }
+  next();
 };

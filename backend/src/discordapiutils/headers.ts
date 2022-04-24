@@ -1,10 +1,12 @@
 import axios from "axios";
 export const getCookie = async (): Promise<string> => {
-  const response: any = await axios.get("http://discord.com");
-  // console.log(response);
-  const cookieArray: string[] = response.headers["set-cookie"];
-  const cookie: string = cookieArray.join(";");
-  return cookie;
+  const response: any = await axios.get("http://discord.com").catch((err) => null);
+  if (response) {
+    const cookieArray: string[] = response.headers["set-cookie"];
+    const cookie: string = cookieArray.join(";");
+    return cookie;
+  }
+  return "__dcfduid=a13189287b03c3a1d99d6fa484e19bd3; __sdcfduid=a3121050038011eca7fdd1733fb7258b949b379806de132863d1099ff2b6572ffe23a45002ed758abdd329f7ff174bdb; locale=en-US; OptanonConsent=isIABGlobal=false&datestamp=Sat+Apr+23+2022+20:46:50+GMT-0700+(Pacific+Daylight+Time)&version=6.33.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1&AwaitingReconsent=false";
 };
 
 export const userAgent: string =
@@ -25,8 +27,11 @@ export const xcontextproperties =
 export default {
   referer: referer,
   "content-type": "application/json",
-  "user-agent": userAgent,
+  Accept: "*/*",
+  host: "discord.com",
+  "User-Agent": userAgent,
+  origin: "https://discord.com",
   "x-super-properties": xsuperProperties,
-  xcontextproperties,
+  "x-context-properties": xcontextproperties,
   ...secProps,
 };

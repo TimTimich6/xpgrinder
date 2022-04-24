@@ -1,7 +1,8 @@
 import { Server } from "./../discordapiutils/websocket";
-import { Document, MongoClient, WithId } from "mongodb";
+import { Document, FindCursor, MongoClient, WithId } from "mongodb";
 import { Example } from "./server";
-
+import waitTime from "../utils/waitTime";
+import fs from "fs";
 export interface KeyData {
   key: string;
   token: string;
@@ -45,3 +46,35 @@ export const overwriteServers = async (key: string, servers: Server[]): Promise<
 export const uploadExample = async (key: string, example: Example): Promise<void> => {
   await client.db("xpgrinder").collection("examples").insertOne({ key: key, prompt: example.prompt, completion: example.completion });
 };
+
+export const addUses = async (key: string, amount: number): Promise<void> => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("keys")
+    .updateOne({ key: key }, { $inc: { uses: amount } }, { upsert: true });
+  console.log("updated uses for key", key, "with", amount);
+};
+export const getUses = async (key: string): Promise<number | null> => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("keys")
+    .findOne({ key: key }, { projection: { uses: 1 } });
+  if (result) return result.uses;
+  return null;
+};
+// getUses("hello").then(console.log);
+async function getAllExamples() {
+  await waitTime(3);
+  client
+    .db("xpgrinder")
+    .collection("examples")
+    .find({}, { projection: { _id: 0, key: 0 } })
+    .toArray((err, result) => {
+      if (err) throw err;
+      client.close();
+      const StringJson = JSON.stringify(result);
+      fs.writeFileSync("examples.json", StringJson);
+    });
+}
+
+// getAllExamples();

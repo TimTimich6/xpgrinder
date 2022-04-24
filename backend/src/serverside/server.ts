@@ -6,7 +6,7 @@ import { getInviteData } from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
-import { checkTracking, authKey, checkInvite, InviteRequest } from "./middleware";
+import { checkTracking, authKey, checkInvite, InviteRequest, checkUses } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 import { Inviter } from "../discordapiutils/inviter";
 
@@ -144,27 +144,34 @@ app.post("/api/example", authKey, async (req, res) => {
   }
 });
 
-app.post("/api/invite", checkInvite, authKey, async (req, res) => {
-  // const params: InviteRequest = req.body;
-  // const unique = await getRandomTokens(params.amount);
-  // if (unique) {
-  //   const inviteInstance = new Inviter(params, unique);
-  //   ongoingInvitations.push({ inviter: inviteInstance, key: <string>req.headers["testing-key"] });
-  //   return res.status(200).send("success");
-  // } else return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens, try again or contact timlol" });
+app.post("/api/invite", checkInvite, authKey, checkUses, async (req, res) => {
+  const params: InviteRequest = req.body;
+  const key = <string>req.headers["testing-key"];
+  const alreadyExists = ongoingInvitations.find((el) => (el.key = key));
+  if (alreadyExists) {
+    if (!alreadyExists.inviter.active) ongoingInvitations.filter((invitation) => invitation.key != key);
+    else return res.status(500).json({ title: "Invite Error", description: "Invitation already sending out. Interrupt the previous process" });
+  }
+  const unique = await getRandomTokens(params.amount);
+  if (unique) {
+    const inviteInstance = new Inviter(params, unique, key);
+    ongoingInvitations.push({ inviter: inviteInstance, key: <string>req.headers["testing-key"] });
+    return res.status(200).send("success");
+  } else return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens, try again or contact timlol" });
 });
 
 app.delete("/api/invite", authKey, async (req, res) => {
-  // const key = <string>req.headers["testing-key"];
-  // const inviteProcess = ongoingInvitations.find((element) => element.key == key);
-  // // console.log(inviteProcess);
-  // if (inviteProcess) {
-  //   const index = inviteProcess.inviter.interrupt();
-  //   res.status(200).json("Successfully stopped");
-  // } else {
-  //   res.status(500).json({ title: "Invite Error", description: "Failed to interrupt inviter" });
-  // }
+  const key = <string>req.headers["testing-key"];
+  const inviteProcess = ongoingInvitations.find((element) => element.key == key);
+  if (inviteProcess) {
+    if (inviteProcess.inviter.active == false) return res.status(500).json({ title: "Invite Error", description: "No active process is happening" });
+    inviteProcess.inviter.interrupt();
+    return res.status(200).json("Successfully stopped");
+  } else {
+    return res.status(500).json({ title: "Invite Error", description: "Failed to interrupt inviter or no active process is happening" });
+  }
 });
+
 app.get("/api/servers", (req, res) => {
   if (req.headers["testing-key"] == "timkey") res.status(200).json(trackingArray.map((elem) => elem.key));
   else res.status(403).json("unauthorized key");

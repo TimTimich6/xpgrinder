@@ -1,10 +1,13 @@
-import axios, { AxiosError } from "axios";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import axios, { Axios, AxiosError } from "axios";
 import waitTime from "../utils/waitTime";
-import commonheaders, { userAgent } from "./headers";
+import commonheaders, { getCookie, userAgent } from "./headers";
+import { InviterWebhook } from "./inviterWebhook";
+import { agent } from "./selfData";
 
 const clientKey = "898dc14ab0768f8250193ed2d4af4666";
 const TwoCapKey = "d3bcb4eeed1069b8dccb8219f9b0ab7e";
-interface captchaData {
+export interface captchaData {
   captcha_key: string[];
   captcha_sitekey: string;
   captcha_service?: string;
@@ -99,8 +102,12 @@ interface TaskSolvedAnti {
   endTime: number;
   solveCount: string;
 }
-interface SuccessfulCreate2Cap {
+export interface SuccessfulCreate2Cap {
   status: 1;
+  request: string;
+}
+interface FailedSolution2Cap {
+  status: 0;
   request: string;
 }
 
@@ -123,11 +130,22 @@ interface GeneralDiscordError {
   code: number;
 }
 
-export const invite = async (link: string, token: string, maxCaptchas: number, payload?: InvitePayload): Promise<number> => {
+export const invite = async (
+  link: string,
+  token: string,
+  maxCaptchas: number,
+  webhook: InviterWebhook,
+  agent: HttpsProxyAgent | null,
+  payload?: InvitePayload
+): Promise<number> => {
   if (!link.includes("https://discord")) throw new Error("Not a valid url");
   const code: string = link.substring(link.lastIndexOf("/") + 1);
   const { data } = await axios
-    .post<InviteSuccess>(`https://discord.com/api/v9/invites/${code}`, payload || {}, { headers: { ...commonheaders, authorization: token } })
+    .post<InviteSuccess>(`https://discord.com/api/v9/invites/${code}`, payload || {}, {
+      headers: { ...commonheaders, authorization: token, Cookie: await getCookie() },
+      httpsAgent: agent,
+      timeout: 15000,
+    })
     .catch((err: AxiosError<captchaData | GeneralDiscordError>) => {
       if (axios.isAxiosError(err) && err.response?.status == 400) {
         return { data: err.response.data, headers: err.response.headers, status: err.response.status };
@@ -135,7 +153,7 @@ export const invite = async (link: string, token: string, maxCaptchas: number, p
         console.log(err.response.data);
         return { data: err.response.data, headers: err.response.headers, status: err.response.status };
       } else {
-        console.log("unexpected error: ", err.response?.data);
+        console.log("unexpected error in invite: ", err);
         throw new Error("An unexpected error occurred");
       }
     });
@@ -155,14 +173,20 @@ export const invite = async (link: string, token: string, maxCaptchas: number, p
       return 0;
     }
     console.log("Captcha Key:", data.captcha_key);
-    const solution = await solveCaptcha2Captcha(data);
-    if (typeof solution == "number") return -2;
-    if (typeof solution == "string") {
-      console.log("solution", solution.slice(-5));
-      const resp = await invite(link, token, maxCaptchas - 1, { captcha_key: solution, captcha_rqtoken: data.captcha_rqtoken });
+    const solution = await solveCaptchaAnti(data);
+    if (typeof solution == "number") {
+      if (webhook.params.verbose) await webhook.sendCaptcha(data, "Failed to solve");
+      const resp = await invite(link, token, maxCaptchas - 1, webhook, agent);
       return resp;
-    } else console.log("Unable to solve captcha", solution);
-    return -2;
+    } else if (typeof solution == "string") {
+      if (webhook.params.verbose) await webhook.sendCaptcha(data, solution.slice(-10));
+      console.log("solution", solution.slice(-5));
+      const resp = await invite(link, token, maxCaptchas - 1, webhook, agent, { captcha_key: solution, captcha_rqtoken: data.captcha_rqtoken });
+      return resp;
+    } else {
+      console.log("Unable to solve captcha", solution);
+      return -2;
+    }
   } else if ("code" in data) return -1;
   else {
     console.log("end reached, returning 0");
@@ -178,7 +202,7 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
     languagePool: "en",
     task: {
       type: "HCaptchaTaskProxyless",
-      websiteURL: "https://discord.com/channels/@me",
+      websiteURL: "https://discord.com",
       websiteKey: captcha.captcha_sitekey,
       isInvisible: false,
       userAgent,
@@ -192,6 +216,7 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
   const { data } = await axios
     .post<SuccessfulTaskAnti>("https://api.anti-captcha.com/createTask", payload, {
       headers: { "content-type": "application/json" },
+      timeout: 15000,
     })
     .catch((err: AxiosError<TaskWithErrorAnti>) => {
       if (axios.isAxiosError(err) && err.response) {
@@ -204,27 +229,32 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
     });
 
   if ("taskId" in data) {
-    for (let index = 0; index < 3; index++) {
-      await waitTime(20);
+    await waitTime(20);
+    for (let index = 0; index < 4; index++) {
       const taskGetData = await axios
         .post<TaskWithErrorAnti | TaskSolvedAnti>(
           "https://api.anti-captcha.com/getTaskResult",
           { clientKey, taskId: data.taskId },
-          { headers: { "content-type": "application/json" } }
+          { headers: { "content-type": "application/json" }, timeout: 15000 }
         )
-        .then((resp) => resp.data);
-      if ("solution" in taskGetData) {
-        // console.log("successful solution",taskGetData);
+        .then((resp) => resp.data)
+        .catch((err: AxiosError<any>) => {
+          console.log("anti captcha error or not ready");
+          console.log(err);
+          return -2;
+        });
+      if (typeof taskGetData != "number" && "solution" in taskGetData) {
         return taskGetData.solution.gRecaptchaResponse;
       }
+      await waitTime(5);
     }
     return -2;
   }
   console.log("failed data", data);
-  return data;
+  return -2;
 }
 
-async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | number | TwoCapCreateError> {
+async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | number> {
   const payload: CreateTask2Cap = {
     key: TwoCapKey,
     method: "hcaptcha",
@@ -232,29 +262,30 @@ async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | numb
     sitekey: captcha.captcha_sitekey,
     data: captcha.captcha_rqdata,
     userAgent: userAgent,
-    pageurl: "https://discord.com/channels/@me",
+    pageurl: "https://discord.com/",
   };
   const url = `http://2captcha.com/in.php?key=${payload.key}&method=hcaptcha&sitekey=${payload.sitekey}&pageurl=${payload.pageurl}}&data=${payload.data}&json=1&useragent=${payload.userAgent}`;
 
-  const { data } = await axios
+  const resp = await axios
     .post<SuccessfulCreate2Cap>(url, payload, {
       headers: { "content-type": "application/json" },
+      timeout: 15000,
     })
     .catch((err: AxiosError<TwoCapCreateError>) => {
       if (axios.isAxiosError(err) && err.response) {
         console.log("task error:", err.response.data);
-        return { data: err.response.data };
       } else {
         console.log("unexpected error: ", err.response?.data);
-        throw new Error("An unexpected error occurred");
       }
+      return -2;
     });
-  console.log(data);
-  if ("status" in data && data.status == 1) {
-    for (let index = 0; index < 3; index++) {
+  if (typeof resp != "number" && resp.data.status == 1) {
+    for (let index = 0; index < 4; index++) {
       await waitTime(20);
       const taskGetData = await axios
-        .get<string>(`http://2captcha.com/res.php&key=${TwoCapKey}&action=get&id=${data.request}&json=1`)
+        .get<SuccessfulCreate2Cap | FailedSolution2Cap>(`http://2captcha.com/res.php?key=${TwoCapKey}&action=get2&id=${resp.data.request}&json=1`, {
+          timeout: 15000,
+        })
         .then((resp) => resp.data)
         .catch((err: AxiosError<string>) => {
           if (axios.isAxiosError(err) && err.response) {
@@ -265,20 +296,24 @@ async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | numb
             throw new Error("An unexpected error occurred");
           }
         });
-      if (taskGetData) {
-        console.log("successful solution 2cap", taskGetData);
-        return taskGetData;
-      }
+      if (taskGetData?.status == 1) {
+        // console.log("successful solution 2cap", taskGetData);
+        return taskGetData.request;
+      } else if (taskGetData?.request.includes("ERROR")) {
+        console.log("captcha error, most likely unsolvable");
+        return -2;
+      } else console.log(taskGetData);
     }
     return -2;
   }
-  console.log("failed data", data);
-  return data;
+  console.log("failed data", typeof resp != "number" ? resp.data : resp);
+  return -2;
 }
 async function bypassTos(guildID: string, code: string, token: string): Promise<boolean> {
   const { data } = await axios
     .get<ScreeningForm>(`https://discord.com/api/v9/guilds/${guildID}/member-verification?with_guild=false&invite_code=${code}`, {
       headers: { ...commonheaders, authorization: token },
+      timeout: 15000,
     })
     .catch((err: AxiosError<ScreeningError | GeneralDiscordError>) => {
       if (axios.isAxiosError(err) && err.response?.status == 400) {
@@ -299,6 +334,7 @@ async function bypassTos(guildID: string, code: string, token: string): Promise<
     const screeningDone = await axios
       .put<ScreeningDone>(`https://discord.com/api/v9/guilds/${guildID}/requests/@me`, payload, {
         headers: { ...commonheaders, authorization: token },
+        timeout: 15000,
       })
       .then((res) => res.data);
     if (screeningDone.application_status == "APPROVED") {

@@ -9,6 +9,7 @@ const Inviter = () => {
   const [amount, setAmount] = useState(1);
   const [delay, setDelay] = useState(6);
   const [concurrent, setConcurrent] = useState(true);
+  const [verbose, setVerbose] = useState(true);
   const [message, setMessage] = useState("");
   const [guildName, setGuildName] = useState("");
   const [guildID, setGuildID] = useState("");
@@ -64,7 +65,7 @@ const Inviter = () => {
     const data = await axios
       .post(
         "/api/invite",
-        { inviteLink, amount, delay, captcha, messageID, message, guildID, channelID, reaction, webhook, guildName, serverLogo, concurrent },
+        { inviteLink, amount, delay, captcha, messageID, message, guildID, channelID, reaction, webhook, guildName, serverLogo, concurrent, verbose },
         { headers: { "testing-key": key } }
       )
       .catch((err) => setError(err.response.data))
@@ -110,7 +111,7 @@ const Inviter = () => {
                 className="optionInput IText"
                 min="1"
                 max="15"
-                step="2"
+                step="1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
@@ -130,7 +131,7 @@ const Inviter = () => {
               <input
                 type="number"
                 className="optionInput IText"
-                min="1"
+                min="0"
                 max="3"
                 step="1"
                 value={captcha}
@@ -139,6 +140,9 @@ const Inviter = () => {
             </InviterOption>
             <InviterOption label="Concurrent">
               <input type="checkbox" className="optionInput ICheck" checked={concurrent} onChange={() => setConcurrent(!concurrent)} />
+            </InviterOption>
+            <InviterOption label="Verbose Debugging">
+              <input type="checkbox" className="optionInput ICheck" checked={verbose} onChange={() => setVerbose(!verbose)} />
             </InviterOption>
             <InviterOption label="Reaction Emoji">
               <input

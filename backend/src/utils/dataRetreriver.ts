@@ -19,7 +19,7 @@ export const getPaste = async (id: string) => {
   return data;
 };
 
-export const getRandomTokens = async (amount: number): Promise<string[]> => {
+export const getRandomTokens = async (amount: number): Promise<string[] | null> => {
   const tokens = await getPaste("8w4wsCGR").catch((err) => {
     console.log("failure to get tokens paste");
     return null;
@@ -29,7 +29,7 @@ export const getRandomTokens = async (amount: number): Promise<string[]> => {
     const unique = generateUnique(splitTokens, amount);
     return unique;
   }
-  return [];
+  return null;
 };
 export function generateUnique<S>(arr: S[], amount: number) {
   const uniqueArray: S[] = [];
