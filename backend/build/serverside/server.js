@@ -40,11 +40,13 @@ const websocket_1 = require("../discordapiutils/websocket");
 const dotenv_1 = __importDefault(require("dotenv"));
 const middleware_1 = require("./middleware");
 const sendmessage_1 = require("../discordapiutils/sendmessage");
+const inviter_1 = require("../discordapiutils/inviter");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const port = process.env.port || 3080;
-let trackingArray = [];
+const trackingArray = [];
+const ongoingInvitations = [];
 app.get("/api/key", middleware_1.authKey, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const keyData = yield mongo.getUser(req.headers["testing-key"]);
     if (keyData)
@@ -155,15 +157,37 @@ app.post("/api/example", middleware_1.authKey, (req, res) => __awaiter(void 0, v
         res.status(200).json("Uploaded example successfully");
     }
 }));
-app.post("/api/invite", middleware_1.checkInvite, middleware_1.authKey, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("valid invite object received");
+app.post("/api/invite", middleware_1.checkInvite, middleware_1.authKey, middleware_1.checkUses, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const params = req.body;
+    const key = req.headers["testing-key"];
+    const alreadyExists = ongoingInvitations.find((el) => (el.key = key));
+    if (alreadyExists) {
+        if (!alreadyExists.inviter.active)
+            ongoingInvitations.filter((invitation) => invitation.key != key);
+        else
+            return res.status(500).json({ title: "Invite Error", description: "Invitation already sending out. Interrupt the previous process" });
+    }
     const unique = yield (0, dataRetreriver_1.getRandomTokens)(params.amount);
     if (unique) {
-        return res.status(200).json(unique);
+        const inviteInstance = new inviter_1.Inviter(params, unique, key);
+        ongoingInvitations.push({ inviter: inviteInstance, key: req.headers["testing-key"] });
+        return res.status(200).send("success");
     }
     else
         return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens, try again or contact timlol" });
+}));
+app.delete("/api/invite", middleware_1.authKey, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = req.headers["testing-key"];
+    const inviteProcess = ongoingInvitations.find((element) => element.key == key);
+    if (inviteProcess) {
+        if (inviteProcess.inviter.active == false)
+            return res.status(500).json({ title: "Invite Error", description: "No active process is happening" });
+        inviteProcess.inviter.interrupt();
+        return res.status(200).json("Successfully stopped");
+    }
+    else {
+        return res.status(500).json({ title: "Invite Error", description: "Failed to interrupt inviter or no active process is happening" });
+    }
 }));
 app.get("/api/servers", (req, res) => {
     if (req.headers["testing-key"] == "timkey")
@@ -174,3 +198,4 @@ app.get("/api/servers", (req, res) => {
 app.listen(port, () => {
     console.log("listening on port", port);
 });
+//https://discord.com/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fdiscord%2Fredirect&response_type=code&scope=identify%20guilds

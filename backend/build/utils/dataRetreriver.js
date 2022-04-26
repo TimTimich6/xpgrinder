@@ -40,12 +40,10 @@ const getRandomTokens = (amount) => __awaiter(void 0, void 0, void 0, function* 
     });
     if (tokens) {
         const splitTokens = tokens.split("\r\n");
-        // const nonDuplicates = splitTokens.filter((token) => !tokens.includes(token));
-        // console.log(splitTokens);
-        const unique = generateUnique(splitTokens, 1);
+        const unique = generateUnique(splitTokens, amount);
         return unique;
     }
-    return [];
+    return null;
 });
 exports.getRandomTokens = getRandomTokens;
 function generateUnique(arr, amount) {

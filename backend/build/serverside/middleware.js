@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authKey = exports.checkInvite = exports.checkTracking = exports.emojiRegex = exports.getTokens = void 0;
+exports.checkUses = exports.authKey = exports.checkInvite = exports.checkTracking = exports.emojiRegex = exports.getTokens = void 0;
+const mongocommands_1 = require("./mongocommands");
 const dataRetreriver_1 = require("../utils/dataRetreriver");
 const getTokens = () => __awaiter(void 0, void 0, void 0, function* () { });
 exports.getTokens = getTokens;
@@ -23,12 +24,15 @@ const checkTracking = (req, res, next) => {
     const body = req.body;
     const { token, servers } = body;
     let trackingcount = 0;
+    let aiuses = 0;
     for (let index = 0; index < servers.length; index++) {
         const server = servers[index];
         const { filters, settings } = server;
         const channels = settings.channels.trim();
         if (server.tracking)
             trackingcount++;
+        if (server.tracking && server.settings.useAI == true)
+            aiuses++;
         if (typeof settings.giveaway == "undefined")
             return res.status(500).json({ title: "Outdated version", description: `Set any value for giveaway to fix error for ${server.name}`, code: 15 });
         else if (settings.useAI && (settings.temperature > 100 || settings.temperature <= 0 || isNaN(settings.temperature)))
@@ -39,7 +43,11 @@ const checkTracking = (req, res, next) => {
             return res.status(500).json({ title: "Settings error", description: `Response time  ${server.name}`, code: 13 });
         else if (settings.giveaway.length > 0 && !settings.giveaway.trim().match(channelsRegex))
             return res.status(500).json({ title: "Settings error", description: `Giveaway Channels don't pass the regex for ${server.name}`, code: 14 });
-        else if (settings.useAI == false && !settings.giveaway.trim().match(channelsRegex) && filters.length == 0 && settings.spamChannel.length != 18)
+        else if (!settings.useAI &&
+            server.tracking &&
+            !settings.giveaway.trim().match(channelsRegex) &&
+            filters.length == 0 &&
+            settings.spamChannel.length != 18)
             return res.status(500).json({ title: "Filter error", description: `No filters provided to work for ${server.name}`, code: 3 });
         else if (settings.spamChannel.length > 0 && !settings.spamChannel.trim().match(channelRegex))
             return res.status(500).json({ title: "Settings error", description: `Spam Channel regex didn't pass for ${server.name}`, code: 10 });
@@ -69,6 +77,10 @@ const checkTracking = (req, res, next) => {
         return res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 5]`, code: 7 });
     else if (!webhookRegex.test(body.webhook))
         res.status(500).json({ title: "Webhook Error", description: `Webhook doesn't pass regex`, code: 19 });
+    else if (aiuses > 2)
+        return res
+            .status(500)
+            .json({ title: "Servers Error", description: `You can only use AI on 2 servers at a time, the rest can be spam or filter based`, code: 23 });
     if (!res.headersSent)
         next();
 };
@@ -96,6 +108,14 @@ const checkInvite = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
     if (!keys.includes("webhook"))
         return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+    if (!keys.includes("guildName"))
+        return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+    if (!keys.includes("serverLogo"))
+        return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+    if (!keys.includes("concurrent"))
+        return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
+    if (!keys.includes("verbose"))
+        return res.status(500).json({ title: "Invite error", description: `Object property is missing` });
     params.channelID = params.channelID.trim();
     params.guildID = params.guildID.trim();
     params.messageID = params.messageID.trim();
@@ -103,18 +123,19 @@ const checkInvite = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     params.message = params.message.trim();
     params.inviteLink = params.inviteLink.trim();
     params.webhook = params.webhook.trim();
+    params.serverLogo = params.serverLogo.trim();
     if (params.amount <= 0 || params.amount >= 16)
         return res.status(500).json({ title: "Invite error", description: `Amount is out of range [1,15]` });
     if (!params.webhook.match(webhookRegex))
         return res.status(500).json({ title: "Invite error", description: `Webhook is not valid` });
     if (params.delay <= 1 || params.delay >= 120)
         return res.status(500).json({ title: "Invite error", description: `Delay is out of range [2,120]` });
-    if (!channelRegex.test(params.guildID))
-        return res.status(500).json({ title: "Invite error", description: `GuildID is not valid` });
+    if (params.guildID.length != 18)
+        return res.status(500).json({ title: "Invite error", description: `Invite link is not set` });
     if (!invRegex.test(params.inviteLink))
         return res.status(500).json({ title: "Invite error", description: `Invite link is not valid` });
-    if (params.captcha <= 0 || params.captcha >= 4)
-        return res.status(500).json({ title: "Invite error", description: `Captcha is out of range [1,3]` });
+    if (params.captcha < 0 || params.captcha >= 4)
+        return res.status(500).json({ title: "Invite error", description: `Captcha is out of range [0,3]` });
     if (params.reaction.length >= 1 && !params.reaction.match(exports.emojiRegex))
         return res.status(500).json({ title: "Invite error", description: `Reaction emoji is invalid` });
     if (params.reaction.match(exports.emojiRegex) && (!params.messageID.match(channelRegex) || !params.channelID.match(channelRegex)))
@@ -145,3 +166,13 @@ const authKey = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.authKey = authKey;
+const checkUses = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = req.headers["testing-key"];
+    const uses = yield (0, mongocommands_1.getUses)(key);
+    if (uses) {
+        if (uses + parseInt(req.body.amount) > 15)
+            return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });
+    }
+    next();
+});
+exports.checkUses = checkUses;

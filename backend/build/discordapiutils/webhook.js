@@ -31,13 +31,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ColorToInt = void 0;
 const axios_1 = __importDefault(require("axios"));
 const headers_1 = __importStar(require("./headers"));
 class WebHooks {
     constructor(token, url, user) {
         this.sendEvent = (title, description, color) => {
             const time = new Date(Date.now()).toLocaleTimeString();
-            const decimalColor = parseInt(ColorToInt[color], 16);
+            const decimalColor = parseInt(exports.ColorToInt[color], 16);
             const body = {
                 content: null,
                 embeds: [
@@ -74,7 +75,7 @@ class WebHooks {
                 embeds: [
                     {
                         title: this.token.substring(0, 6) + "...",
-                        color: parseInt(ColorToInt.purple, 16),
+                        color: parseInt(exports.ColorToInt.purple, 16),
                         fields: [
                             {
                                 name: "Username",
@@ -122,7 +123,7 @@ class WebHooks {
                 embeds: [
                     {
                         title: "Interaction Occurred",
-                        color: parseInt(ColorToInt.blue, 16),
+                        color: parseInt(exports.ColorToInt.blue, 16),
                         fields: [
                             {
                                 name: "Type",
@@ -175,7 +176,7 @@ class WebHooks {
 exports.default = WebHooks;
 WebHooks.sentHeartbeat = (url, ms, color) => {
     const time = new Date(Date.now()).toLocaleTimeString();
-    const decimalColor = parseInt(ColorToInt[color], 16);
+    const decimalColor = parseInt(exports.ColorToInt[color], 16);
     const body = {
         content: null,
         embeds: [
@@ -200,7 +201,7 @@ WebHooks.sentHeartbeat = (url, ms, color) => {
     const jsonToSend = JSON.stringify(body);
     axios_1.default.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
 };
-const ColorToInt = {
+exports.ColorToInt = {
     green: "9FE2BF",
     red: "DE3163",
     orange: "FF7F50",

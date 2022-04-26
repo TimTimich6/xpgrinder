@@ -31,11 +31,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selfData = void 0;
+exports.getTokenProxy = exports.selfData = exports.agent = void 0;
 const axios_1 = __importDefault(require("axios"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const headers_1 = __importStar(require("./headers"));
-dotenv_1.default.config();
+const https_proxy_agent_1 = require("https-proxy-agent");
+const proxy = "http://DavidL:WhiteWalter@geo.iproyal.com:12323";
+exports.agent = new https_proxy_agent_1.HttpsProxyAgent(proxy);
 const selfData = (token) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield axios_1.default
         .get("https://discord.com/api/v9/users/@me", {
@@ -50,6 +51,21 @@ const selfData = (token) => __awaiter(void 0, void 0, void 0, function* () {
     return res;
 });
 exports.selfData = selfData;
+const getTokenProxy = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    const resp = yield axios_1.default
+        .get("https://discord.com/api/v9/users/@me", {
+        headers: Object.assign({ authorization: token, cookie: yield (0, headers_1.getCookie)() }, headers_1.default),
+        httpsAgent: exports.agent,
+    })
+        .catch((err) => {
+        console.log("error in getting user data with proxy");
+        return null;
+    });
+    if (resp)
+        return resp.data;
+    return null;
+});
+exports.getTokenProxy = getTokenProxy;
 // const token: string | undefined = process.env.MY_TOKEN;
 // selfData(<string>token).then((userData: userData) => {
 // 	console.log(userData);

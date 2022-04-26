@@ -6,8 +6,8 @@ const defaultUser = { username: "", discriminator: "" };
 const defaultError = { title: "error title", description: "error description" };
 export const UserSettingsProvider = (props) => {
   const [user, setUser] = useState({});
-  const [token, setToken] = useState(null);
-  const [webhook, setWebhook] = useState(null);
+  const [token, setToken] = useState("");
+  const [webhook, setWebhook] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [key, setKey] = useState(null);
