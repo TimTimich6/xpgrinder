@@ -115,6 +115,15 @@ app.delete("/api/track", authKey, async (req, res) => {
 });
 
 app.delete("/api/servers", authKey, async (req, res) => {
+  const key = <string>req.headers["testing-key"];
+  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.key == key);
+  if (storage) {
+    console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
+    if (storage.websocket) storage.websocket.stop();
+    if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
+    trackingArray.splice(trackingArray.indexOf(storage), 1);
+    console.log(trackingArray.map((elem) => elem.key));
+  }
   await mongo.overwriteServers(<string>req.headers["testing-key"], req.body.servers);
   res.status(200).json("overwrote servers with body");
 });

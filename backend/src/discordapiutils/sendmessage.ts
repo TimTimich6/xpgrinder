@@ -3,6 +3,8 @@ import commonHeaders, { getCookie } from "./headers";
 import fetch, { Response } from "node-fetch";
 import axios from "axios";
 import waitTime from "../utils/waitTime";
+import { agent } from "./selfData";
+import { HttpsProxyAgent } from "https-proxy-agent";
 interface messageRef {
   channel_id?: string;
   guild_id: string;
@@ -41,13 +43,14 @@ export interface Author {
   discriminator: string;
   public_flags: number;
 }
-export const postMessage = async (message: string, channelID: string, token: string, ref?: messageRef): Promise<Message> => {
+export const postMessage = async (message: string, channelID: string, token: string, agent?: HttpsProxyAgent, ref?: messageRef): Promise<Message> => {
   const response: Response = await fetch(`https://discord.com/api/v9/channels/${channelID}/messages`, {
     headers: {
       cookie: await getCookie(),
       authorization: token,
       "content-type": "application/json",
     },
+    agent: agent,
     body: JSON.stringify({ content: message, message_reference: ref ? ref : null }),
     method: "POST",
   });
@@ -67,7 +70,7 @@ export const realType = async (message: string, channelID: string, token: string
   await startTyping(channelID, token);
   await waitTime(time);
   let response: Message;
-  if (reply) response = await postMessage(message, channelID, token, ref);
+  if (reply) response = await postMessage(message, channelID, token, undefined, ref);
   else response = await postMessage(message, channelID, token);
 
   return response;
@@ -96,7 +99,7 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
     const randIndex = Math.floor(Math.random() * splitSentences.length);
     const message: string = splitSentences[randIndex];
 
-    const response = await postMessage(message, channelID, token).catch((err) => {
+    const response = await postMessage(message, channelID, token, agent).catch((err) => {
       console.log("error caught when sending random message");
       return null;
     });
