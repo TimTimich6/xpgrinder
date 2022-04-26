@@ -99,7 +99,7 @@ export default class WebHooks {
       })
       .then((resp) => resp)
       .catch((err) => {
-        console.log(err.response.body);
+        console.log(err.response.data);
       });
     const body = {
       content: null,
@@ -149,7 +149,7 @@ export default class WebHooks {
       avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
     };
     const jsonToSend = JSON.stringify(body);
-    axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+    axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch();
   };
 
   static sentHeartbeat = (url: string, ms: number, color: Color) => {

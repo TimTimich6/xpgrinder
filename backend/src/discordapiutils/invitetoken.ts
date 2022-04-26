@@ -125,7 +125,7 @@ interface InvitePayload {
   captcha_rqtoken: string;
 }
 
-interface GeneralDiscordError {
+export interface GeneralDiscordError {
   message: string;
   code: number;
 }

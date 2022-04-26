@@ -1,3 +1,5 @@
+import { GeneralDiscordError } from "./../discordapiutils/invitetoken";
+import axios, { AxiosError } from "axios";
 import { getUses, KeyData } from "./mongocommands";
 import { NextFunction, Request, Response } from "express";
 import { getPaste } from "../utils/dataRetreriver";
@@ -160,3 +162,34 @@ export const checkUses = async (req: Request, res: Response, next: NextFunction)
   }
   next();
 };
+
+export const testWebhook = async (req: Request, res: Response, next: NextFunction) => {
+  const { data } = await axios
+    .get<WebhookData>("https://discord.com/api/webhooks/962882014640504892/IO59x6FeCMwsV9zPsLr9rkVm4XOTCGGp-qurD6f0dfrZREAgfEfXNlCiOdQda9o5zPZ8")
+    .catch((err: AxiosError<GeneralDiscordError>) => {
+      if (axios.isAxiosError(err) && err.response) {
+        console.log("webhook error:", err.response.data);
+        return { data: err.response.data };
+      } else {
+        console.log("unexpected error: ", err.response?.data);
+        throw new Error("An unexpected error occurred");
+      }
+    });
+  console.log(data);
+
+  if ("code" in data) {
+    return res.status(404).json({ title: "Webhook Error", description: "Something went wrong when checking the webhook" });
+  }
+  next();
+};
+
+export interface WebhookData {
+  type: number;
+  id: string;
+  name: string;
+  avatar: string;
+  channel_id: string;
+  guild_id: string;
+  application_id: null;
+  token: string;
+}

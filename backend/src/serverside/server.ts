@@ -6,7 +6,7 @@ import { getInviteData } from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
-import { checkTracking, authKey, checkInvite, InviteRequest, checkUses } from "./middleware";
+import { checkTracking, authKey, checkInvite, InviteRequest, checkUses, testWebhook } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 import { Inviter } from "../discordapiutils/inviter";
 
@@ -59,7 +59,7 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
-app.post("/api/track", authKey, checkTracking, async (req, res, next) => {
+app.post("/api/track", authKey, checkTracking, testWebhook, async (req, res, next) => {
   const servers: Server[] = req.body.servers;
   const token: string = req.body.token;
   const key: string = <string>req.headers["testing-key"];
