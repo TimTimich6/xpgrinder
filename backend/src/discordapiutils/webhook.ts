@@ -45,7 +45,9 @@ export default class WebHooks {
       avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
     };
     const jsonToSend = JSON.stringify(body);
-    axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+    axios
+      .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
+      .catch((err) => console.log("err send user: ", err.response.data));
   };
 
   sendUser = (sessionID: string) => {
@@ -84,7 +86,9 @@ export default class WebHooks {
       avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
     };
     const jsonToSend = JSON.stringify(body);
-    axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+    axios
+      .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
+      .catch((err) => console.log("err send event: ", err.response.data));
   };
 
   sendInteraction = async (type: string, extra: string, server: Server, channelID: string, messageID: string): Promise<void> => {
@@ -177,7 +181,9 @@ export default class WebHooks {
       avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
     };
     const jsonToSend = JSON.stringify(body);
-    axios.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+    axios
+      .post(url, jsonToSend, { headers: { "content-type": "application/json" } })
+      .catch((err) => console.log("err sent heartbeat: ", err.response.data));
   };
 }
 
