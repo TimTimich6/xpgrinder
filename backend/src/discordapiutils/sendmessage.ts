@@ -43,7 +43,7 @@ export interface Author {
   discriminator: string;
   public_flags: number;
 }
-export const postMessage = async (message: string, channelID: string, token: string, agent?: HttpsProxyAgent, ref?: messageRef): Promise<Message> => {
+export const postMessage = async (message: string, channelID: string, token: string, ref?: messageRef): Promise<Message> => {
   const response: Response = await fetch(`https://discord.com/api/v9/channels/${channelID}/messages`, {
     headers: {
       cookie: await getCookie(),
@@ -70,7 +70,7 @@ export const realType = async (message: string, channelID: string, token: string
   await startTyping(channelID, token);
   await waitTime(time);
   let response: Message;
-  if (reply) response = await postMessage(message, channelID, token, undefined, ref);
+  if (reply) response = await postMessage(message, channelID, token, ref);
   else response = await postMessage(message, channelID, token);
 
   return response;
@@ -85,6 +85,7 @@ export const deleteMessage = async (channelID: string, messageID: string, token:
         authorization: token,
         ...commonHeaders,
       },
+      httpsAgent: agent,
     })
     .catch((err) => console.log("error when deleting message"));
 };
@@ -99,7 +100,7 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
     const randIndex = Math.floor(Math.random() * splitSentences.length);
     const message: string = splitSentences[randIndex];
 
-    const response = await postMessage(message, channelID, token, agent).catch((err) => {
+    const response = await postMessage(message, channelID, token).catch((err) => {
       console.log("error caught when sending random message");
       return null;
     });
@@ -136,6 +137,7 @@ export const reactMessage = async (channelID: string, messageID: string, rxn: st
           authorization: token,
           ...commonHeaders,
         },
+        httpsAgent: agent,
       }
     )
     .catch((err) => {
