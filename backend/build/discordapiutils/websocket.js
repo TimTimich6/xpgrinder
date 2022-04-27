@@ -66,7 +66,7 @@ class SocketTracker {
                 }));
             });
             sock.on("message", (data) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b, _c, _d, _e, _f, _g;
+                var _a, _b, _c, _d, _e;
                 let payload = JSON.parse(data);
                 const { t, s, op, d } = payload;
                 if (s)
@@ -137,12 +137,13 @@ class SocketTracker {
                                             channel_id: d.channel_id,
                                             guild_id: server.guildID,
                                             message_id: d.id,
-                                        }).catch(() => {
+                                        })
+                                            .then(() => { var _a; return (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id); })
+                                            .catch(() => {
                                             var _a;
                                             console.log("Error caught when trying to respond");
                                             (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE", server, d.channel_id, d.message_id);
                                         });
-                                        (_e = this.wh) === null || _e === void 0 ? void 0 : _e.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
                                     }
                                 }
                                 else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
@@ -152,13 +153,17 @@ class SocketTracker {
                                         (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
                                     });
                                     if (response) {
-                                        console.log("AI response:", response);
-                                        (_f = this.wh) === null || _f === void 0 ? void 0 : _f.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
                                         yield (0, sendmessage_1.realType)(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
                                             channel_id: d.channel_id,
                                             guild_id: server.guildID,
                                             message_id: d.id,
-                                        }).catch(() => {
+                                        })
+                                            .then(() => {
+                                            var _a;
+                                            console.log("AI responded:", response);
+                                            (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
+                                        })
+                                            .catch(() => {
                                             var _a;
                                             console.log("Error caught when trying to respond");
                                             (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE", server, d.channel_id, d.message_id);
@@ -171,7 +176,7 @@ class SocketTracker {
                             const checkReact = d.message_id + encodeURIComponent(d.emoji.name);
                             if (server &&
                                 server.settings.giveaway.includes(d.channel_id) &&
-                                d.user_id != ((_g = this.user) === null || _g === void 0 ? void 0 : _g.id) &&
+                                d.user_id != ((_e = this.user) === null || _e === void 0 ? void 0 : _e.id) &&
                                 !this.alreadyReacted.includes(checkReact)) {
                                 yield (0, waitTime_1.default)(3);
                                 yield (0, sendmessage_1.reactMessage)(d.channel_id, d.message_id, d.emoji.name, this.token)

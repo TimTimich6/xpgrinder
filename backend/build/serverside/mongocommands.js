@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUses = exports.addUses = exports.uploadExample = exports.overwriteServers = exports.clearTracking = exports.replaceKey = exports.getUser = void 0;
+exports.getUses = exports.updateTokens = exports.addUses = exports.uploadExample = exports.overwriteServers = exports.clearTracking = exports.replaceKey = exports.getUser = void 0;
 const mongodb_1 = require("mongodb");
 const waitTime_1 = __importDefault(require("../utils/waitTime"));
 const fs_1 = __importDefault(require("fs"));
@@ -54,6 +54,8 @@ const uploadExample = (key, example) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.uploadExample = uploadExample;
 const addUses = (key, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof amount == "string")
+        amount = parseInt(amount);
     const result = yield client
         .db("xpgrinder")
         .collection("keys")
@@ -61,6 +63,13 @@ const addUses = (key, amount) => __awaiter(void 0, void 0, void 0, function* () 
     console.log("updated uses for key", key, "with", amount);
 });
 exports.addUses = addUses;
+const updateTokens = (tokendata, userid) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield client
+        .db("xpgrinder")
+        .collection("keys")
+        .updateOne({ userid: userid }, { $set: { access_token: tokendata.access_token, refresh_token: tokendata.refresh_token } }, { upsert: true });
+});
+exports.updateTokens = updateTokens;
 const getUses = (key) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield client
         .db("xpgrinder")

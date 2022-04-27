@@ -1,6 +1,6 @@
 import { Server } from "./../discordapiutils/websocket";
-import { Document, FindCursor, MongoClient, WithId } from "mongodb";
-import { Example } from "./server";
+import { Document, FindCursor, MongoClient, UpdateResult, WithId } from "mongodb";
+import { DiscordAccessToken, Example } from "./server";
 import waitTime from "../utils/waitTime";
 import fs from "fs";
 export interface KeyData {
@@ -54,6 +54,13 @@ export const addUses = async (key: string, amount: number | string): Promise<voi
     .collection("keys")
     .updateOne({ key: key }, { $inc: { uses: amount } }, { upsert: true });
   console.log("updated uses for key", key, "with", amount);
+};
+
+export const updateTokens = async (tokendata: DiscordAccessToken, userid: string): Promise<void> => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("keys")
+    .updateOne({ userid: userid }, { $set: { access_token: tokendata.access_token, refresh_token: tokendata.refresh_token } }, { upsert: true });
 };
 export const getUses = async (key: string): Promise<number | null> => {
   const result = await client

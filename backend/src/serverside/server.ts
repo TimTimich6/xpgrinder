@@ -3,12 +3,15 @@ import * as mongo from "./mongocommands";
 import express from "express";
 import { getRandomTokens, readBin } from "../utils/dataRetreriver";
 import { getInviteData } from "../discordapiutils/getInviteData";
-import { selfData } from "../discordapiutils/selfData";
+import { selfData, userData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
 import dotenv from "dotenv";
 import { checkTracking, authKey, checkInvite, InviteRequest, checkUses, testWebhook } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 import { Inviter } from "../discordapiutils/inviter";
+import axios, { AxiosError } from "axios";
+import url from "url";
+import headers from "../discordapiutils/headers";
 
 dotenv.config();
 const app = express();
@@ -29,6 +32,7 @@ export interface Example {
   prompt: string;
   completion: string;
 }
+
 const trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
 app.get("/api/key", authKey, async (req, res) => {
@@ -59,6 +63,54 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
+app.get("/api/auth/redirect", async (req, res) => {
+  console.log(req.query);
+  const { code } = req.query;
+  if (code) {
+    const body = {
+      client_id: "967841162905915452",
+      client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
+      grant_type: "authorization_code",
+      code: code.toString(),
+      redirect_uri: "http://localhost:3080/api/auth/redirect",
+    };
+    const encoded = new url.URLSearchParams(body);
+    const form = encoded.toString();
+    const { data } = await axios
+      .post<DiscordAccessToken>(`https://discord.com/api/oauth2/token`, form, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+      .catch((err: AxiosError<Oauth2Error>) => {
+        if (axios.isAxiosError(err) && err.response?.status == 400) {
+          return { data: err.response.data };
+        } else {
+          console.log("unexpected error in invite: ", err);
+          throw new Error("An unexpected error occurred");
+        }
+      });
+    if ("access_token" in data) {
+      console.log(data);
+
+      // const userResp = await axios
+      //   .get<userData>("https://discord.com/api/v8/users/@me", { headers: { Authorization: "Bearer " + data.access_token } })
+      //   .catch((err) => null);
+      // if (userResp) {
+      //   console.log(userResp.data);
+      // }
+      const memberData = await axios
+        .get<GuildMember>("https://discord.com/api/v8/users/@me/guilds/934702825328504843/member", {
+          headers: { Authorization: "Bearer " + data.access_token },
+        })
+        .catch((err) => null);
+      if (memberData) {
+        console.log(memberData.data);
+      }
+    }
+  } else {
+    return res.status(500).json({ title: "Auth error", description: "Code not found" });
+  } // https:discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fauth%2Fredirect&response_type=code&scope=guilds.members.read%20identify
+  res.send("200");
+});
 app.post("/api/track", authKey, checkTracking, testWebhook, async (req, res, next) => {
   const servers: Server[] = req.body.servers;
   const token: string = req.body.token;
@@ -189,3 +241,40 @@ app.get("/api/servers", (req, res) => {
 app.listen(port, () => {
   console.log("listening on port", port);
 });
+
+export interface DiscordAccessToken {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
+}
+
+interface Oauth2Error {
+  error: string;
+  error_description: string;
+}
+
+export interface GuildMember {
+  roles: string[];
+  nick: string | null;
+  avatar: string | null;
+  premium_since: string | null;
+  joined_at: string;
+  is_pending: boolean;
+  pending: boolean;
+  communication_disabled_until: string | null;
+  flags: number;
+  user: User;
+  mute: boolean;
+  deaf: boolean;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  avatar: string;
+  avatar_decoration: null;
+  discriminator: string;
+  public_flags: number;
+}

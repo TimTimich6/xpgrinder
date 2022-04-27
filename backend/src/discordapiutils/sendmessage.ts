@@ -109,7 +109,6 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
       console.log("random: ", message, "for token", token.slice(0, 5));
       deleteMessage(channelID, response.id, token);
     }
-    if (response) console.log(response);
   }, delay * 1000);
   return spamInterval;
 };

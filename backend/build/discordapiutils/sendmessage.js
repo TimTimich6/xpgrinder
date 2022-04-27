@@ -37,6 +37,7 @@ const headers_1 = __importStar(require("./headers"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const axios_1 = __importDefault(require("axios"));
 const waitTime_1 = __importDefault(require("../utils/waitTime"));
+const selfData_1 = require("./selfData");
 const postMessage = (message, channelID, token, ref) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield (0, node_fetch_1.default)(`https://discord.com/api/v9/channels/${channelID}/messages`, {
         headers: {
@@ -44,6 +45,7 @@ const postMessage = (message, channelID, token, ref) => __awaiter(void 0, void 0
             authorization: token,
             "content-type": "application/json",
         },
+        agent: selfData_1.agent,
         body: JSON.stringify({ content: message, message_reference: ref ? ref : null }),
         method: "POST",
     });
@@ -76,6 +78,7 @@ const deleteMessage = (channelID, messageID, token) => __awaiter(void 0, void 0,
     axios_1.default
         .delete(`https://discord.com/api/v9/channels/${channelID}/messages/${messageID}`, {
         headers: Object.assign({ cookie: yield (0, headers_1.getCookie)(), authorization: token }, headers_1.default),
+        httpsAgent: selfData_1.agent,
     })
         .catch((err) => console.log("error when deleting message"));
 });
@@ -98,8 +101,6 @@ const spamMessages = (channelID, token, delay) => __awaiter(void 0, void 0, void
             console.log("random: ", message, "for token", token.slice(0, 5));
             (0, exports.deleteMessage)(channelID, response.id, token);
         }
-        if (response)
-            console.log(response);
     }), delay * 1000);
     return spamInterval;
 });
@@ -121,6 +122,7 @@ const reactMessage = (channelID, messageID, rxn, token) => __awaiter(void 0, voi
     const resp = yield axios_1.default
         .put(`https://discord.com/api/v9/channels/${channelID}/messages/${messageID}/reactions/${encoded}/%40me`, {}, {
         headers: Object.assign({ cookie: yield (0, headers_1.getCookie)(), authorization: token }, headers_1.default),
+        httpsAgent: selfData_1.agent,
     })
         .catch((err) => {
         if (err.response && err.response.data)

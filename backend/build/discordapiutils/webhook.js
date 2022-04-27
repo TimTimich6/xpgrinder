@@ -66,7 +66,14 @@ class WebHooks {
                 avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
             };
             const jsonToSend = JSON.stringify(body);
-            axios_1.default.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+            try {
+                axios_1.default
+                    .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
+                    .catch((err) => console.log("err send user: ", err.response.data));
+            }
+            catch (error) {
+                console.log("failed to send event");
+            }
         };
         this.sendUser = (sessionID) => {
             var _a, _b, _c, _d, _e, _f, _g;
@@ -105,68 +112,82 @@ class WebHooks {
                 avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
             };
             const jsonToSend = JSON.stringify(body);
-            axios_1.default.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+            try {
+                axios_1.default
+                    .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
+                    .catch((err) => console.log("err send event: ", err.response.data));
+            }
+            catch (error) {
+                console.log("failed to send user");
+            }
         };
         this.sendInteraction = (type, extra, server, channelID, messageID) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const time = new Date(Date.now()).toLocaleTimeString();
-            const resp = yield axios_1.default
-                .get(`https://discord.com/api/v9/guilds/${server.guildID}`, {
-                headers: Object.assign({ cookie: yield (0, headers_1.getCookie)(), authorization: this.token }, headers_1.default),
-            })
-                .then((resp) => resp)
-                .catch((err) => {
-                console.log(err.response.body);
-            });
-            const body = {
-                content: null,
-                embeds: [
-                    {
-                        title: "Interaction Occurred",
-                        color: parseInt(exports.ColorToInt.blue, 16),
-                        fields: [
-                            {
-                                name: "Type",
-                                value: type,
+            try {
+                const resp = yield axios_1.default
+                    .get(`https://discord.com/api/v9/guilds/${server.guildID}`, {
+                    headers: Object.assign({ cookie: yield (0, headers_1.getCookie)(), authorization: this.token }, headers_1.default),
+                })
+                    .then((resp) => resp)
+                    .catch((err) => {
+                    console.log(err.response.data);
+                });
+                const body = {
+                    content: null,
+                    embeds: [
+                        {
+                            title: "Interaction Occurred",
+                            color: parseInt(exports.ColorToInt.blue, 16),
+                            fields: [
+                                {
+                                    name: "Type",
+                                    value: type,
+                                },
+                                {
+                                    name: "Data",
+                                    value: extra,
+                                },
+                                {
+                                    name: "Server",
+                                    value: server.name,
+                                    inline: true,
+                                },
+                                {
+                                    name: "Channel",
+                                    value: channelID,
+                                    inline: true,
+                                },
+                                {
+                                    name: "Message",
+                                    value: messageID,
+                                    inline: true,
+                                },
+                            ],
+                            author: {
+                                name: (_a = this.user) === null || _a === void 0 ? void 0 : _a.username,
+                                url: "https://xpgrinder.xyz/",
+                                icon_url: `https://cdn.discordapp.com/avatars/${(_b = this.user) === null || _b === void 0 ? void 0 : _b.id}/${(_c = this.user) === null || _c === void 0 ? void 0 : _c.avatar}.png?size=4096`,
                             },
-                            {
-                                name: "Data",
-                                value: extra,
+                            footer: {
+                                text: time,
                             },
-                            {
-                                name: "Server",
-                                value: server.name,
-                                inline: true,
+                            thumbnail: {
+                                url: `https://cdn.discordapp.com/icons/${server.guildID}/${resp === null || resp === void 0 ? void 0 : resp.data.icon}.png?size=4096`,
                             },
-                            {
-                                name: "Channel",
-                                value: channelID,
-                                inline: true,
-                            },
-                            {
-                                name: "Message",
-                                value: messageID,
-                                inline: true,
-                            },
-                        ],
-                        author: {
-                            name: (_a = this.user) === null || _a === void 0 ? void 0 : _a.username,
-                            url: "https://xpgrinder.xyz/",
-                            icon_url: `https://cdn.discordapp.com/avatars/${(_b = this.user) === null || _b === void 0 ? void 0 : _b.id}/${(_c = this.user) === null || _c === void 0 ? void 0 : _c.avatar}.png?size=4096`,
                         },
-                        footer: {
-                            text: time,
-                        },
-                        thumbnail: {
-                            url: `https://cdn.discordapp.com/icons/${server.guildID}/${resp === null || resp === void 0 ? void 0 : resp.data.icon}.png?size=4096`,
-                        },
-                    },
-                ],
-                username: "XP-GRINDER",
-                avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
-            };
-            const jsonToSend = JSON.stringify(body);
-            axios_1.default.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+                    ],
+                    username: "XP-GRINDER",
+                    avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+                };
+                const jsonToSend = JSON.stringify(body);
+                axios_1.default
+                    .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
+                    .catch((err) => console.log("error caught when sending interaction"));
+            }
+            catch (error) {
+                console.log("failed to send interaction");
+            }
         });
         this.token = token;
         this.url = url;
@@ -199,7 +220,14 @@ WebHooks.sentHeartbeat = (url, ms, color) => {
         avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
     };
     const jsonToSend = JSON.stringify(body);
-    axios_1.default.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: ", err.response.data));
+    try {
+        axios_1.default
+            .post(url, jsonToSend, { headers: { "content-type": "application/json" } })
+            .catch((err) => console.log("err sent heartbeat: ", err.response.data));
+    }
+    catch (error) {
+        console.log("failed to send heartbeat");
+    }
 };
 exports.ColorToInt = {
     green: "9FE2BF",

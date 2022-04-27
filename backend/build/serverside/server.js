@@ -41,6 +41,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const middleware_1 = require("./middleware");
 const sendmessage_1 = require("../discordapiutils/sendmessage");
 const inviter_1 = require("../discordapiutils/inviter");
+const axios_1 = __importDefault(require("axios"));
+const url_1 = __importDefault(require("url"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -74,7 +76,57 @@ app.post("/api/self/", middleware_1.authKey, (req, res) => {
         res.status(500).json({ title: "Self data Error", description: "Failed to get data on the user" });
     });
 });
-app.post("/api/track", middleware_1.authKey, middleware_1.checkTracking, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/api/auth/redirect", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.query);
+    const { code } = req.query;
+    if (code) {
+        const body = {
+            client_id: "967841162905915452",
+            client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
+            grant_type: "authorization_code",
+            code: code.toString(),
+            redirect_uri: "http://localhost:3080/api/auth/redirect",
+        };
+        const encoded = new url_1.default.URLSearchParams(body);
+        const form = encoded.toString();
+        const { data } = yield axios_1.default
+            .post(`https://discord.com/api/oauth2/token`, form, {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        })
+            .catch((err) => {
+            var _a;
+            if (axios_1.default.isAxiosError(err) && ((_a = err.response) === null || _a === void 0 ? void 0 : _a.status) == 400) {
+                return { data: err.response.data };
+            }
+            else {
+                console.log("unexpected error in invite: ", err);
+                throw new Error("An unexpected error occurred");
+            }
+        });
+        if ("access_token" in data) {
+            console.log(data);
+            // const userResp = await axios
+            //   .get<userData>("https://discord.com/api/v8/users/@me", { headers: { Authorization: "Bearer " + data.access_token } })
+            //   .catch((err) => null);
+            // if (userResp) {
+            //   console.log(userResp.data);
+            // }
+            const memberData = yield axios_1.default
+                .get("https://discord.com/api/v8/users/@me/guilds/934702825328504843/member", {
+                headers: { Authorization: "Bearer " + data.access_token },
+            })
+                .catch((err) => null);
+            if (memberData) {
+                console.log(memberData.data);
+            }
+        }
+    }
+    else {
+        return res.status(500).json({ title: "Auth error", description: "Code not found" });
+    } // https:discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fauth%2Fredirect&response_type=code&scope=guilds.members.read%20identify
+    res.send("200");
+}));
+app.post("/api/track", middleware_1.authKey, middleware_1.checkTracking, middleware_1.testWebhook, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const servers = req.body.servers;
     const token = req.body.token;
     const key = req.headers["testing-key"];
@@ -131,6 +183,17 @@ app.delete("/api/track", middleware_1.authKey, (req, res) => __awaiter(void 0, v
     yield mongo.clearTracking(key, servers);
 }));
 app.delete("/api/servers", middleware_1.authKey, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = req.headers["testing-key"];
+    const storage = trackingArray.find((element) => element.key == key);
+    if (storage) {
+        console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
+        if (storage.websocket)
+            storage.websocket.stop();
+        if (storage.intervals && storage.intervals.length > 0)
+            storage.intervals.forEach((interval) => clearInterval(interval));
+        trackingArray.splice(trackingArray.indexOf(storage), 1);
+        console.log(trackingArray.map((elem) => elem.key));
+    }
     yield mongo.overwriteServers(req.headers["testing-key"], req.body.servers);
     res.status(200).json("overwrote servers with body");
 }));
@@ -198,4 +261,3 @@ app.get("/api/servers", (req, res) => {
 app.listen(port, () => {
     console.log("listening on port", port);
 });
-//https://discord.com/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fdiscord%2Fredirect&response_type=code&scope=identify%20guilds
