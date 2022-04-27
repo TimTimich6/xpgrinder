@@ -118,6 +118,7 @@ export const checkInvite = async (req: Request, res: Response, next: NextFunctio
   params.inviteLink = params.inviteLink.trim();
   params.webhook = params.webhook.trim();
   params.serverLogo = params.serverLogo.trim();
+  req.body.amount = parseInt(req.body.amount);
   if (params.amount <= 0 || params.amount >= 16) return res.status(500).json({ title: "Invite error", description: `Amount is out of range [1,15]` });
   if (!params.webhook.match(webhookRegex)) return res.status(500).json({ title: "Invite error", description: `Webhook is not valid` });
   if (params.delay <= 1 || params.delay >= 120) return res.status(500).json({ title: "Invite error", description: `Delay is out of range [2,120]` });

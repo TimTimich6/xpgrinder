@@ -199,17 +199,20 @@ export class SocketTracker {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
-                  }).catch(() => {
-                    console.log("Error caught when trying to respond");
-                    this.wh?.sendInteraction(
-                      t,
-                      "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
-                      server,
-                      d.channel_id,
-                      d.message_id
-                    );
-                  });
-                  this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
+                  })
+                    .then(() =>
+                      this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id)
+                    )
+                    .catch(() => {
+                      console.log("Error caught when trying to respond");
+                      this.wh?.sendInteraction(
+                        t,
+                        "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
+                        server,
+                        d.channel_id,
+                        d.message_id
+                      );
+                    });
                 }
               } else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
                 console.log("generating AI");
@@ -217,22 +220,25 @@ export class SocketTracker {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
                 });
                 if (response) {
-                  console.log("AI response:", response);
-                  this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
                   await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
-                  }).catch(() => {
-                    console.log("Error caught when trying to respond");
-                    this.wh?.sendInteraction(
-                      t,
-                      "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
-                      server,
-                      d.channel_id,
-                      d.message_id
-                    );
-                  });
+                  })
+                    .then(() => {
+                      console.log("AI responded:", response);
+                      this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
+                    })
+                    .catch(() => {
+                      console.log("Error caught when trying to respond");
+                      this.wh?.sendInteraction(
+                        t,
+                        "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
+                        server,
+                        d.channel_id,
+                        d.message_id
+                      );
+                    });
                 }
               }
             }

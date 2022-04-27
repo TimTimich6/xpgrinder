@@ -47,7 +47,8 @@ export const uploadExample = async (key: string, example: Example): Promise<void
   await client.db("xpgrinder").collection("examples").insertOne({ key: key, prompt: example.prompt, completion: example.completion });
 };
 
-export const addUses = async (key: string, amount: number): Promise<void> => {
+export const addUses = async (key: string, amount: number | string): Promise<void> => {
+  if (typeof amount == "string") amount = parseInt(amount);
   const result = await client
     .db("xpgrinder")
     .collection("keys")
