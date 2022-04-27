@@ -158,7 +158,7 @@ export const checkUses = async (req: Request, res: Response, next: NextFunction)
   const key = <string>req.headers["testing-key"];
   const uses = await getUses(key);
   if (uses) {
-    if (uses + parseInt(req.body.amount) > 15)
+    if (uses + parseInt(req.body.amount) > 30)
       return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });
   }
   next();
