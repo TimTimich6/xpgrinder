@@ -1,6 +1,6 @@
 import { GeneralDiscordError } from "./../discordapiutils/invitetoken";
 import axios, { AxiosError } from "axios";
-import { getUses, KeyData } from "./mongocommands";
+import { getUses, idData } from "./mongocommands";
 import { NextFunction, Request, Response } from "express";
 import { getPaste } from "../utils/dataRetreriver";
 export const getTokens = async () => {};
@@ -11,7 +11,7 @@ const channelRegex = /^\d{18}$/g;
 const tokenRegex = /[\w-]{24}\.[\w-]{6}\.[\w-]{27}/;
 const webhookRegex = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?/;
 export const checkTracking = (req: Request, res: Response, next: NextFunction) => {
-  const body: KeyData = req.body;
+  const body: idData = req.body;
   const { token, servers } = body;
   let trackingcount = 0;
   let aiuses = 0;
@@ -157,27 +157,9 @@ export const checkInvite = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const authKey = async (req: Request, res: Response, next: NextFunction) => {
-  const key: string = <string>req.headers["testing-key"];
-  const data = await getPaste("WHBfhqt7").catch((err) => {
-    res.status(500).json({ title: "Server Error", description: "Internal server error occured when getting keys" });
-    return null;
-  });
-  if (data) {
-    const splitTokens: string[] = data.split("\r\n");
-    if (key && splitTokens.includes(key)) {
-      console.log("key found: ", key);
-      next();
-    } else {
-      console.log("key not found:", key);
-      res.status(404).json({ title: "Key not found", description: "Enter a valid key to use the XP Grinder" });
-    }
-  }
-};
-
-export const checkUses = async (req: Request, res: Response, next: NextFunction) => {
-  const key = <string>req.headers["testing-key"];
-  const uses = await getUses(key);
+export const checkUses = async (req: any, res: Response, next: NextFunction) => {
+  const userid = req.jwt.userid;
+  const uses = await getUses(userid);
   if (uses) {
     if (uses + parseInt(req.body.amount) > 30)
       return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });

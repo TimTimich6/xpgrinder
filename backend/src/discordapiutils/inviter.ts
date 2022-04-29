@@ -11,7 +11,7 @@ export class Inviter {
   currentIndex: number = 0;
   successful = 0;
   ongoing: Promise<void>[] = [];
-  constructor(readonly params: InviteRequest, readonly tokens: string[], readonly key: string) {
+  constructor(readonly params: InviteRequest, readonly tokens: string[], readonly userid: string) {
     this.webhook = new InviterWebhook(params);
     this.webhook.sendInitialization();
     if (this.params.concurrent) this.startConcurrent();
@@ -22,7 +22,7 @@ export class Inviter {
       this.currentIndex = index;
       if (!this.active) {
         this.webhook.sendStop(index, null);
-        addUses(this.key, this.params.amount);
+        addUses(this.userid, this.params.amount);
         return;
       }
       const token = this.tokens[index];
@@ -51,7 +51,7 @@ export class Inviter {
     await Promise.all(this.ongoing);
     this.active = false;
     this.webhook.sendStop(this.params.amount, this.successful);
-    addUses(this.key, this.successful);
+    addUses(this.userid, this.successful);
     return;
   }
   async startConsecutive() {
@@ -59,7 +59,7 @@ export class Inviter {
       this.currentIndex = index;
       if (!this.active) {
         this.webhook.sendStop(index, null);
-        addUses(this.key, this.successful);
+        addUses(this.userid, this.successful);
         return;
       }
       const token = this.tokens[index];
@@ -84,7 +84,7 @@ export class Inviter {
     }
     this.active = false;
     this.webhook.sendStop(this.params.amount, this.successful);
-    addUses(this.key, this.successful);
+    addUses(this.userid, this.successful);
     return;
   }
   interrupt() {

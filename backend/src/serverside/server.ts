@@ -1,33 +1,33 @@
+import { hasRole, isAuthed, secret } from "./auth";
 import { Server } from "./../discordapiutils/websocket";
 import * as mongo from "./mongocommands";
 import express from "express";
 import { getRandomTokens, readBin } from "../utils/dataRetreriver";
 import { getInviteData } from "../discordapiutils/getInviteData";
-import { selfData, userData } from "../discordapiutils/selfData";
+import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
-import dotenv from "dotenv";
-import { checkTracking, authKey, checkInvite, InviteRequest, checkUses, testWebhook } from "./middleware";
+import { checkTracking, checkInvite, InviteRequest, checkUses, testWebhook } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 import { Inviter } from "../discordapiutils/inviter";
 import axios, { AxiosError } from "axios";
 import url from "url";
-import headers from "../discordapiutils/headers";
 import { restartHook } from "./serverwebhook";
 import ip from "ip";
-dotenv.config();
+import jwt from "jsonwebtoken";
+import cors from "cors";
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 const port: number | string = process.env.port || 3080;
 
 interface TrackingStorage {
   websocket?: SocketTracker;
-  key: string;
+  userid: string;
   intervals?: NodeJS.Timer[];
 }
 interface InviterActive {
   inviter: Inviter;
-  key: string;
+  userid: string;
 }
 export interface Example {
   prompt: string;
@@ -36,11 +36,6 @@ export interface Example {
 
 const trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
-app.get("/api/key", authKey, async (req, res) => {
-  const keyData = await mongo.getUser(<string>req.headers["testing-key"]);
-  if (keyData) res.status(200).json({ userdata: keyData, key: req.headers["testing-key"] });
-  else res.status(200).send("new key found");
-});
 
 app.get("/api/invite/:code", (req, res) => {
   const code: string = req.params.code;
@@ -55,7 +50,7 @@ app.get("/api/invite/:code", (req, res) => {
     });
 });
 
-app.post("/api/self/", authKey, (req, res) => {
+app.post("/api/self/", isAuthed, hasRole, (req, res) => {
   const token: string = req.body.token;
   selfData(token)
     .then((data) => res.status(200).json(data))
@@ -64,62 +59,89 @@ app.post("/api/self/", authKey, (req, res) => {
     });
 });
 
+app.get("/api/auth/discord", (req, res) => {
+  res.redirect(
+    "https://discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=https%3A%2F%2Fxpgrinder.xyz%2Fapi%2Fauth%2Fredirect&response_type=code&scope=identify%20guilds.members.read"
+  );
+});
+
+app.get("/api/user", isAuthed, hasRole, async (req: any, res) => {
+  const user = req.user;
+  if (user) {
+    res.status(200).json(user);
+  } else {
+    res.status(500).json({ title: "User error", description: "Couldn't find user" });
+  }
+});
 app.get("/api/auth/redirect", async (req, res) => {
   console.log(req.query);
   const { code } = req.query;
-  if (code) {
-    const body = {
-      client_id: "967841162905915452",
-      client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
-      grant_type: "authorization_code",
-      code: code.toString(),
-      redirect_uri: "http://localhost:3080/api/auth/redirect",
-    };
-    const encoded = new url.URLSearchParams(body);
-    const form = encoded.toString();
-    const { data } = await axios
-      .post<DiscordAccessToken>(`https://discord.com/api/oauth2/token`, form, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      })
-      .catch((err: AxiosError<Oauth2Error>) => {
-        if (axios.isAxiosError(err) && err.response?.status == 400) {
-          return { data: err.response.data };
-        } else {
-          console.log("unexpected error in invite: ", err);
-          throw new Error("An unexpected error occurred");
-        }
-      });
-    if ("access_token" in data) {
-      console.log(data);
-
-      // const userResp = await axios
-      //   .get<userData>("https://discord.com/api/v8/users/@me", { headers: { Authorization: "Bearer " + data.access_token } })
-      //   .catch((err) => null);
-      // if (userResp) {
-      //   console.log(userResp.data);
-      // }
-      const memberData = await axios
-        .get<GuildMember>("https://discord.com/api/v8/users/@me/guilds/934702825328504843/member", {
-          headers: { Authorization: "Bearer " + data.access_token },
+  try {
+    if (code) {
+      const body = {
+        client_id: "967841162905915452",
+        client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
+        grant_type: "authorization_code",
+        code: code.toString(),
+        redirect_uri: "http://localhost:3080/api/auth/redirect",
+      };
+      const encoded = new url.URLSearchParams(body);
+      const form = encoded.toString();
+      const { data } = await axios
+        .post<DiscordAccessToken>(`https://discord.com/api/oauth2/token`, form, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
         })
-        .catch((err) => null);
-      if (memberData) {
-        console.log(memberData.data);
+        .catch((err: AxiosError<Oauth2Error>) => {
+          if (axios.isAxiosError(err) && err.response?.status == 400) {
+            return { data: err.response.data };
+          } else {
+            console.log("unexpected error in invite: ", err);
+            throw new Error("An unexpected error occurred");
+          }
+        });
+      if ("access_token" in data) {
+        // const userResp = await axios
+        //   .get<userData>("https://discord.com/api/v8/users/@me", { headers: { Authorization: "Bearer " + data.access_token } })
+        //   .catch((err) => null);
+        // if (userResp) {
+        //   console.log(userResp.data);
+        // }
+        const memberData = await axios
+          .get<GuildMember>("https://discord.com/api/v8/users/@me/guilds/934702825328504843/member", {
+            headers: { Authorization: "Bearer " + data.access_token },
+          })
+          .catch((err) => null);
+        if (memberData) {
+          const user = memberData.data.user;
+          const result = await mongo.getByUserid(memberData.data.user.id);
+          const token = jwt.sign({ userid: memberData.data.user.id }, secret, { expiresIn: "1d" });
+          res.cookie("jwt", token);
+          if (!result) {
+            await mongo.createUser(user.id, user.username, data.access_token, data.refresh_token, user.avatar, memberData.data.roles);
+          } else {
+            await mongo.updateAccess(user.id, data.access_token, data.access_token, memberData.data.roles);
+          }
+          console.log(memberData.data);
+        }
       }
+      res.redirect("http://localhost:3000/");
     }
-  } else {
+  } catch (error) {
     return res.status(500).json({ title: "Auth error", description: "Code not found" });
   } // https:discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fauth%2Fredirect&response_type=code&scope=guilds.members.read%20identify
+});
+
+app.get("/api/protectedroute", isAuthed, (req, res) => {
   res.send("200");
 });
-app.post("/api/track", authKey, checkTracking, testWebhook, async (req, res, next) => {
+app.post("/api/track", isAuthed, hasRole, checkTracking, testWebhook, async (req: any, res, next) => {
   const servers: Server[] = req.body.servers;
   const token: string = req.body.token;
-  const key: string = <string>req.headers["testing-key"];
-  if (trackingArray.some((storage) => storage.key == key))
+  const userid = req.jwt.userid;
+  if (trackingArray.some((storage) => storage.userid == userid))
     res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
   else {
-    let storageCell: TrackingStorage = { key };
+    let storageCell: TrackingStorage = { userid };
     const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
     const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
     if (regularTrack.length > 0) {
@@ -142,46 +164,44 @@ app.post("/api/track", authKey, checkTracking, testWebhook, async (req, res, nex
 
     trackingArray.push(storageCell);
     console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
-    console.log(trackingArray.map((elem) => elem.key));
-    req.body.key = key;
-    await mongo.replaceKey(req.body);
+    console.log(trackingArray.map((elem) => elem.userid));
     res.status(200).json(req.body);
   }
 });
 
-app.delete("/api/track", authKey, async (req, res) => {
+app.delete("/api/track", isAuthed, async (req: any, res) => {
   const { servers } = req.body;
-  const key = <string>req.headers["testing-key"];
-  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.key == key);
+  const userid = <string>req.jwt.userid;
+  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.userid == userid);
   if (storage) {
-    console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
+    console.log("removing servers from userid: ", userid, "index: ", trackingArray.indexOf(storage));
     if (storage.websocket) storage.websocket.stop();
     if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
     trackingArray.splice(trackingArray.indexOf(storage), 1);
-    res.status(200).json({ key, message: "stop tracking all servers" });
-    console.log(trackingArray.map((elem) => elem.key));
+    res.status(200).json({ userid, message: "stop tracking all servers" });
+    console.log(trackingArray.map((elem) => elem.userid));
   } else {
     res.status(500).json({ title: "Tracking Error", description: "Something went wrong when deactivating the tracking" });
   }
   console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
-  await mongo.clearTracking(key, servers);
+  await mongo.clearTracking(userid, servers);
 });
 
-app.delete("/api/servers", authKey, async (req, res) => {
-  const key = <string>req.headers["testing-key"];
-  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.key == key);
+app.delete("/api/servers", isAuthed, async (req: any, res) => {
+  const userid = <string>req.jwt.userid;
+  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.userid == userid);
   if (storage) {
-    console.log("removing servers from key: ", key, "index: ", trackingArray.indexOf(storage));
+    console.log("removing servers from userid: ", userid, "index: ", trackingArray.indexOf(storage));
     if (storage.websocket) storage.websocket.stop();
     if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
     trackingArray.splice(trackingArray.indexOf(storage), 1);
-    console.log(trackingArray.map((elem) => elem.key));
+    console.log(trackingArray.map((elem) => elem.userid));
   }
-  await mongo.overwriteServers(<string>req.headers["testing-key"], req.body.servers);
+  await mongo.overwriteServers(userid, req.body.servers);
   res.status(200).json("overwrote servers with body");
 });
 
-app.get("/api/filters", authKey, (req, res) => {
+app.get("/api/filters", isAuthed, hasRole, (req, res) => {
   readBin("62394f7e7caf5d67836efb23")
     .then((binData) => {
       const filters = binData.defaultFilters;
@@ -193,38 +213,36 @@ app.get("/api/filters", authKey, (req, res) => {
     });
 });
 
-app.get("/api/test", async (req, res) => {
-  res.json(await mongo.getUser("timkey"));
-});
+app.post("/api/example", isAuthed, async (req: any, res) => {
+  const userid = <string>req.jwt.userid;
 
-app.post("/api/example", authKey, async (req, res) => {
   const { prompt, completion } = req.body;
   if (prompt.length <= 0 || completion.length <= 0) res.status(500).json({ title: "Upload Error", description: "Invalid upload data detected" });
   else {
-    await mongo.uploadExample(<string>req.headers["testing-key"], { prompt, completion });
+    await mongo.uploadExample(userid, { prompt, completion });
     res.status(200).json("Uploaded example successfully");
   }
 });
 
-app.post("/api/invite", checkInvite, authKey, checkUses, async (req, res) => {
+app.post("/api/invite", isAuthed, hasRole, checkInvite, checkUses, async (req: any, res) => {
   const params: InviteRequest = req.body;
-  const key = <string>req.headers["testing-key"];
-  const alreadyExists = ongoingInvitations.find((el) => (el.key = key));
+  const userid = <string>req.jwt.userid;
+  const alreadyExists = ongoingInvitations.find((el) => (el.userid = userid));
   if (alreadyExists) {
-    if (!alreadyExists.inviter.active) ongoingInvitations.filter((invitation) => invitation.key != key);
+    if (!alreadyExists.inviter.active) ongoingInvitations.filter((invitation) => invitation.userid != userid);
     else return res.status(500).json({ title: "Invite Error", description: "Invitation already sending out. Interrupt the previous process" });
   }
   const unique = await getRandomTokens(params.amount);
   if (unique) {
-    const inviteInstance = new Inviter(params, unique, key);
-    ongoingInvitations.push({ inviter: inviteInstance, key: <string>req.headers["testing-key"] });
+    const inviteInstance = new Inviter(params, unique, userid);
+    ongoingInvitations.push({ inviter: inviteInstance, userid });
     return res.status(200).send("success");
   } else return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens, try again or contact timlol" });
 });
 
-app.delete("/api/invite", authKey, async (req, res) => {
-  const key = <string>req.headers["testing-key"];
-  const inviteProcess = ongoingInvitations.find((element) => element.key == key);
+app.delete("/api/invite", isAuthed, async (req: any, res) => {
+  const userid = <string>req.jwt.userid;
+  const inviteProcess = ongoingInvitations.find((element) => element.userid == userid);
   if (inviteProcess) {
     if (inviteProcess.inviter.active == false) return res.status(500).json({ title: "Invite Error", description: "No active process is happening" });
     inviteProcess.inviter.interrupt();
@@ -234,9 +252,8 @@ app.delete("/api/invite", authKey, async (req, res) => {
   }
 });
 
-app.get("/api/servers", (req, res) => {
-  if (req.headers["testing-key"] == "timkey") res.status(200).json(trackingArray.map((elem) => elem.key));
-  else res.status(403).json("unauthorized key");
+app.get("/api/servers", isAuthed, (req: any, res) => {
+  if (<string>req.jwt.userid == "516369143046340608") res.status(200).json(trackingArray.map((elem) => elem.userid));
 });
 
 app.listen(port, () => {

@@ -1,13 +1,14 @@
 import { Server } from "./../discordapiutils/websocket";
-import { Document, FindCursor, MongoClient, UpdateResult, WithId } from "mongodb";
+import { MongoClient } from "mongodb";
 import { DiscordAccessToken, Example } from "./server";
 import waitTime from "../utils/waitTime";
 import fs from "fs";
-export interface KeyData {
-  key: string;
+export interface idData {
+  userid: string;
   token: string;
   servers: Server[];
   webhook: string;
+  active: boolean;
 }
 const uri: string = "mongodb+srv://tim:tallkitten47@cluster0.k1aaw.mongodb.net/xpgrinder?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
@@ -17,56 +18,44 @@ const client = new MongoClient(uri);
   });
 })();
 
-export const getUser = async (key: string): Promise<WithId<Document> | null> => {
-  const query = await client.db("xpgrinder").collection("keys").findOne({ key: key });
-  return query;
-};
-
-export const replaceKey = async (user: KeyData): Promise<void> => {
+export const clearTracking = async (userid: string, servers: Server[]): Promise<void> => {
   await client
     .db("xpgrinder")
-    .collection("keys")
-    .updateOne({ key: user.key }, { $set: { ...user } }, { upsert: true });
+    .collection("users")
+    .updateOne({ userid }, { $set: { servers: servers, active: false } });
 };
 
-export const clearTracking = async (key: string, servers: Server[]): Promise<void> => {
+export const overwriteServers = async (userid: string, servers: Server[]): Promise<void> => {
   await client
     .db("xpgrinder")
-    .collection("keys")
-    .updateOne({ key: key }, { $set: { servers: servers, active: false } }, { upsert: true });
+    .collection("users")
+    .updateOne({ userid }, { $set: { servers: servers } });
 };
 
-export const overwriteServers = async (key: string, servers: Server[]): Promise<void> => {
-  await client
-    .db("xpgrinder")
-    .collection("keys")
-    .updateOne({ key: key }, { $set: { servers: servers } }, { upsert: true });
+export const uploadExample = async (userid: string, example: Example): Promise<void> => {
+  await client.db("xpgrinder").collection("examples").insertOne({ userid, prompt: example.prompt, completion: example.completion });
 };
 
-export const uploadExample = async (key: string, example: Example): Promise<void> => {
-  await client.db("xpgrinder").collection("examples").insertOne({ key: key, prompt: example.prompt, completion: example.completion });
-};
-
-export const addUses = async (key: string, amount: number | string): Promise<void> => {
+export const addUses = async (userid: string, amount: number | string): Promise<void> => {
   if (typeof amount == "string") amount = parseInt(amount);
   const result = await client
     .db("xpgrinder")
-    .collection("keys")
-    .updateOne({ key: key }, { $inc: { uses: amount } }, { upsert: true });
-  console.log("updated uses for key", key, "with", amount);
+    .collection("users")
+    .updateOne({ userid }, { $inc: { uses: amount } });
+  console.log("updated uses for userid", userid, "with", amount);
 };
 
 export const updateTokens = async (tokendata: DiscordAccessToken, userid: string): Promise<void> => {
   const result = await client
     .db("xpgrinder")
-    .collection("keys")
+    .collection("users")
     .updateOne({ userid: userid }, { $set: { access_token: tokendata.access_token, refresh_token: tokendata.refresh_token } }, { upsert: true });
 };
-export const getUses = async (key: string): Promise<number | null> => {
+export const getUses = async (userid: string): Promise<number | null> => {
   const result = await client
     .db("xpgrinder")
-    .collection("keys")
-    .findOne({ key: key }, { projection: { uses: 1 } });
+    .collection("users")
+    .findOne({ userid }, { projection: { uses: 1 } });
   if (result) return result.uses;
   return null;
 };
@@ -76,7 +65,7 @@ async function getAllExamples() {
   client
     .db("xpgrinder")
     .collection("examples")
-    .find({}, { projection: { _id: 0, key: 0 } })
+    .find({}, { projection: { _id: 0, userid: 0 } })
     .toArray((err, result) => {
       if (err) throw err;
       client.close();
@@ -85,4 +74,20 @@ async function getAllExamples() {
     });
 }
 
+export const createUser = async (userid: string, username: string, accesstoken: string, refreshtoken: string, hash: string, roles: string[]) => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("users")
+    .insertOne({ userid, username, accesstoken, refreshtoken, servers: [], uses: 0, token: "", webhook: "", hash: hash || "", roles, active: false });
+  return result;
+};
+export const getByUserid = async (userid: string) => {
+  const result = await client.db("xpgrinder").collection("users").findOne({ userid });
+  return result;
+};
+
+export const updateAccess = async (userid: string, accesstoken: string, refrereshtoken: string, roles: string[]) => {
+  const result = await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { refrereshtoken, accesstoken, roles } });
+  return result;
+};
 // getAllExamples();
