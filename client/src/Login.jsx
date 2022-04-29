@@ -11,7 +11,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(input);
-    if (input.length > 5) {
+    if (input&& input.length > 5) {
       setLoading(true);
       await axios
         .get(`/api/key`, {

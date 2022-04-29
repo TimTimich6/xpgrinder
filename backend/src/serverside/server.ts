@@ -12,7 +12,8 @@ import { Inviter } from "../discordapiutils/inviter";
 import axios, { AxiosError } from "axios";
 import url from "url";
 import headers from "../discordapiutils/headers";
-
+import { restartHook } from "./serverwebhook";
+import ip from "ip";
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -240,6 +241,12 @@ app.get("/api/servers", (req, res) => {
 
 app.listen(port, () => {
   console.log("listening on port", port);
+  console.log(ip.address());
+
+  if (ip.address() != "192.168.0.238")
+    restartHook()
+      .then(() => console.log("send start hook"))
+      .catch(() => console.log("failed to send restart hook"));
 });
 
 export interface DiscordAccessToken {

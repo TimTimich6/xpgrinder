@@ -1,15 +1,15 @@
-import './Header.css';
-import { UserSettingsContext } from './UserSettingsContext';
-import { useContext } from 'react';
+import "./Header.css";
+import { UserSettingsContext } from "./UserSettingsContext";
+import { useContext } from "react";
+import TextButton from "./TextButton";
 const Header = (props) => {
-	const userCtx = useContext(UserSettingsContext);
-	const { setToken } = userCtx;
-	return (
-		<header className="header">
-			<label className="headerLabel">Token </label>
-			<input type="password" className="headerInput" onChange={(e) => setToken(e.target.value)} />
-		</header>
-	);
+  const userCtx = useContext(UserSettingsContext);
+  const { setToken } = userCtx;
+  return (
+    <header className="header">
+      <TextButton bgc="green">Sign in with Discord</TextButton>
+    </header>
+  );
 };
 
 export default Header;

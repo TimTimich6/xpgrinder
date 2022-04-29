@@ -150,7 +150,7 @@ const Popup = () => {
                 ref={percentRef}
                 min="0"
                 max="100"
-                step="20"
+                step="5"
                 size="3"
                 disabled={spamOn || server.settings.exactMatch}
               />
