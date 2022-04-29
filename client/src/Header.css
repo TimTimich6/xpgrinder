@@ -1,0 +1,28 @@
+.header{
+    display:flex;
+    gap:1rem;
+    /* position: fixed; */
+    top:5px;
+    z-index:100;
+    align-items: center;
+    /* width:100vw; */
+}
+
+.loggedUser{
+    display:flex;
+    background-color:whitesmoke;
+    align-items:center;
+    border-radius: 1rem;
+    gap:1rem;
+    justify-content: space-between;
+    border:3px solid black;
+    
+}
+.userPfp{
+    height:5rem;
+    border-radius:0.3rem;
+}
+.loggedRight{
+    margin-right:0.3rem;
+}
+

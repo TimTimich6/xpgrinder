@@ -5,7 +5,7 @@ import "./Inviter.css";
 import axios from "axios";
 import TextButton from "../TextButton";
 const Inviter = () => {
-  const { setLoading, setError, key, webhook } = useContext(UserSettingsContext);
+  const { setLoading, setError, webhook } = useContext(UserSettingsContext);
   const [amount, setAmount] = useState(1);
   const [delay, setDelay] = useState(6);
   const [concurrent, setConcurrent] = useState(true);
@@ -63,11 +63,22 @@ const Inviter = () => {
 
     setLoading(true);
     const data = await axios
-      .post(
-        "/api/invite",
-        { inviteLink, amount, delay, captcha, messageID, message, guildID, channelID, reaction, webhook, guildName, serverLogo, concurrent, verbose },
-        { headers: { "testing-key": key } }
-      )
+      .post("/api/invite", {
+        inviteLink,
+        amount,
+        delay,
+        captcha,
+        messageID,
+        message,
+        guildID,
+        channelID,
+        reaction,
+        webhook,
+        guildName,
+        serverLogo,
+        concurrent,
+        verbose,
+      })
       .catch((err) => setError(err.response.data))
       .finally(() => setLoading(false));
   };
@@ -75,7 +86,7 @@ const Inviter = () => {
   const stopInviting = async () => {
     setLoading(true);
     const data = await axios
-      .delete("/api/invite", { headers: { "testing-key": key } })
+      .delete("/api/invite")
       .catch((err) => setError(err.response.data))
       .finally(() => setLoading(false));
   };

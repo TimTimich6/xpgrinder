@@ -6,20 +6,16 @@ import TextButton from "./TextButton";
 const TrainAI = () => {
   const [prompt, setPrompt] = useState("");
   const [completion, setCompletion] = useState("");
-  const { key, setLoading, setError } = useContext(UserSettingsContext);
+  const { setLoading, setError } = useContext(UserSettingsContext);
   const [uploadStatus, setUploadStatus] = useState(null);
   const submitExample = async () => {
     setLoading(true);
 
     const data = await axios
-      .post(
-        "/api/example",
-        {
-          completion,
-          prompt,
-        },
-        { headers: { "testing-key": key } }
-      )
+      .post("/api/example", {
+        completion,
+        prompt,
+      })
       .then((resp) => {
         return resp.data;
       })

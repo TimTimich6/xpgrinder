@@ -1,5 +1,7 @@
 import axios from "axios";
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, useContext } from "react";
+import Cookie from "universal-cookie";
+import { ServerListContext } from "./ServerListContext";
 export const UserSettingsContext = createContext();
 
 const defaultUser = { username: "", discriminator: "" };
@@ -10,23 +12,16 @@ export const UserSettingsProvider = (props) => {
   const [webhook, setWebhook] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [key, setKey] = useState(null);
+  const [logged, setLogged] = useState({});
   const [active, setActive] = useState(null);
+  const cookies = new Cookie();
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
     setLoading(true);
     axios
-      .post(
-        `/api/self`,
-        {
-          token: token,
-        },
-        {
-          headers: {
-            "testing-key": key,
-          },
-        }
-      )
+      .post(`/api/self`, {
+        token: token,
+      })
       .then((resp) => {
         console.log(resp.data);
         setUser(resp.data);
@@ -41,6 +36,27 @@ export const UserSettingsProvider = (props) => {
         setLoading(false);
       });
   }, [token]);
+  useEffect(() => {
+    async function fetchUser(jwt) {
+      setLoading(true);
+      const { data } = await axios.get("/api/user").catch((err) => {
+        setError({ ...err.response.data });
+        const allCookies = cookies.getAll();
+        console.log("all", allCookies);
+        if (allCookies && allCookies.jwt) {
+          cookies.remove("jwt");
+        }
+      });
+      if (data) {
+        setLogged({ ...data });
+      }
+    }
+    if (document.cookie.includes("jwt=")) {
+      console.log("includes");
+      fetchUser();
+    }
+    setLoading(false);
+  }, []);
 
   return (
     <UserSettingsContext.Provider
@@ -53,11 +69,12 @@ export const UserSettingsProvider = (props) => {
         loading,
         error,
         setError,
-        key,
-        setKey,
         setLoading,
         active,
         setActive,
+        logged,
+        setUser,
+        setLogged,
       }}
     >
       {props.children}

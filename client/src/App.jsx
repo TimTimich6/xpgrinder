@@ -10,24 +10,27 @@ import Login from "./Login";
 import Loader from "./Loader";
 import TrainAI from "./TrainAI";
 import Inviter from "./Invite/Inviter";
+import Header from "./Header";
 function App() {
   return (
     <div className="App">
-      <UserSettingsProvider>
-        <ServerListProvider>
+      <ServerListProvider>
+        <UserSettingsProvider>
           <Login />
           <Loader />
           <Popup />
           <ErrorDisplay />
+
           <div className="appContainer">
+            <Header />
             <ServerStats />
             <TrainAI />
             <ServerList />
             <FilterList />
             <Inviter />
           </div>
-        </ServerListProvider>
-      </UserSettingsProvider>
+        </UserSettingsProvider>
+      </ServerListProvider>
     </div>
   );
 }

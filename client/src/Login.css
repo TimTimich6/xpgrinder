@@ -30,18 +30,3 @@
 .projectName{
     color:rgb(102, 89, 138);
 }
-.keyInput{
-    height: 3rem;
-	border-radius: 0.4rem;
-	border: 2px inset rgb(211, 211, 211);
-	padding: 0.2rem 0.5rem;
-	font-weight: 600;
-    font-size: 1.6rem;
-    width:60%;
-    background-color:rgb(255, 255, 255);
-}
-
-.keyInput:focus, .keyInput:focus-visible{
-    outline: 3px solid rgb(64, 102, 173);
-    border: 0px none rgb(211, 211, 211);
-}

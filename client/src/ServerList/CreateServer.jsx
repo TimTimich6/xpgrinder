@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 import { v4 } from "uuid";
 const CreateSever = (props) => {
   const [link, setLink] = useState("");
-  const { setError, key, token, setLoading, setActive, active, user, webhook } = useContext(UserSettingsContext);
+  const { setError, token, setLoading, setActive, active, user, webhook } = useContext(UserSettingsContext);
   const { setServers, setCurrentServer, servers, currentServer } = props;
   const addServer = (server) => {
     setServers((prevState) => [...prevState, server]);
@@ -77,7 +77,7 @@ const CreateSever = (props) => {
     deleteServer();
     console.log("new servers", newServers);
     const data = await axios
-      .delete("/api/servers", { data: { servers: newServers }, headers: { "testing-key": key } })
+      .delete("/api/servers", { data: { servers: newServers } })
       .then((resp) => {
         return resp.data;
       })
@@ -92,17 +92,13 @@ const CreateSever = (props) => {
     setLoading(true);
     if (!active) {
       const data = await axios
-        .post(
-          "/api/track",
-          {
-            token,
-            servers,
-            active: true,
-            userid: user.id,
-            webhook: webhook,
-          },
-          { headers: { "testing-key": key } }
-        )
+        .post("/api/track", {
+          token,
+          servers,
+          active: true,
+          userid: user.id,
+          webhook: webhook,
+        })
         .then((resp) => {
           setActive(true);
           return resp.data;
@@ -111,7 +107,7 @@ const CreateSever = (props) => {
       console.log(data);
     } else {
       const data = await axios
-        .delete("/api/track", { data: { servers }, headers: { "testing-key": key } })
+        .delete("/api/track", { data: { servers } })
         .then((resp) => {
           return resp.data;
         })

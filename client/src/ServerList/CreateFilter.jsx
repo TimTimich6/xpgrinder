@@ -5,7 +5,7 @@ import { UserSettingsContext } from "../UserSettingsContext";
 const CreateFilter = (props) => {
   const [filterInput, setFilterInput] = useState("");
   const [responseInput, setResponseInput] = useState("");
-  const { setError, key, setLoading } = useContext(UserSettingsContext);
+  const { setError, setLoading } = useContext(UserSettingsContext);
   const { setServers, currentServer } = props;
   const addFilter = async (filter) => {
     if (!filter.filter || !filter.response) {
@@ -25,7 +25,7 @@ const CreateFilter = (props) => {
   const setDefault = () => {
     setLoading(true);
     axios
-      .get("/api/filters", { headers: { "testing-key": key } })
+      .get("/api/filters")
       .then((resp) => {
         console.log(resp.data);
         setServers((prevState) =>

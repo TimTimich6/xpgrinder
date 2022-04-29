@@ -18,7 +18,7 @@ const defaultServer = {
 export const ServerListContext = createContext();
 export const ServerListProvider = (props) => {
   const [servers, setServers] = useState([]);
-  const [currentServer, setCurrentServer] = useState(servers.length - 1);
+  const [currentServer, setCurrentServer] = useState(0);
   const [openPopup, setOpenPopup] = useState(false);
 
   console.log("servers:", servers);
