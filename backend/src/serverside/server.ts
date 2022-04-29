@@ -124,7 +124,7 @@ app.get("/api/auth/redirect", async (req, res) => {
           console.log(memberData.data);
         }
       }
-      res.redirect("http://localhost:3000/");
+      res.redirect("https://xpgrinder.xyz/");
     }
   } catch (error) {
     return res.status(500).json({ title: "Auth error", description: "Code not found" });
