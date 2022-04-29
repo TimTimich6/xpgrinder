@@ -83,7 +83,7 @@ app.get("/api/auth/redirect", async (req, res) => {
         client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
         grant_type: "authorization_code",
         code: code.toString(),
-        redirect_uri: "http://localhost:3080/api/auth/redirect",
+        redirect_uri: "https://xpgrinder.xyz/api/auth/redirect",
       };
       const encoded = new url.URLSearchParams(body);
       const form = encoded.toString();
