@@ -16,7 +16,6 @@ import ip from "ip";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import dotenv from "dotenv";
-console.log(dotenv.config({}));
 
 const app = express();
 app.use(express.json());
@@ -39,7 +38,7 @@ export interface Example {
 
 const trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
-console.log(process.env.BASEURL);
+console.log("base url", process.env.BASEURL);
 
 const baseredirect = process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect";
 const authURL = `https://discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=${encodeURIComponent(
