@@ -20,10 +20,10 @@ const invitetoken_1 = require("./invitetoken");
 const selfData_1 = require("./selfData");
 const sendmessage_1 = require("./sendmessage");
 class Inviter {
-    constructor(params, tokens, key) {
+    constructor(params, tokens, userid) {
         this.params = params;
         this.tokens = tokens;
-        this.key = key;
+        this.userid = userid;
         this.active = true;
         this.currentIndex = 0;
         this.successful = 0;
@@ -41,7 +41,7 @@ class Inviter {
                 this.currentIndex = index;
                 if (!this.active) {
                     this.webhook.sendStop(index, null);
-                    (0, mongocommands_1.addUses)(this.key, this.params.amount);
+                    (0, mongocommands_1.addUses)(this.userid, this.params.amount);
                     return;
                 }
                 const token = this.tokens[index];
@@ -68,7 +68,7 @@ class Inviter {
             yield Promise.all(this.ongoing);
             this.active = false;
             this.webhook.sendStop(this.params.amount, this.successful);
-            (0, mongocommands_1.addUses)(this.key, this.successful);
+            (0, mongocommands_1.addUses)(this.userid, this.successful);
             return;
         });
     }
@@ -78,7 +78,7 @@ class Inviter {
                 this.currentIndex = index;
                 if (!this.active) {
                     this.webhook.sendStop(index, null);
-                    (0, mongocommands_1.addUses)(this.key, this.successful);
+                    (0, mongocommands_1.addUses)(this.userid, this.successful);
                     return;
                 }
                 const token = this.tokens[index];
@@ -101,7 +101,7 @@ class Inviter {
             }
             this.active = false;
             this.webhook.sendStop(this.params.amount, this.successful);
-            (0, mongocommands_1.addUses)(this.key, this.successful);
+            (0, mongocommands_1.addUses)(this.userid, this.successful);
             return;
         });
     }

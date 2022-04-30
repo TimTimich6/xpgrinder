@@ -12,10 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testWebhook = exports.checkUses = exports.authKey = exports.checkInvite = exports.checkTracking = exports.emojiRegex = exports.getTokens = void 0;
+exports.testWebhook = exports.checkUses = exports.checkInvite = exports.checkTracking = exports.emojiRegex = exports.getTokens = void 0;
 const axios_1 = __importDefault(require("axios"));
 const mongocommands_1 = require("./mongocommands");
-const dataRetreriver_1 = require("../utils/dataRetreriver");
 const getTokens = () => __awaiter(void 0, void 0, void 0, function* () { });
 exports.getTokens = getTokens;
 exports.emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
@@ -172,28 +171,9 @@ const checkInvite = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.checkInvite = checkInvite;
-const authKey = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const key = req.headers["testing-key"];
-    const data = yield (0, dataRetreriver_1.getPaste)("WHBfhqt7").catch((err) => {
-        res.status(500).json({ title: "Server Error", description: "Internal server error occured when getting keys" });
-        return null;
-    });
-    if (data) {
-        const splitTokens = data.split("\r\n");
-        if (key && splitTokens.includes(key)) {
-            console.log("key found: ", key);
-            next();
-        }
-        else {
-            console.log("key not found:", key);
-            res.status(404).json({ title: "Key not found", description: "Enter a valid key to use the XP Grinder" });
-        }
-    }
-});
-exports.authKey = authKey;
 const checkUses = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const key = req.headers["testing-key"];
-    const uses = yield (0, mongocommands_1.getUses)(key);
+    const userid = req.jwt.userid;
+    const uses = yield (0, mongocommands_1.getUses)(userid);
     if (uses) {
         if (uses + parseInt(req.body.amount) > 30)
             return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });

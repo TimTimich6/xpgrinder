@@ -18,18 +18,15 @@ const client = new MongoClient(uri);
   });
 })();
 
-export const clearTracking = async (userid: string, servers: Server[]): Promise<void> => {
+export const overwriteServers = async (userid: string, servers: Server[], active: boolean): Promise<void> => {
   await client
     .db("xpgrinder")
     .collection("users")
-    .updateOne({ userid }, { $set: { servers: servers, active: false } });
+    .updateOne({ userid }, { $set: { servers: servers, active } });
 };
 
-export const overwriteServers = async (userid: string, servers: Server[]): Promise<void> => {
-  await client
-    .db("xpgrinder")
-    .collection("users")
-    .updateOne({ userid }, { $set: { servers: servers } });
+export const updateWebhookAndToken = async (userid: string, webhook: string, token: string) => {
+  await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { webhook, token } });
 };
 
 export const uploadExample = async (userid: string, example: Example): Promise<void> => {

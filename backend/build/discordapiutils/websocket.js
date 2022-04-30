@@ -129,7 +129,6 @@ class SocketTracker {
                                     ? filters.find((e) => e.filter.toUpperCase() == content.toUpperCase())
                                     : filters.find((e) => content.toUpperCase().includes(e.filter.toUpperCase()));
                                 if (filter) {
-                                    console.log(`${(0, logger_1.getTime)()} ${author} : ${content} --> ${filter.response}`);
                                     const rand = Math.floor(Math.random() * 100);
                                     if (rand < settings.percentResponse) {
                                         console.log("responding");
@@ -138,7 +137,11 @@ class SocketTracker {
                                             guild_id: server.guildID,
                                             message_id: d.id,
                                         })
-                                            .then(() => { var _a; return (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id); })
+                                            .then(() => {
+                                            var _a;
+                                            console.log(`${(0, logger_1.getTime)()} ${author} : ${content} --> ${filter.response}`);
+                                            (_a = this.wh) === null || _a === void 0 ? void 0 : _a.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
+                                        })
                                             .catch(() => {
                                             var _a;
                                             console.log("Error caught when trying to respond");

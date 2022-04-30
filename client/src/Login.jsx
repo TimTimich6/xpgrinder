@@ -10,10 +10,9 @@ const Login = () => {
   const handleDiscord = async () => {
     console.log("protocol", window.location.protocol);
     console.log("protocol", window.location.hostname);
-    const url = `${window.location.protocol}//${window.location.hostname + ":3080/api/auth/discord"}`;
+    const url = window.location.protocol == "http:" ? "http://localhost:3080/api/auth/discord" : "https://xpgrinder.xyz/api/auth/discord";
     window.location.href = url;
   };
-
   useEffect(() => {
     console.log(logged);
     if (logged.userid) {

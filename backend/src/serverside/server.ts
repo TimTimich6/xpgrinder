@@ -15,6 +15,9 @@ import { restartHook } from "./serverwebhook";
 import ip from "ip";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import dotenv from "dotenv";
+console.log(dotenv.config({}));
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -36,6 +39,12 @@ export interface Example {
 
 const trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
+console.log(process.env.BASEURL);
+
+const baseredirect = process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect";
+const authURL = `https://discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=${encodeURIComponent(
+  baseredirect
+)}&response_type=code&scope=identify%20guilds.members.read`;
 
 app.get("/api/invite/:code", (req, res) => {
   const code: string = req.params.code;
@@ -60,9 +69,7 @@ app.post("/api/self/", isAuthed, hasRole, (req, res) => {
 });
 
 app.get("/api/auth/discord", (req, res) => {
-  res.redirect(
-    "https://discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=https%3A%2F%2Fxpgrinder.xyz%2Fapi%2Fauth%2Fredirect&response_type=code&scope=identify%20guilds.members.read"
-  );
+  res.redirect(authURL);
 });
 
 app.get("/api/user", isAuthed, hasRole, async (req: any, res) => {
@@ -83,7 +90,7 @@ app.get("/api/auth/redirect", async (req, res) => {
         client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
         grant_type: "authorization_code",
         code: code.toString(),
-        redirect_uri: "https://xpgrinder.xyz/api/auth/redirect",
+        redirect_uri: process.env.BASEURL || "https://xpgrinder.xyz/",
       };
       const encoded = new url.URLSearchParams(body);
       const form = encoded.toString();
@@ -124,7 +131,7 @@ app.get("/api/auth/redirect", async (req, res) => {
           console.log(memberData.data);
         }
       }
-      res.redirect("https://xpgrinder.xyz/");
+      res.redirect(process.env.BASEURL ? "http://localhost:3000" : "https://xpgrinder.xyz/");
     }
   } catch (error) {
     return res.status(500).json({ title: "Auth error", description: "Code not found" });
@@ -138,35 +145,38 @@ app.post("/api/track", isAuthed, hasRole, checkTracking, testWebhook, async (req
   const servers: Server[] = req.body.servers;
   const token: string = req.body.token;
   const userid = req.jwt.userid;
-  if (trackingArray.some((storage) => storage.userid == userid))
-    res.status(500).json({ title: "Tracking Error", description: "Instance already tracking" });
-  else {
-    let storageCell: TrackingStorage = { userid };
-    const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
-    const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
-    if (regularTrack.length > 0) {
-      const socket = new SocketTracker(req.body.token, regularTrack, req.body.webhook);
-      if (socket) storageCell.websocket = socket;
-    }
-    if (spamServers.length > 0) {
-      let spamIntervals: NodeJS.Timer[] = [];
-      for (const server of spamServers) {
-        const test = await testSend("Hi everyone!", token, server.settings.spamChannel);
-        if (!test) {
-          console.log("sending failure");
-          res.status(403).json({ title: "Spam Error", description: "Spamming channel couldn't be accessed" });
-          return next();
-        }
-        spamIntervals.push(await spamMessages(server.settings.spamChannel, req.body.token, server.settings.responseTime));
-      }
-      storageCell.intervals = spamIntervals;
-    }
-
-    trackingArray.push(storageCell);
-    console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
-    console.log(trackingArray.map((elem) => elem.userid));
-    res.status(200).json(req.body);
+  const storage = trackingArray.find((el) => el.userid == userid);
+  if (storage) {
+    if (storage.websocket) storage.websocket.stop();
+    if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
+    trackingArray.splice(trackingArray.indexOf(storage), 1);
   }
+  let storageCell: TrackingStorage = { userid };
+  const spamServers = servers.filter((server) => server.settings.spamChannel.length == 18 && server.tracking);
+  const regularTrack = servers.filter((server) => server.settings.spamChannel.length != 18 && server.tracking);
+  if (regularTrack.length > 0) {
+    const socket = new SocketTracker(req.body.token, regularTrack, req.body.webhook);
+    if (socket) storageCell.websocket = socket;
+  }
+  if (spamServers.length > 0) {
+    let spamIntervals: NodeJS.Timer[] = [];
+    for (const server of spamServers) {
+      const test = await testSend("Hi everyone!", token, server.settings.spamChannel);
+      if (!test) {
+        console.log("sending failure");
+        res.status(403).json({ title: "Spam Error", description: "Spamming channel couldn't be accessed" });
+        return next();
+      }
+      spamIntervals.push(await spamMessages(server.settings.spamChannel, req.body.token, server.settings.responseTime));
+    }
+    storageCell.intervals = spamIntervals;
+  }
+  trackingArray.push(storageCell);
+  console.log("LENGTH OF TRACKING AFTER ADD:", trackingArray.length);
+  console.log(trackingArray.map((elem) => elem.userid));
+  mongo.overwriteServers(userid, servers, true);
+  mongo.updateWebhookAndToken(userid, req.body.webhook, req.body.token);
+  res.status(200).json(req.body);
 });
 
 app.delete("/api/track", isAuthed, async (req: any, res) => {
@@ -178,13 +188,12 @@ app.delete("/api/track", isAuthed, async (req: any, res) => {
     if (storage.websocket) storage.websocket.stop();
     if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
     trackingArray.splice(trackingArray.indexOf(storage), 1);
-    res.status(200).json({ userid, message: "stop tracking all servers" });
+
     console.log(trackingArray.map((elem) => elem.userid));
-  } else {
-    res.status(500).json({ title: "Tracking Error", description: "Something went wrong when deactivating the tracking" });
   }
   console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
-  await mongo.clearTracking(userid, servers);
+  await mongo.overwriteServers(userid, servers, false);
+  res.status(200).json({ userid, message: "stop tracking all servers" });
 });
 
 app.delete("/api/servers", isAuthed, async (req: any, res) => {
@@ -197,7 +206,7 @@ app.delete("/api/servers", isAuthed, async (req: any, res) => {
     trackingArray.splice(trackingArray.indexOf(storage), 1);
     console.log(trackingArray.map((elem) => elem.userid));
   }
-  await mongo.overwriteServers(userid, req.body.servers);
+  await mongo.overwriteServers(userid, req.body.servers, req.body.active);
   res.status(200).json("overwrote servers with body");
 });
 

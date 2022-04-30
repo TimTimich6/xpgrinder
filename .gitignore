@@ -23,5 +23,4 @@ yarn-error.log*
 /backend/src/.envnode_modules/
 /client/node_modules
 /backend/node_modules
-/backend/src/.env
-/backend/src/testfolder
+/backend/.env
