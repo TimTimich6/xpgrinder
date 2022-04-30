@@ -106,8 +106,11 @@ export const getByUserid = async (userid: string) => {
   return result;
 };
 
-export const updateAccess = async (userid: string, accesstoken: string, refrereshtoken: string, roles: string[], holder: string) => {
-  const result = await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { refrereshtoken, accesstoken, roles, holder } });
+export const updateAccess = async (userid: string, accesstoken: string, refreshtoken: string, roles: string[], holder: string) => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("users")
+    .updateOne({ userid }, { $set: { refreshtoken, accesstoken, roles, holder }, $unset: { refrereshtoken: 1 } });
   return result;
 };
 // getAllExamples();
