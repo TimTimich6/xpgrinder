@@ -89,7 +89,7 @@ app.get("/api/auth/redirect", async (req, res) => {
         client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
         grant_type: "authorization_code",
         code: code.toString(),
-        redirect_uri: process.env.BASEURL || "https://xpgrinder.xyz/",
+        redirect_uri: process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect",
       };
       const encoded = new url.URLSearchParams(body);
       const form = encoded.toString();
@@ -129,12 +129,13 @@ app.get("/api/auth/redirect", async (req, res) => {
           }
           console.log(memberData.data);
         } else console.log("couldn't get memberdata");
-      }
+      } else console.log("no access token in response");
+
       res.redirect(process.env.BASEURL ? "http://localhost:3000" : "https://xpgrinder.xyz/");
     }
   } catch (error) {
     return res.status(500).json({ title: "Auth error", description: "Code not found" });
-  } // https:discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fauth%2Fredirect&response_type=code&scope=guilds.members.read%20identify
+  }
 });
 
 app.get("/api/protectedroute", isAuthed, (req, res) => {
