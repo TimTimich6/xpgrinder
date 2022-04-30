@@ -28,7 +28,9 @@ export const overwriteServers = async (userid: string, servers: Server[], active
 export const updateWebhookAndToken = async (userid: string, webhook: string, token: string) => {
   await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { webhook, token } });
 };
-
+export const updateOnlyToken = async (userid: string, token: string) => {
+  await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { token } });
+};
 export const uploadExample = async (userid: string, example: Example): Promise<void> => {
   await client.db("xpgrinder").collection("examples").insertOne({ userid, prompt: example.prompt, completion: example.completion });
 };

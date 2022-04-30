@@ -58,10 +58,13 @@ app.get("/api/invite/:code", (req, res) => {
     });
 });
 
-app.post("/api/self/", isAuthed, hasRole, (req, res) => {
+app.post("/api/self/", isAuthed, hasRole, (req: any, res) => {
   const token: string = req.body.token;
   selfData(token)
-    .then((data) => res.status(200).json(data))
+    .then((data) => {
+      mongo.updateOnlyToken(<string>req.jwt.userid, token);
+      res.status(200).json(data);
+    })
     .catch(() => {
       res.status(500).json({ title: "Self data Error", description: "Failed to get data on the user" });
     });
