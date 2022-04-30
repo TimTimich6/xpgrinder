@@ -128,7 +128,7 @@ app.get("/api/auth/redirect", async (req, res) => {
             await mongo.updateAccess(user.id, data.access_token, data.access_token, memberData.data.roles);
           }
           console.log(memberData.data);
-        }
+        } else console.log("couldn't get memberdata");
       }
       res.redirect(process.env.BASEURL ? "http://localhost:3000" : "https://xpgrinder.xyz/");
     }
