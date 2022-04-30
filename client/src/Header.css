@@ -25,4 +25,8 @@
 .loggedRight{
     margin-right:0.3rem;
 }
+.holdingStatus{
+    color:rgb(34, 126, 157);
+    font-size:1.3rem
+}
 

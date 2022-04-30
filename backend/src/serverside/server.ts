@@ -16,6 +16,8 @@ import ip from "ip";
 import jwt from "jsonwebtoken";
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
+import { howManyHolding } from "../utils/other";
 
 const app = express();
 app.use(express.json());
@@ -69,11 +71,6 @@ app.post("/api/self/", isAuthed, hasRole, (req: any, res) => {
       res.status(500).json({ title: "Self data Error", description: "Failed to get data on the user" });
     });
 });
-
-app.get("/api/auth/discord", (req, res) => {
-  res.redirect(authURL);
-});
-
 app.get("/api/user", isAuthed, hasRole, async (req: any, res) => {
   const user = req.user;
   if (user) {
@@ -82,6 +79,10 @@ app.get("/api/user", isAuthed, hasRole, async (req: any, res) => {
     res.status(500).json({ title: "User error", description: "Couldn't find user" });
   }
 });
+app.get("/api/auth/discord", (req, res) => {
+  res.redirect(authURL);
+});
+
 app.get("/api/auth/redirect", async (req, res) => {
   console.log(req.query);
   const { code } = req.query;
@@ -125,10 +126,11 @@ app.get("/api/auth/redirect", async (req, res) => {
           const result = await mongo.getByUserid(memberData.data.user.id);
           const token = jwt.sign({ userid: memberData.data.user.id }, secret, { expiresIn: "1d" });
           res.cookie("jwt", token);
+          const holder = howManyHolding(memberData.data.roles);
           if (!result) {
-            await mongo.createUser(user.id, user.username, data.access_token, data.refresh_token, user.avatar, memberData.data.roles);
+            await mongo.createUser(user.id, user.username, data.access_token, data.refresh_token, user.avatar, memberData.data.roles, holder);
           } else {
-            await mongo.updateAccess(user.id, data.access_token, data.access_token, memberData.data.roles);
+            await mongo.updateAccess(user.id, data.access_token, data.refresh_token, memberData.data.roles, holder);
           }
           console.log(memberData.data);
         } else console.log("couldn't get memberdata");

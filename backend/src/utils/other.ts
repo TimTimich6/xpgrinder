@@ -23,3 +23,11 @@ export const generateAIResponse = async (message: string, temperature: number): 
 
   if (response.data.choices) return response.data.choices[0].text.trim();
 };
+
+export function howManyHolding(roles: string[]): string {
+  if (roles.includes("961160178860970004")) return "Miniwhale";
+  if (roles.includes("961160605748830230")) return "Holder++";
+  if (roles.includes("961160473213018142")) return "Holder+";
+  if (roles.includes("961160369060065300")) return "Holder";
+  else return "Not Holder";
+}

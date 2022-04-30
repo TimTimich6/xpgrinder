@@ -73,11 +73,32 @@ async function getAllExamples() {
     });
 }
 
-export const createUser = async (userid: string, username: string, accesstoken: string, refreshtoken: string, hash: string, roles: string[]) => {
+export const createUser = async (
+  userid: string,
+  username: string,
+  accesstoken: string,
+  refreshtoken: string,
+  hash: string,
+  roles: string[],
+  holder: string
+) => {
   const result = await client
     .db("xpgrinder")
     .collection("users")
-    .insertOne({ userid, username, accesstoken, refreshtoken, servers: [], uses: 0, token: "", webhook: "", hash: hash || "", roles, active: false });
+    .insertOne({
+      userid,
+      username,
+      accesstoken,
+      refreshtoken,
+      servers: [],
+      uses: 0,
+      token: "",
+      webhook: "",
+      hash: hash || "",
+      roles,
+      active: false,
+      holder,
+    });
   return result;
 };
 export const getByUserid = async (userid: string) => {
@@ -85,8 +106,8 @@ export const getByUserid = async (userid: string) => {
   return result;
 };
 
-export const updateAccess = async (userid: string, accesstoken: string, refrereshtoken: string, roles: string[]) => {
-  const result = await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { refrereshtoken, accesstoken, roles } });
+export const updateAccess = async (userid: string, accesstoken: string, refrereshtoken: string, roles: string[], holder: string) => {
+  const result = await client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { refrereshtoken, accesstoken, roles, holder } });
   return result;
 };
 // getAllExamples();

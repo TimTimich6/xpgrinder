@@ -33,6 +33,7 @@ const Header = (props) => {
             <img className="userPfp" src={`https://cdn.discordapp.com/avatars/${logged.userid}/${logged.hash}.png?size=4096`} />
             <div className="loggedRight">
               <h2 className="loggedName">{logged.username}</h2>
+              <p className="holdingStatus">Holder: {logged.holder}</p>
               <p className="loggedID">{logged.userid}</p>
             </div>
           </div>
