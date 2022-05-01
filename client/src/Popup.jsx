@@ -15,6 +15,8 @@ const Popup = () => {
   const channelsRef = useRef();
   const giveawayRef = useRef();
   const spontaneityRef = useRef();
+  const blacklistRef = useRef();
+
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
   const handleCheck = (event) => {
@@ -48,6 +50,7 @@ const Popup = () => {
               channels: channelsRef.current.value,
               giveaway: giveawayRef.current.value,
               temperature: parseInt(spontaneityRef.current.value),
+              blacklist: blacklistRef.current.value,
             },
           };
         return server;
@@ -219,6 +222,23 @@ const Popup = () => {
                 onChange={(event) => handleInput(event)}
                 ref={giveawayRef}
                 size="20"
+                disabled={spamOn}
+              />
+            </div>
+            <div className="serverSettingContainer">
+              <span
+                data-tip="User IDs of people you don't want the bot responding to"
+                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+              >
+                Blacklisted Users
+              </span>
+              <input
+                type="text"
+                value={server.settings.blacklist}
+                className="settingsInput"
+                onChange={(event) => handleInput(event)}
+                ref={blacklistRef}
+                size="30"
                 disabled={spamOn}
               />
             </div>

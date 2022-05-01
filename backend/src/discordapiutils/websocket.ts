@@ -44,6 +44,7 @@ export interface Settings {
   giveaway: string;
   emoji: string;
   temperature: number;
+  blacklist: string;
 }
 export interface Server {
   name: string;
@@ -190,7 +191,6 @@ export class SocketTracker {
               const filter: Filter | undefined = settings.exactMatch
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
-              console.log("hi");
               if (content.includes(`<@${this.user?.id}>`)) {
                 console.log("generating AI for reply");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
@@ -223,6 +223,9 @@ export class SocketTracker {
                       );
                     });
                 }
+              } else if (server.settings.blacklist.includes(d.author.id)) {
+                console.log("blacklisteds user skipped over");
+                return;
               } else if (filter) {
                 const rand = Math.floor(Math.random() * 100);
                 if (rand < settings.percentResponse) {

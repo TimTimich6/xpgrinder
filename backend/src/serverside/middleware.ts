@@ -25,10 +25,10 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
       const channels = settings.channels.trim();
       if (server.tracking) trackingcount++;
       if (server.tracking && server.settings.useAI == true) aiuses++;
-      if (typeof settings.giveaway == "undefined")
+      if (typeof settings.giveaway == "undefined" || typeof settings.blacklist == "undefined")
         return res
           .status(500)
-          .json({ title: "Outdated version", description: `Set any value for giveaway to fix error for ${server.name}`, code: 15 });
+          .json({ title: "Outdated version", description: `Set any value for blacklist to fix error for ${server.name}`, code: 15 });
       else if (settings.useAI && (settings.temperature > 100 || settings.temperature <= 0 || isNaN(settings.temperature)))
         return res.status(500).json({ title: "Settings error", description: `AI Spontaneity must be within 1-100 for ${server.name}`, code: 20 });
       else if (filters.some((filter) => !filter.filter || !filter.response))
@@ -70,6 +70,8 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
           .json({ title: "Settings error", description: `Percent response provided is out of range for ${server.name}`, code: 6 });
       else if (channels.length > 0 && !channels.trim().match(channelsRegex))
         return res.status(500).json({ title: "Settings error", description: `Specific Channels don't pass the regex for ${server.name}`, code: 9 });
+      else if (settings.blacklist.length > 0 && !settings.blacklist.trim().match(channelsRegex))
+        return res.status(500).json({ title: "Settings error", description: `Blacklist users list ins't valid for ${server.name}`, code: 24 });
     }
 
     if (!token || token == "N/A")

@@ -56,6 +56,7 @@ const CreateSever = (props) => {
               channels: "",
               giveaway: "",
               temperature: 60,
+              blacklist: "",
             },
             guildID: resp.guildID,
             tracking: false,
