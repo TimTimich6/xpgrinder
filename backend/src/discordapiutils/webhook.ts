@@ -46,9 +46,7 @@ export default class WebHooks {
     };
     const jsonToSend = JSON.stringify(body);
     try {
-      axios
-        .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
-        .catch((err) => console.log("err send user: ", err.response.data));
+      axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err send user: "));
     } catch (error) {
       console.log("failed to send event");
     }
@@ -91,9 +89,7 @@ export default class WebHooks {
     };
     const jsonToSend = JSON.stringify(body);
     try {
-      axios
-        .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
-        .catch((err) => console.log("err send event: ", err.response.data));
+      axios.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err send event: "));
     } catch (error) {
       console.log("failed to send user");
     }
@@ -112,7 +108,7 @@ export default class WebHooks {
         })
         .then((resp) => resp)
         .catch((err) => {
-          console.log(err.response.data);
+          console.log("err send interaction");
         });
       const body = {
         content: null,
@@ -196,9 +192,7 @@ export default class WebHooks {
     };
     const jsonToSend = JSON.stringify(body);
     try {
-      axios
-        .post(url, jsonToSend, { headers: { "content-type": "application/json" } })
-        .catch((err) => console.log("err sent heartbeat: ", err.response.data));
+      axios.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err sent heartbeat: "));
     } catch (error) {
       console.log("failed to send heartbeat");
     }

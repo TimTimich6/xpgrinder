@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateAIResponse = void 0;
+exports.howManyHolding = exports.generateAIResponse = void 0;
 const openai_1 = require("openai");
 const configuration = new openai_1.Configuration({
     apiKey: "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",
@@ -35,3 +35,16 @@ const generateAIResponse = (message, temperature) => __awaiter(void 0, void 0, v
         return response.data.choices[0].text.trim();
 });
 exports.generateAIResponse = generateAIResponse;
+function howManyHolding(roles) {
+    if (roles.includes("961160178860970004"))
+        return "Miniwhale";
+    if (roles.includes("961160605748830230"))
+        return "Holder++";
+    if (roles.includes("961160473213018142"))
+        return "Holder+";
+    if (roles.includes("961160369060065300"))
+        return "Holder";
+    else
+        return "Not Holder";
+}
+exports.howManyHolding = howManyHolding;

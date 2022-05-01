@@ -80,3 +80,10 @@
 	padding: 0.5rem;
 	font-size: 1.4rem;
 }
+
+.tooltip{
+	font-weight: 100 !important;
+	letter-spacing:2px;
+	font-size: 1.3rem !important;
+	background-color: rgb(99, 130, 180) !important;
+}

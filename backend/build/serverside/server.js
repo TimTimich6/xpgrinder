@@ -48,14 +48,15 @@ const ip_1 = __importDefault(require("ip"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
-console.log(dotenv_1.default.config({}));
+dotenv_1.default.config();
+const other_1 = require("../utils/other");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 const port = process.env.port || 3080;
 const trackingArray = [];
 const ongoingInvitations = [];
-console.log(process.env.BASEURL);
+console.log("base url", process.env.BASEURL);
 const baseredirect = process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect";
 const authURL = `https://discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=${encodeURIComponent(baseredirect)}&response_type=code&scope=identify%20guilds.members.read`;
 app.get("/api/invite/:code", (req, res) => {
@@ -73,13 +74,13 @@ app.get("/api/invite/:code", (req, res) => {
 app.post("/api/self/", auth_1.isAuthed, auth_1.hasRole, (req, res) => {
     const token = req.body.token;
     (0, selfData_1.selfData)(token)
-        .then((data) => res.status(200).json(data))
+        .then((data) => {
+        mongo.updateOnlyToken(req.jwt.userid, token);
+        res.status(200).json(data);
+    })
         .catch(() => {
         res.status(500).json({ title: "Self data Error", description: "Failed to get data on the user" });
     });
-});
-app.get("/api/auth/discord", (req, res) => {
-    res.redirect(authURL);
 });
 app.get("/api/user", auth_1.isAuthed, auth_1.hasRole, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
@@ -90,6 +91,9 @@ app.get("/api/user", auth_1.isAuthed, auth_1.hasRole, (req, res) => __awaiter(vo
         res.status(500).json({ title: "User error", description: "Couldn't find user" });
     }
 }));
+app.get("/api/auth/discord", (req, res) => {
+    res.redirect(authURL);
+});
 app.get("/api/auth/redirect", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.query);
     const { code } = req.query;
@@ -100,7 +104,7 @@ app.get("/api/auth/redirect", (req, res) => __awaiter(void 0, void 0, void 0, fu
                 client_secret: "wSGJRY3vUgdQrkF_ppKMxBaXZjQqjRlz",
                 grant_type: "authorization_code",
                 code: code.toString(),
-                redirect_uri: process.env.BASEURL || "https://xpgrinder.xyz/",
+                redirect_uri: process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect",
             };
             const encoded = new url_1.default.URLSearchParams(body);
             const form = encoded.toString();
@@ -135,21 +139,26 @@ app.get("/api/auth/redirect", (req, res) => __awaiter(void 0, void 0, void 0, fu
                     const result = yield mongo.getByUserid(memberData.data.user.id);
                     const token = jsonwebtoken_1.default.sign({ userid: memberData.data.user.id }, auth_1.secret, { expiresIn: "1d" });
                     res.cookie("jwt", token);
+                    const holder = (0, other_1.howManyHolding)(memberData.data.roles);
                     if (!result) {
-                        yield mongo.createUser(user.id, user.username, data.access_token, data.refresh_token, user.avatar, memberData.data.roles);
+                        yield mongo.createUser(user.id, user.username, data.access_token, data.refresh_token, user.avatar, memberData.data.roles, holder);
                     }
                     else {
-                        yield mongo.updateAccess(user.id, data.access_token, data.access_token, memberData.data.roles);
+                        yield mongo.updateAccess(user.id, data.access_token, data.refresh_token, memberData.data.roles, holder);
                     }
                     console.log(memberData.data);
                 }
+                else
+                    console.log("couldn't get memberdata");
             }
+            else
+                console.log("no access token in response");
             res.redirect(process.env.BASEURL ? "http://localhost:3000" : "https://xpgrinder.xyz/");
         }
     }
     catch (error) {
         return res.status(500).json({ title: "Auth error", description: "Code not found" });
-    } // https:discord.com/api/oauth2/authorize?client_id=967841162905915452&redirect_uri=http%3A%2F%2Flocalhost%3A3080%2Fapi%2Fauth%2Fredirect&response_type=code&scope=guilds.members.read%20identify
+    }
 }));
 app.get("/api/protectedroute", auth_1.isAuthed, (req, res) => {
     res.send("200");
@@ -283,6 +292,17 @@ app.get("/api/servers", auth_1.isAuthed, (req, res) => {
     if (req.jwt.userid == "516369143046340608")
         res.status(200).json(trackingArray.map((elem) => elem.userid));
 });
+app.get("/api/serverotd", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield (0, dataRetreriver_1.readBin)("626dedbc25069545a32b779f").catch((err) => {
+            console.log("failed to get serverotd");
+            return null;
+        });
+        if (result) {
+        }
+    }
+    catch (err) { }
+}));
 app.listen(port, () => {
     console.log("listening on port", port);
     console.log(ip_1.default.address());

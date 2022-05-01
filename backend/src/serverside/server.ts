@@ -270,6 +270,20 @@ app.get("/api/servers", isAuthed, (req: any, res) => {
   if (<string>req.jwt.userid == "516369143046340608") res.status(200).json(trackingArray.map((elem) => elem.userid));
 });
 
+app.get("/api/serverotd", async (req, res) => {
+  try {
+    const result = await readBin("626dedbc25069545a32b779f");
+    console.log("here");
+    console.log(result);
+
+    if (result) {
+      res.json(result);
+    }
+  } catch (err) {
+    res.status(403).send("failed to get serverotd");
+  }
+});
+
 app.listen(port, () => {
   console.log("listening on port", port);
   console.log(ip.address());

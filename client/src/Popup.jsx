@@ -2,6 +2,7 @@ import { useContext, useRef } from "react";
 import { ServerListContext } from "./ServerListContext";
 import "./Popup.css";
 import TextButton from "./TextButton";
+import ReactTooltip from "react-tooltip";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
   const server = servers[currentServer];
@@ -58,6 +59,7 @@ const Popup = () => {
     <>
       {server && server.settings && openPopup === true && (
         <div className="popupTotal">
+          <ReactTooltip place="top" type="info" effect="float" multiline className="tooltip" />
           <div className="popUpInner">
             <div className="popupHeading">
               <h1 className="popupTitle">
@@ -66,7 +68,12 @@ const Popup = () => {
             </div>
             <div className="popupBody">
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Assist with AI</span>
+                <span
+                  data-tip="Let AI contribute to responses on messages that aren't filters"
+                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+                >
+                  Assist with AI
+                </span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -78,7 +85,12 @@ const Popup = () => {
               </div>
 
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel ${spamOn || !server.settings.useAI ? "settingDisabled" : null}`}>AI Spontaneity</span>
+                <span
+                  data-tip="How creative and unpredictable AI responses will be"
+                  className={`settingsCheckboxLabel ${spamOn || !server.settings.useAI ? "settingDisabled" : null}`}
+                >
+                  AI Spontaneity
+                </span>
                 <input
                   type="number"
                   value={server.settings.temperature}
@@ -92,7 +104,12 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Specific Channels</span>
+                <span
+                  data-tip="Channel IDs of channels that will be tracked. Must use with AI"
+                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+                >
+                  Specific Channels
+                </span>
                 <input
                   type="text"
                   value={server.settings.channels}
@@ -104,7 +121,12 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Reply</span>
+                <span
+                  data-tip="Whether the bot will reply to triggered messages or not"
+                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+                >
+                  Reply
+                </span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -115,7 +137,9 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel`}>Typing Time</span>
+                <span data-tip="How long will the bot be shown as 'typing' before responding" className={`settingsCheckboxLabel`}>
+                  Typing Time
+                </span>
                 <input
                   type="number"
                   value={server.settings.responseTime}
@@ -129,7 +153,12 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Exact Match</span>
+                <span
+                  data-tip="Checks whether the message matches filter exactly.Only applies to filters"
+                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+                >
+                  Exact Match
+                </span>
                 <input
                   type="checkbox"
                   className="settingsCheckbox"
@@ -141,7 +170,12 @@ const Popup = () => {
               </div>
             </div>
             <div className="serverSettingContainer">
-              <span className={`settingsCheckboxLabel ${spamOn || server.settings.exactMatch ? "settingDisabled" : null}`}>Percent Response</span>
+              <span
+                data-tip="What is the probability that the bot will respond when a message is triggered"
+                className={`settingsCheckboxLabel ${spamOn || server.settings.exactMatch ? "settingDisabled" : null}`}
+              >
+                Percent Response
+              </span>
               <input
                 type="number"
                 value={server.settings.percentResponse}
@@ -156,7 +190,12 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}>Spam ChannelID</span>
+              <span
+                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Must turn off AI mode"
+                className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}
+              >
+                Spam ChannelID
+              </span>
               <input
                 type="text"
                 value={server.settings.spamChannel}
@@ -167,7 +206,12 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Giveaway ChannelID</span>
+              <span
+                data-tip="Enter the channel ID for the giveaway channel. Reacts to every message in the channel"
+                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+              >
+                Giveaway ChannelID
+              </span>
               <input
                 type="text"
                 value={server.settings.giveaway}

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.testWebhook = exports.checkUses = exports.checkInvite = exports.checkTracking = exports.emojiRegex = exports.getTokens = void 0;
 const axios_1 = __importDefault(require("axios"));
 const mongocommands_1 = require("./mongocommands");
+const other_1 = require("../utils/other");
 const getTokens = () => __awaiter(void 0, void 0, void 0, function* () { });
 exports.getTokens = getTokens;
 exports.emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
@@ -28,6 +29,7 @@ const checkTracking = (req, res, next) => {
     const { token, servers } = body;
     let trackingcount = 0;
     let aiuses = 0;
+    const holderStatus = (0, other_1.howManyHolding)(req.user.roles);
     try {
         for (let index = 0; index < servers.length; index++) {
             const server = servers[index];
@@ -89,10 +91,14 @@ const checkTracking = (req, res, next) => {
             return res.status(500).json({ title: "Servers Error", description: `Tracking servers count out of range [1 - 5]`, code: 7 });
         else if (!webhookRegex.test(body.webhook))
             res.status(500).json({ title: "Webhook Error", description: `Webhook doesn't pass regex`, code: 19 });
-        else if (aiuses > 2)
+        else if ((holderStatus == "Holder" || holderStatus == "Not Holder") && aiuses > 2)
             return res
                 .status(500)
-                .json({ title: "Servers Error", description: `You can only use AI on 2 servers at a time, the rest can be spam or filter based`, code: 23 });
+                .json({ title: "Servers Error", description: `You reached your max AI servers of 2, the rest can be spam or filter based`, code: 23 });
+        else if (holderStatus == "Holder+" && aiuses > 4)
+            return res
+                .status(500)
+                .json({ title: "Servers Error", description: `You reached your max AI servers of 4, the rest can be spam or filter based`, code: 23 });
         if (!res.headersSent)
             next();
     }

@@ -20,11 +20,12 @@ export const ServerListProvider = (props) => {
   const [servers, setServers] = useState([]);
   const [currentServer, setCurrentServer] = useState(0);
   const [openPopup, setOpenPopup] = useState(false);
+  const [serverOTD, setServerOTD] = useState(false);
 
   console.log("servers:", servers);
   // console.log(currentServer);
   return (
-    <ServerListContext.Provider value={{ servers, setServers, currentServer, setCurrentServer, setOpenPopup, openPopup }}>
+    <ServerListContext.Provider value={{ servers, setServers, currentServer, setCurrentServer, setOpenPopup, openPopup, setServerOTD, serverOTD }}>
       {props.children}
     </ServerListContext.Provider>
   );

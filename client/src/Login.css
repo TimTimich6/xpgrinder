@@ -1,6 +1,6 @@
 .bcgFull{
     position:fixed;
-    top:-18px;
+    top:0px;
     z-index:2;
     display: flex;
     justify-content:center;
@@ -8,13 +8,34 @@
     overflow:hidden;
     height:105vh;
     width:100vw;
-    background-color:rgba(32, 29, 29, 0.95)
+    background-color:rgba(32, 29, 29,1);
+    display:flex;
+    flex-direction: column;
+    gap:1rem;
+}
+.introduction{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    gap:1rem;
+    width:80rem;
+    text-align:center;
+    /* background-color:rgb(75, 94, 133); */
+    border-radius: 1rem;
+    padding:2rem;
+
 }
 .welcomeText{
-    font-size: 2.7rem;
+    font-size: 5rem;
+    color:white;
+    
 }
 .welcomeDesc{
-    font-size: 2rem;
+    font-size: 3rem;
+    color:white;
+
+
+    
 }
 .loginInner{
     color:rgb(36, 26, 28);
@@ -29,4 +50,44 @@
 }
 .projectName{
     color:rgb(102, 89, 138);
+}
+
+.mediasContainer {
+    display: flex; 
+    gap:4rem;
+    position: absolute;
+    bottom:5rem;
+}
+.media{
+    width:auto;
+    height:auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    color:white;
+    align-items: center;
+    font-size: 1.7rem;
+    text-decoration: none;
+    text-shadow: 1px 1px 1px #919191,
+        1px 2px 1px #919191,
+        1px 3px 1px #919191,
+
+    1px 8px 6px rgba(16,16,16,0.4),
+    1px 7px 10px rgba(16,16,16,0.2);
+    
+}
+
+.newsText{
+    color:orange;
+    position:absolute;
+    top:3rem;
+}
+.logo{
+   
+    height:7rem;
+     transition:all 0.3s ease;
+}
+
+.logo:hover{
+    filter:brightness(70%)
 }

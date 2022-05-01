@@ -11,6 +11,7 @@ import Loader from "./Loader";
 import TrainAI from "./TrainAI";
 import Inviter from "./Invite/Inviter";
 import Header from "./Header";
+import ServerOTD from "./ServerOTD/ServerOTD";
 function App() {
   return (
     <div className="App">
@@ -20,11 +21,11 @@ function App() {
           <Loader />
           <Popup />
           <ErrorDisplay />
-
           <div className="appContainer">
             <Header />
             <ServerStats />
             <TrainAI />
+            <ServerOTD />
             <ServerList />
             <FilterList />
             <Inviter />

@@ -36,16 +36,18 @@ export const UserSettingsProvider = (props) => {
         setLoading(false);
       });
   }, [token]);
+
   useEffect(() => {
-    async function fetchUser(jwt) {
+    async function fetchUser() {
       setLoading(true);
       const { data } = await axios.get("/api/user").catch((err) => {
-        setError({ ...err.response.data });
         const allCookies = cookies.getAll();
         console.log("all", allCookies);
+
         if (allCookies && allCookies.jwt) {
           cookies.remove("jwt");
         }
+        window.location.href = "http:" ? "http://localhost:3080/api/auth/discord" : "https://xpgrinder.xyz/api/auth/discord";
       });
       if (data) {
         setLogged({ ...data });

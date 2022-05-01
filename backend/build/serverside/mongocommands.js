@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAccess = exports.getByUserid = exports.createUser = exports.getUses = exports.updateTokens = exports.addUses = exports.uploadExample = exports.updateWebhookAndToken = exports.overwriteServers = void 0;
+exports.updateAccess = exports.getByUserid = exports.createUser = exports.getUses = exports.updateTokens = exports.addUses = exports.uploadExample = exports.updateOnlyToken = exports.updateWebhookAndToken = exports.overwriteServers = void 0;
 const mongodb_1 = require("mongodb");
 const waitTime_1 = __importDefault(require("../utils/waitTime"));
 const fs_1 = __importDefault(require("fs"));
@@ -34,6 +34,10 @@ const updateWebhookAndToken = (userid, webhook, token) => __awaiter(void 0, void
     yield client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { webhook, token } });
 });
 exports.updateWebhookAndToken = updateWebhookAndToken;
+const updateOnlyToken = (userid, token) => __awaiter(void 0, void 0, void 0, function* () {
+    yield client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { token } });
+});
+exports.updateOnlyToken = updateOnlyToken;
 const uploadExample = (userid, example) => __awaiter(void 0, void 0, void 0, function* () {
     yield client.db("xpgrinder").collection("examples").insertOne({ userid, prompt: example.prompt, completion: example.completion });
 });
@@ -82,11 +86,24 @@ function getAllExamples() {
         });
     });
 }
-const createUser = (userid, username, accesstoken, refreshtoken, hash, roles) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (userid, username, accesstoken, refreshtoken, hash, roles, holder) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield client
         .db("xpgrinder")
         .collection("users")
-        .insertOne({ userid, username, accesstoken, refreshtoken, servers: [], uses: 0, token: "", webhook: "", hash: hash || "", roles, active: false });
+        .insertOne({
+        userid,
+        username,
+        accesstoken,
+        refreshtoken,
+        servers: [],
+        uses: 0,
+        token: "",
+        webhook: "",
+        hash: hash || "",
+        roles,
+        active: false,
+        holder,
+    });
     return result;
 });
 exports.createUser = createUser;
@@ -95,8 +112,11 @@ const getByUserid = (userid) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 exports.getByUserid = getByUserid;
-const updateAccess = (userid, accesstoken, refrereshtoken, roles) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield client.db("xpgrinder").collection("users").updateOne({ userid }, { $set: { refrereshtoken, accesstoken, roles } });
+const updateAccess = (userid, accesstoken, refreshtoken, roles, holder) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield client
+        .db("xpgrinder")
+        .collection("users")
+        .updateOne({ userid }, { $set: { refreshtoken, accesstoken, roles, holder }, $unset: { refrereshtoken: 1 } });
     return result;
 });
 exports.updateAccess = updateAccess;

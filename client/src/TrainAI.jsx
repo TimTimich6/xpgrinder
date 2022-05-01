@@ -8,6 +8,8 @@ const TrainAI = () => {
   const [completion, setCompletion] = useState("");
   const { setLoading, setError } = useContext(UserSettingsContext);
   const [uploadStatus, setUploadStatus] = useState(null);
+  const [show, setShow] = useState(true);
+
   const submitExample = async () => {
     setLoading(true);
 
@@ -31,36 +33,42 @@ const TrainAI = () => {
   };
   return (
     <div className="trainAI">
-      <h1 style={{ color: "gold", fontSize: "2rem", marginTop: "1rem" }}>Help Train AI</h1>
-      <div className="trainAIBody">
-        <div className="sampleAI">
-          <p className="sampleText">To help use improve our AI, you can provide examples which it will be trained upon. Below is a sample example</p>
-          <p className="sampleText green">10 Responses = 1 USD</p>
+      <h1 style={{ color: show ? "gold" : "gray", marginBottom: "1rem", cursor: "pointer" }} onClick={() => setShow((prevState) => !prevState)}>
+        Help Train AI {!show && "(Hidden)"}
+      </h1>
+      {show && (
+        <div className="trainAIBody">
+          <div className="sampleAI">
+            <p className="sampleText">
+              To help use improve our AI, you can provide examples which it will be trained upon. Below is a sample example
+            </p>
+            <p className="sampleText green">10 Responses = 1 USD</p>
 
-          <div className="sampleExample">
-            <h2 className="samplePrompt">Message: another day grinding for whitelist</h2>
-            <h2 className="sampleResponse">Response: Keep working you got this</h2>
+            <div className="sampleExample">
+              <h2 className="samplePrompt">Message: another day grinding for whitelist</h2>
+              <h2 className="sampleResponse">Response: Keep working you got this</h2>
+            </div>
+          </div>
+          <div className="filterTotal">
+            <h1 className="uploadStatus">
+              Upload Status: <span className="uploadMessage">{uploadStatus}</span>
+            </h1>
+            <div className="filterElement">
+              <label className="flWord">Message</label>
+              <input onChange={(e) => setPrompt(e.target.value)} type="text" required className="flText" value={prompt} />
+              <span className="flWord">Response</span>
+              <input onChange={(e) => setCompletion(e.target.value)} type="text" required className="flText" value={completion} />
+            </div>
+          </div>
+          <div className="filtersButtons">
+            <div className="buttonWrapper" onClick={() => submitExample()}>
+              <TextButton bgc="rgb(23, 149, 118)" pd="2rem" fz="2rem">
+                Submit Example
+              </TextButton>
+            </div>
           </div>
         </div>
-        <div className="filterTotal">
-          <h1 className="uploadStatus">
-            Upload Status: <span className="uploadMessage">{uploadStatus}</span>
-          </h1>
-          <div className="filterElement">
-            <label className="flWord">Message</label>
-            <input onChange={(e) => setPrompt(e.target.value)} type="text" required className="flText" value={prompt} />
-            <span className="flWord">Response</span>
-            <input onChange={(e) => setCompletion(e.target.value)} type="text" required className="flText" value={completion} />
-          </div>
-        </div>
-        <div className="filtersButtons">
-          <div className="buttonWrapper" onClick={() => submitExample()}>
-            <TextButton bgc="rgb(23, 149, 118)" pd="2rem" fz="2rem">
-              Submit Example
-            </TextButton>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

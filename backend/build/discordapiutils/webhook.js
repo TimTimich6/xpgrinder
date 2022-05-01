@@ -67,9 +67,7 @@ class WebHooks {
             };
             const jsonToSend = JSON.stringify(body);
             try {
-                axios_1.default
-                    .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
-                    .catch((err) => console.log("err send user: ", err.response.data));
+                axios_1.default.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err send user: "));
             }
             catch (error) {
                 console.log("failed to send event");
@@ -113,9 +111,7 @@ class WebHooks {
             };
             const jsonToSend = JSON.stringify(body);
             try {
-                axios_1.default
-                    .post(this.url, jsonToSend, { headers: { "content-type": "application/json" } })
-                    .catch((err) => console.log("err send event: ", err.response.data));
+                axios_1.default.post(this.url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err send event: "));
             }
             catch (error) {
                 console.log("failed to send user");
@@ -131,7 +127,7 @@ class WebHooks {
                 })
                     .then((resp) => resp)
                     .catch((err) => {
-                    console.log(err.response.data);
+                    console.log("err send interaction");
                 });
                 const body = {
                     content: null,
@@ -221,9 +217,7 @@ WebHooks.sentHeartbeat = (url, ms, color) => {
     };
     const jsonToSend = JSON.stringify(body);
     try {
-        axios_1.default
-            .post(url, jsonToSend, { headers: { "content-type": "application/json" } })
-            .catch((err) => console.log("err sent heartbeat: ", err.response.data));
+        axios_1.default.post(url, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err sent heartbeat: "));
     }
     catch (error) {
         console.log("failed to send heartbeat");

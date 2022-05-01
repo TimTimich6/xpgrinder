@@ -1,0 +1,38 @@
+.serverOTD{
+    display:flex;
+    background-color:white;
+    box-shadow: 1px 4px 2px rgb(10 10 10);
+    width:100%;
+    border-radius:1.3rem;
+    max-height:10rem;
+    width:100%;
+}
+.serverImg{
+    height:10rem;
+    border-top-left-radius: 1.3rem;
+    border-bottom-left-radius: 1.3rem;
+
+}
+
+.serverOTDName{
+    font-size: 1.6rem;
+    color:#2d7dba;
+}
+.rightSideOTD{
+    display:flex;
+    flex-direction:column;
+    gap:0.3rem;
+    padding:1rem;
+}
+.serverOTDText{
+    color:rgb(62, 175, 103);
+}
+.serverDescription{
+    font-size: 1.3rem;
+    font-weight: 500;
+
+}
+.invitelink{
+    font-size: 1.5rem;
+
+}

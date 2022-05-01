@@ -10,7 +10,7 @@ const ServerList = () => {
 
   return (
     <div className="serverList">
-      <h1 style={{ color: "white", fontSize: "2rem", marginTop: "1rem" }}>All Servers</h1>
+      <h1 style={{ color: "white", fontSize: "2rem" }}>All Servers</h1>
       <div className={`serversAll ${active ? "active" : null}`}>
         {servers.map((server, index) => {
           return (

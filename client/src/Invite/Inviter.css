@@ -36,9 +36,10 @@
 }
 
 .guildName{
-    font-size: 1.6rem;
+    font-size: 1.8rem;
 }
 .impressive{
+    font-weight: bold;
     color:chocolate;
 }
 .green{
@@ -48,6 +49,7 @@
     font-size: 1.6rem;
     font-weight: 600;
     color:rgb(119, 94, 202);
+    text-decoration: none;
 }
 .inviterSettingsTotal{
   display: flex;
