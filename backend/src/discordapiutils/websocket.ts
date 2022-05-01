@@ -190,7 +190,40 @@ export class SocketTracker {
               const filter: Filter | undefined = settings.exactMatch
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
-              if (filter) {
+              console.log("hi");
+              if (content.includes(`<@${this.user?.id}>`)) {
+                console.log("generating AI for reply");
+                const response = await generateAIResponse(content, settings.temperature).catch(() => {
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
+                });
+                if (response) {
+                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
+                    channel_id: d.channel_id,
+                    guild_id: server.guildID,
+                    message_id: d.id,
+                  })
+                    .then(() => {
+                      console.log("AI responded:", response);
+                      this.wh?.sendInteraction(
+                        t,
+                        `Responding to a mentioned message "${content}" with AI response "${response}"`,
+                        server,
+                        d.channel_id,
+                        d.id
+                      );
+                    })
+                    .catch(() => {
+                      console.log("Error caught when trying to respond to a mention");
+                      this.wh?.sendInteraction(
+                        t,
+                        "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
+                        server,
+                        d.channel_id,
+                        d.message_id
+                      );
+                    });
+                }
+              } else if (filter) {
                 const rand = Math.floor(Math.random() * 100);
                 if (rand < settings.percentResponse) {
                   console.log("responding");
