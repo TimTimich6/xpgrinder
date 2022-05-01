@@ -111,7 +111,7 @@ export class InviterWebhook {
           name: `${data.username}#${data.discriminator}`,
           icon_url: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=4096`,
         };
-      } else console.log("here");
+      }
     }
     const jsonToSend = JSON.stringify(body);
     await axios

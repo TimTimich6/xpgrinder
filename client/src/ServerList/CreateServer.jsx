@@ -57,6 +57,8 @@ const CreateSever = (props) => {
               giveaway: "",
               temperature: 60,
               blacklist: "",
+              mindelay: 5,
+              maxdelay: 20,
             },
             guildID: resp.guildID,
             tracking: false,

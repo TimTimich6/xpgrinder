@@ -45,6 +45,8 @@ export interface Settings {
   emoji: string;
   temperature: number;
   blacklist: string;
+  mindelay: number;
+  maxdelay: number;
 }
 export interface Server {
   name: string;
@@ -191,13 +193,14 @@ export class SocketTracker {
               const filter: Filter | undefined = settings.exactMatch
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
-              if (content.includes(`<@${this.user?.id}>`)) {
+              const randdelay: number = Math.floor(Math.random() * (settings.maxdelay - settings.mindelay)) + settings.mindelay;
+              if (content.includes(`<@${this.user?.id}>`) && d.author.id != "159985870458322944") {
                 console.log("generating AI for reply");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
                 });
                 if (response) {
-                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
+                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
@@ -230,7 +233,7 @@ export class SocketTracker {
                 const rand = Math.floor(Math.random() * 100);
                 if (rand < settings.percentResponse) {
                   console.log("responding");
-                  await realType(filter.response, d.channel_id, this.token, settings.responseTime, settings.reply, {
+                  await realType(filter.response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,
@@ -256,7 +259,7 @@ export class SocketTracker {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
                 });
                 if (response) {
-                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, {
+                  await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
                     channel_id: d.channel_id,
                     guild_id: server.guildID,
                     message_id: d.id,

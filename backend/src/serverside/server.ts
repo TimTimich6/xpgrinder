@@ -273,7 +273,6 @@ app.get("/api/servers", isAuthed, (req: any, res) => {
 app.get("/api/serverotd", async (req, res) => {
   try {
     const result = await readBin("626dedbc25069545a32b779f");
-    console.log("here");
     console.log(result);
 
     if (result) {

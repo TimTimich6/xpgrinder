@@ -65,8 +65,16 @@ export const startTyping = async (channelID: string, token: string): Promise<voi
   });
 };
 
-export const realType = async (message: string, channelID: string, token: string, time: number, reply: boolean, ref?: messageRef): Promise<any> => {
-  await waitTime(3);
+export const realType = async (
+  message: string,
+  channelID: string,
+  token: string,
+  time: number,
+  reply: boolean,
+  delay = 3,
+  ref?: messageRef
+): Promise<any> => {
+  await waitTime(delay);
   await startTyping(channelID, token);
   await waitTime(time);
   let response: Message;

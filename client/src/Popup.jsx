@@ -16,6 +16,8 @@ const Popup = () => {
   const giveawayRef = useRef();
   const spontaneityRef = useRef();
   const blacklistRef = useRef();
+  const mindelayRef = useRef();
+  const maxdelayRef = useRef();
 
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
@@ -51,6 +53,8 @@ const Popup = () => {
               giveaway: giveawayRef.current.value,
               temperature: parseInt(spontaneityRef.current.value),
               blacklist: blacklistRef.current.value,
+              mindelay: parseInt(mindelayRef.current.value),
+              maxdelay: parseInt(maxdelayRef.current.value),
             },
           };
         return server;
@@ -108,7 +112,7 @@ const Popup = () => {
               </div>
               <div className="serverSettingContainer">
                 <span
-                  data-tip="Channel IDs of channels that will be tracked. Must use with AI"
+                  data-tip="Channel IDs of channels that will be tracked. Separate ids with spaces. Must use with AI"
                   className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
                 >
                   Specific Channels
@@ -156,6 +160,38 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
+                <span data-tip="Minimum delay before bot begins typing" className={`settingsCheckboxLabel`}>
+                  Minimum delay
+                </span>
+                <input
+                  type="number"
+                  value={server.settings.mindelay}
+                  className="settingsInput"
+                  onChange={(event) => handleInput(event)}
+                  ref={mindelayRef}
+                  min="0"
+                  max="120"
+                  step="10"
+                  size="3"
+                />
+              </div>
+              <div className="serverSettingContainer">
+                <span data-tip="Maximum delay before bot begins typing" className={`settingsCheckboxLabel`}>
+                  Maximum delay
+                </span>
+                <input
+                  type="number"
+                  value={server.settings.maxdelay}
+                  className="settingsInput"
+                  onChange={(event) => handleInput(event)}
+                  ref={maxdelayRef}
+                  min="0"
+                  max="120"
+                  step="10"
+                  size="3"
+                />
+              </div>
+              <div className="serverSettingContainer">
                 <span
                   data-tip="Checks whether the message matches filter exactly.Only applies to filters"
                   className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
@@ -194,7 +230,7 @@ const Popup = () => {
             </div>
             <div className="serverSettingContainer">
               <span
-                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Must turn off AI mode"
+                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Separate ids with spaces. Must turn off AI mode"
                 className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}
               >
                 Spam ChannelID
@@ -210,7 +246,7 @@ const Popup = () => {
             </div>
             <div className="serverSettingContainer">
               <span
-                data-tip="Enter the channel ID for the giveaway channel. Reacts to every message in the channel"
+                data-tip="Enter the channel IDs for the giveaway channel. Separate ids with spaces. Reacts to every message in the channel"
                 className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
               >
                 Giveaway ChannelID
@@ -227,7 +263,7 @@ const Popup = () => {
             </div>
             <div className="serverSettingContainer">
               <span
-                data-tip="User IDs of people you don't want the bot responding to"
+                data-tip="User IDs of people you don't want the bot responding to. Separate ids with spaces."
                 className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
               >
                 Blacklisted Users

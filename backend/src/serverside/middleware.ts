@@ -25,10 +25,15 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
       const channels = settings.channels.trim();
       if (server.tracking) trackingcount++;
       if (server.tracking && server.settings.useAI == true) aiuses++;
-      if (typeof settings.giveaway == "undefined" || typeof settings.blacklist == "undefined")
+      if (
+        typeof settings.giveaway == "undefined" ||
+        typeof settings.blacklist == "undefined" ||
+        typeof settings.mindelay == "undefined" ||
+        typeof settings.maxdelay == "undefined"
+      )
         return res
           .status(500)
-          .json({ title: "Outdated version", description: `Set any value for blacklist to fix error for ${server.name}`, code: 15 });
+          .json({ title: "Outdated server version", description: `Delete and add the server again to fix errors for ${server.name}`, code: 15 });
       else if (settings.useAI && (settings.temperature > 100 || settings.temperature <= 0 || isNaN(settings.temperature)))
         return res.status(500).json({ title: "Settings error", description: `AI Spontaneity must be within 1-100 for ${server.name}`, code: 20 });
       else if (filters.some((filter) => !filter.filter || !filter.response))
@@ -54,6 +59,16 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
         (settings.responseTime <= 0 || settings.responseTime >= 120 || isNaN(settings.responseTime))
       )
         return res.status(500).json({ title: "Settings error", description: `Response time provided is out of range for ${server.name}`, code: 4 });
+      else if (
+        settings.mindelay < 0 ||
+        settings.maxdelay >= 120 ||
+        isNaN(settings.mindelay) ||
+        isNaN(settings.maxdelay) ||
+        settings.maxdelay < settings.mindelay
+      )
+        return res
+          .status(500)
+          .json({ title: "Settings error", description: `Min and Max delay values are out of range [0,120]for ${server.name}`, code: 26 });
       else if (!settings.channels.trim().match(channelsRegex) && settings.useAI)
         return res
           .status(500)
