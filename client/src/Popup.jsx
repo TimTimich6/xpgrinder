@@ -1,10 +1,14 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { ServerListContext } from "./ServerListContext";
+import { UserSettingsContext } from "./UserSettingsContext";
+
 import "./Popup.css";
 import TextButton from "./TextButton";
 import ReactTooltip from "react-tooltip";
+import axios from "axios";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
+  const { logged, setError } = useContext(UserSettingsContext);
   const server = servers[currentServer];
   const replyRef = useRef();
   const timeRef = useRef();
@@ -18,6 +22,7 @@ const Popup = () => {
   const blacklistRef = useRef();
   const mindelayRef = useRef();
   const maxdelayRef = useRef();
+  const [shareStatus, setShareStatus] = useState("");
 
   const spamOn = server ? server.settings.spamChannel.length == 18 : false;
 
@@ -38,6 +43,7 @@ const Popup = () => {
       });
     });
   };
+
   const handleInput = (event) => {
     setServers((prevState) => {
       return prevState.map((server, index) => {
@@ -61,7 +67,18 @@ const Popup = () => {
       });
     });
   };
-
+  const handleShare = async () => {
+    await axios
+      .post("/api/share", { server, userhash: logged.hash, username: logged.username })
+      .then((resp) => {
+        console.log("success in sharing");
+        setShareStatus("Successfully shared server!");
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+        setError({ ...err.response.data });
+      });
+  };
   return (
     <>
       {server && server.settings && openPopup === true && (
@@ -144,7 +161,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="How long will the bot be shown as 'typing' before responding" className={`settingsCheckboxLabel`}>
+                <span data-tip={`How long will the bot be shown as "typing" before responding (in seconds)`} className={`settingsCheckboxLabel`}>
                   Typing Time
                 </span>
                 <input
@@ -160,7 +177,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Minimum delay before bot begins typing" className={`settingsCheckboxLabel`}>
+                <span data-tip="Minimum delay before bot begins typing (in seconds)" className={`settingsCheckboxLabel`}>
                   Minimum delay
                 </span>
                 <input
@@ -176,7 +193,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Maximum delay before bot begins typing" className={`settingsCheckboxLabel`}>
+                <span data-tip="Maximum delay before bot begins typing (in seconds)" className={`settingsCheckboxLabel`}>
                   Maximum delay
                 </span>
                 <input
@@ -279,10 +296,20 @@ const Popup = () => {
               />
             </div>
             <div className="popupBottom">
-              <div className="buttonWrapper" onClick={() => setOpenPopup(false)}>
-                <TextButton bgc="rgb(23, 149, 118)" pd="1rem" fz="2rem">
-                  Close Settings
-                </TextButton>
+              <div className="popupBottomTop">
+                <div className="buttonWrapper" onClick={() => setOpenPopup(false)}>
+                  <TextButton bgc="rgb(23, 149, 118)" pd="1rem" fz="2rem">
+                    Close Settings
+                  </TextButton>
+                </div>
+                <div className="buttonWrapper" onClick={() => handleShare()}>
+                  <TextButton bgc="goldenrod" pd="1rem" fz="2rem">
+                    Share Server
+                  </TextButton>
+                </div>
+              </div>
+              <div className="popupBottomBottom">
+                <h1 className="shareStatus">{shareStatus}</h1>
               </div>
             </div>
           </div>

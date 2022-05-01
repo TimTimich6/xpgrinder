@@ -60,10 +60,29 @@
 }
 .popupBottom{
     display:flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap:1rem;
 }
 
+.popupBottomTop{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap:2rem;
+}
+
+.popupBottomBottom{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap:2rem;
+}
+
+.shareStatus{
+    color:rgb(69, 100, 177);
+}
 .settingDisabled{
     font-weight: bold;
     color:#DF3B3B !important;

@@ -38,8 +38,16 @@ export interface Example {
   completion: string;
 }
 
+interface SharedServers {
+  userid: string;
+  server: Server;
+  userhash: string;
+  username: string;
+}
+
 const trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
+const sharedservers: SharedServers[] = [];
 console.log("base url", process.env.BASEURL);
 
 const baseredirect = process.env.BASEURL || "https://xpgrinder.xyz/api/auth/redirect";
@@ -280,6 +288,58 @@ app.get("/api/serverotd", async (req, res) => {
     }
   } catch (err) {
     res.status(403).send("failed to get serverotd");
+  }
+});
+
+app.post("/api/share", isAuthed, hasRole, (req: any, res) => {
+  const userid: string = <string>req.jwt.userid;
+  const server: Server = req.body.server;
+
+  let foundcount = 1;
+  let uuidexists = false;
+  sharedservers.forEach((instance) => {
+    if (instance.userid == userid) foundcount++;
+    if (instance.server.uuid == server.uuid) uuidexists = true;
+  });
+  if (foundcount > 3) {
+    return res.status(500).json({ title: "Too many shares", description: "Too many servers are shared by you already" });
+  } else if (uuidexists) return res.status(500).json({ title: "Already sharing", description: "Server is already being shared" });
+  const username: string = req.body.username;
+  const userhash: string = req.body.userhash;
+
+  sharedservers.push({ server, userid, username, userhash });
+  res.status(200).json("success");
+});
+
+app.get("/api/share", isAuthed, hasRole, (req: any, res) => {
+  if (sharedservers.length > 0) {
+    res.json(
+      sharedservers.map((instance) => {
+        const baseserver = {
+          guildname: instance.server.name,
+          imghash: instance.server.img,
+          guildid: instance.server.guildID,
+          userid: instance.userid,
+          uuid: instance.server.uuid,
+          userhash: instance.userhash,
+          username: instance.username,
+        };
+        return baseserver;
+      })
+    );
+  } else res.status(400).json({ title: "No shared servers", description: "There are currently no shared servers" });
+});
+
+app.put("/api/share", isAuthed, hasRole, (req: any, res) => {
+  const uuid = req.query.uuid;
+  // console.log(uuid);
+
+  try {
+    const instance = sharedservers.find((instance) => instance.server.uuid == uuid);
+    if (instance) return res.json(instance.server);
+    else throw new Error();
+  } catch (error) {
+    return res.status(404).json({ title: "Not found", description: "Shared server was not found, refresh" });
   }
 });
 

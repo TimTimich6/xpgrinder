@@ -12,6 +12,7 @@ import TrainAI from "./TrainAI";
 import Inviter from "./Invite/Inviter";
 import Header from "./Header";
 import ServerOTD from "./ServerOTD/ServerOTD";
+import SharedServers from "./SharedServers/SharedServers";
 function App() {
   return (
     <div className="App">
@@ -26,6 +27,7 @@ function App() {
             <ServerStats />
             <TrainAI />
             <ServerOTD />
+            <SharedServers />
             <ServerList />
             <FilterList />
             <Inviter />

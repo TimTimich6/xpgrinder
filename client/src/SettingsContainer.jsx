@@ -16,7 +16,6 @@ const SettingsContainer = (props) => {
   if (props.label.includes("Token")) tipContent = "Read #import-token channel for help";
   else if (props.label.includes("Webhook")) tipContent = "Read #create-webhook channel for help";
   else tipContent = "";
-  console.log(props.label);
   return (
     <div className="settingsContainer">
       <ReactTooltip place="top" type="info" effect="float" multiline className="tooltip" />

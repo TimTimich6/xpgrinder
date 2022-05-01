@@ -1,0 +1,26 @@
+.sharedServersTotal {
+	display: flex;
+	flex-direction: column;
+	gap: 0.7rem;
+	width: 100%;
+}
+
+.rightSideOTD .serverSettingsButton{
+    cursor: pointer;
+}
+.sharedServerUser{
+    display: flex;
+    gap:0.5rem;
+    align-items: center;
+    font-size: 0.6rem;
+    font-weight: 400;
+}
+.sharedUserPFP{
+    height:3rem;
+    border-radius:50%;
+}
+
+.noShared{
+    font-size: 1.5rem;
+    color:indianred;
+}
