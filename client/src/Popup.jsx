@@ -8,7 +8,7 @@ import ReactTooltip from "react-tooltip";
 import axios from "axios";
 const Popup = () => {
   const { setOpenPopup, currentServer, servers, setServers, openPopup } = useContext(ServerListContext);
-  const { logged, setError } = useContext(UserSettingsContext);
+  const { logged, setError, setShared } = useContext(UserSettingsContext);
   const server = servers[currentServer];
   const replyRef = useRef();
   const timeRef = useRef();
@@ -73,12 +73,24 @@ const Popup = () => {
       .then((resp) => {
         console.log("success in sharing");
         setShareStatus("Successfully shared server!");
+        getServers();
       })
       .catch((err) => {
         console.log(err.response.data);
         setError({ ...err.response.data });
       });
   };
+
+  async function getServers() {
+    await axios
+      .get("/api/share")
+      .then((resp) => {
+        setShared(resp.data);
+      })
+      .catch((err) => {
+        setShared([]);
+      });
+  }
   return (
     <>
       {server && server.settings && openPopup === true && (

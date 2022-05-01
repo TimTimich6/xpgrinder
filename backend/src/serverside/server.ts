@@ -332,14 +332,26 @@ app.get("/api/share", isAuthed, hasRole, (req: any, res) => {
 
 app.put("/api/share", isAuthed, hasRole, (req: any, res) => {
   const uuid = req.query.uuid;
-  // console.log(uuid);
-
   try {
     const instance = sharedservers.find((instance) => instance.server.uuid == uuid);
     if (instance) return res.json(instance.server);
     else throw new Error();
   } catch (error) {
     return res.status(404).json({ title: "Not found", description: "Shared server was not found, refresh" });
+  }
+});
+
+app.delete("/api/share", isAuthed, hasRole, (req: any, res) => {
+  const userid: string = <string>req.jwt.userid;
+  const uuid = req.query.uuid;
+  try {
+    const instance = sharedservers.find((instance) => instance.server.uuid == uuid);
+    if (instance?.userid == userid) {
+      sharedservers.splice(sharedservers.indexOf(instance), 1);
+      res.json("deleted");
+    } else throw new Error();
+  } catch (error) {
+    return res.status(404).json({ title: "Shared Server Error", description: "Couldn't delete the shared server, try refreshing servers" });
   }
 });
 

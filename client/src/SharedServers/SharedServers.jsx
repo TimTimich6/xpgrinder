@@ -1,19 +1,19 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TextButton from "../TextButton";
+import { UserSettingsContext } from "../UserSettingsContext";
 import SharedServer from "./SharedServer";
 import "./SharedServers.css";
 const SharedServers = () => {
-  const [shared, setShared] = useState([]);
   const [show, setShow] = useState(true);
-
+  const { shared, setShared } = useContext(UserSettingsContext);
   async function getServers() {
     const servers = await axios
       .get("/api/share")
       .then((resp) => {
         setShared(resp.data);
       })
-      .catch((err) => {
+      .catch(() => {
         setShared([]);
       });
   }
@@ -37,6 +37,7 @@ const SharedServers = () => {
               userhash={server.userhash}
               username={server.username}
               uuid={server.uuid}
+              getServers={getServers}
             />
           );
         })

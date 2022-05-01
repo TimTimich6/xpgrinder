@@ -16,11 +16,17 @@
     font-weight: 400;
 }
 .sharedUserPFP{
-    height:3rem;
+    height:2.5rem;
     border-radius:50%;
 }
 
 .noShared{
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color:indianred;
+}
+.sharedServerButtons{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap:1rem;
 }

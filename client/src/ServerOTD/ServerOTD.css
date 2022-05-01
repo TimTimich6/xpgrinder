@@ -23,6 +23,7 @@
     flex-direction:column;
     gap:0.3rem;
     padding:1rem;
+    justify-content:space-evenly;
 }
 .serverOTDText{
     color:rgb(62, 175, 103);

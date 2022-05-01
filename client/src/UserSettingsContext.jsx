@@ -14,6 +14,7 @@ export const UserSettingsProvider = (props) => {
   const [error, setError] = useState(null);
   const [logged, setLogged] = useState({});
   const [active, setActive] = useState(null);
+  const [shared, setShared] = useState([]);
   const cookies = new Cookie();
   useEffect(async () => {
     if (!/[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token)) return;
@@ -50,7 +51,9 @@ export const UserSettingsProvider = (props) => {
         window.location.href = "http:" ? "http://localhost:3080/api/auth/discord" : "https://xpgrinder.xyz/api/auth/discord";
       });
       if (data) {
-        setLogged({ ...data });
+        setLogged({
+          ...data,
+        });
       }
     }
     if (document.cookie.includes("jwt=")) {
@@ -77,6 +80,8 @@ export const UserSettingsProvider = (props) => {
         logged,
         setUser,
         setLogged,
+        shared,
+        setShared,
       }}
     >
       {props.children}
