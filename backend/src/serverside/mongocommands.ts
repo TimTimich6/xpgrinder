@@ -64,7 +64,7 @@ async function getAllExamples() {
   client
     .db("xpgrinder")
     .collection("examples")
-    .find({}, { projection: { _id: 0, userid: 0 } })
+    .find({}, { projection: { _id: 0, userid: 0, key: 0 } })
     .toArray((err, result) => {
       if (err) throw err;
       client.close();
@@ -72,6 +72,7 @@ async function getAllExamples() {
       fs.writeFileSync("examples.json", StringJson);
     });
 }
+// getAllExamples();
 
 export const createUser = async (
   userid: string,

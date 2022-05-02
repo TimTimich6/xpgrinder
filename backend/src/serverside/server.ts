@@ -6,7 +6,7 @@ import { getRandomTokens, readBin } from "../utils/dataRetreriver";
 import { getInviteData } from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
-import { checkTracking, checkInvite, InviteRequest, checkUses, testWebhook } from "./middleware";
+import { checkTracking, checkInvite, InviteRequest, checkUses } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
 import { Inviter } from "../discordapiutils/inviter";
 import axios, { AxiosError } from "axios";
@@ -154,7 +154,7 @@ app.get("/api/auth/redirect", async (req, res) => {
 app.get("/api/protectedroute", isAuthed, (req, res) => {
   res.send("200");
 });
-app.post("/api/track", isAuthed, hasRole, checkTracking, testWebhook, async (req: any, res, next) => {
+app.post("/api/track", isAuthed, hasRole, checkTracking, async (req: any, res, next) => {
   const servers: Server[] = req.body.servers;
   const token: string = req.body.token;
   const userid = req.jwt.userid;
