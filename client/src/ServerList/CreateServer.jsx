@@ -142,7 +142,7 @@ const CreateSever = (props) => {
       <div className="newServerContainer">
         <label
           className="srWord"
-          data-tip={`Insert invite link (preffered) or in the format of guild id:nick name. For example, 934702825328504843:Test Server `}
+          data-tip={`Insert invite link (preferred) or in the format of guild id:nick name. For example, 934702825328504843:Test Server `}
         >
           Link/ID
         </label>
