@@ -154,6 +154,7 @@ const Popup = () => {
                   ref={channelsRef}
                   size="20"
                   disabled={spamOn}
+                  placeholder="Must use with AI"
                 />
               </div>
               <div className="serverSettingContainer">
@@ -271,6 +272,7 @@ const Popup = () => {
                 onChange={(event) => handleInput(event)}
                 ref={spamRef}
                 size="20"
+                placeholder="Channel id"
               />
             </div>
             <div className="serverSettingContainer">
@@ -288,6 +290,7 @@ const Popup = () => {
                 ref={giveawayRef}
                 size="20"
                 disabled={spamOn}
+                placeholder="Channel ids"
               />
             </div>
             <div className="serverSettingContainer">
@@ -305,6 +308,7 @@ const Popup = () => {
                 ref={blacklistRef}
                 size="30"
                 disabled={spamOn}
+                placeholder="user ids"
               />
             </div>
             <div className="popupBottom">

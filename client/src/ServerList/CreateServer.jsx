@@ -28,10 +28,11 @@ const CreateSever = (props) => {
         .catch((err) => {
           setError({ ...err.response.data });
         });
-    } else if (link.match(/^\d{18}$/)) {
+    } else if (link.match(/^\d{18}[:].+$/)) {
+      const split = link.split(":");
       return {
-        guildID: link,
-        guildName: link,
+        guildID: split[0],
+        guildName: split[1],
         serverIcon: "./xpgrinder.png",
       };
     }
@@ -50,12 +51,12 @@ const CreateSever = (props) => {
               reply: false,
               responseTime: 5,
               exactMatch: false,
-              percentResponse: 50,
+              percentResponse: 6,
               spamChannel: "",
-              useAI: false,
+              useAI: true,
               channels: "",
               giveaway: "",
-              temperature: 60,
+              temperature: 20,
               blacklist: "",
               mindelay: 5,
               maxdelay: 20,
@@ -139,7 +140,10 @@ const CreateSever = (props) => {
   return (
     <>
       <div className="newServerContainer">
-        <label className="srWord" data-tip="Insert invite link (preffered) or id of the server">
+        <label
+          className="srWord"
+          data-tip={`Insert invite link (preffered) or in the format of guild id:nick name. For example, 934702825328504843:Test Server `}
+        >
           Link/ID
         </label>
         <input onChange={(e) => setLink(e.target.value)} type="text" required className="srText" />
