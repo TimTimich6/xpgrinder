@@ -2,7 +2,7 @@ import { hasRole, isAuthed, secret } from "./auth";
 import { Server } from "./../discordapiutils/websocket";
 import * as mongo from "./mongocommands";
 import express from "express";
-import { getRandomTokens, readBin } from "../utils/dataRetreriver";
+import { getRandomTokens, readBin, readPantry } from "../utils/dataRetreriver";
 import { getInviteData } from "../discordapiutils/getInviteData";
 import { selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
@@ -224,13 +224,13 @@ app.delete("/api/servers", isAuthed, async (req: any, res) => {
 });
 
 app.get("/api/filters", isAuthed, hasRole, (req, res) => {
-  readBin("62394f7e7caf5d67836efb23")
+  readPantry("defaultfilters")
     .then((binData) => {
       const filters = binData.defaultFilters;
       res.status(200).send(filters);
     })
     .catch(() => {
-      console.log("failed to get bin data");
+      console.log("failed to get pantry data");
       res.status(500).json({ title: "Filters Error", description: "Failed to fetch default filters" });
     });
 });
@@ -280,9 +280,8 @@ app.get("/api/servers", isAuthed, (req: any, res) => {
 
 app.get("/api/serverotd", async (req, res) => {
   try {
-    const result = await readBin("626dedbc25069545a32b779f");
+    const result = await readPantry("serverotd");
     console.log(result);
-
     if (result) {
       res.json(result);
     }

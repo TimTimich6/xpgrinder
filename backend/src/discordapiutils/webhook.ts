@@ -34,7 +34,7 @@ export default class WebHooks {
           author: {
             name: this.user.username,
             url: "https://xpgrinder.xyz/",
-            icon_url: `https://cdn.discordapp.com/avatars/${this.user.id}/${this.user.avatar}.png?size=4096`,
+            icon_url: `https://cdn.discordapp.com/avatars/${this.user.id}/${this.user.avatar}.png?size=256`,
           },
           footer: {
             text: time,
@@ -42,7 +42,7 @@ export default class WebHooks {
         },
       ],
       username: "XP-GRINDER",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
     };
     const jsonToSend = JSON.stringify(body);
     try {
@@ -80,12 +80,12 @@ export default class WebHooks {
           author: {
             name: this.user?.username,
             url: "https://xpgrinder.xyz/",
-            icon_url: `https://cdn.discordapp.com/avatars/${this.user?.id}/${this.user?.avatar}.png?size=4096`,
+            icon_url: `https://cdn.discordapp.com/avatars/${this.user?.id}/${this.user?.avatar}.png?size=256`,
           },
         },
       ],
       username: "XP-GRINDER",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
     };
     const jsonToSend = JSON.stringify(body);
     try {
@@ -144,18 +144,18 @@ export default class WebHooks {
             author: {
               name: this.user?.username,
               url: "https://xpgrinder.xyz/",
-              icon_url: `https://cdn.discordapp.com/avatars/${this.user?.id}/${this.user?.avatar}.png?size=4096`,
+              icon_url: `https://cdn.discordapp.com/avatars/${this.user?.id}/${this.user?.avatar}.png?size=256`,
             },
             footer: {
               text: time,
             },
             thumbnail: {
-              url: `https://cdn.discordapp.com/icons/${server.guildID}/${resp?.data.icon}.png?size=4096`,
+              url: `https://cdn.discordapp.com/icons/${server.guildID}/${resp?.data.icon}.png?size=256`,
             },
           },
         ],
         username: "XP-GRINDER",
-        avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+        avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       };
       const jsonToSend = JSON.stringify(body);
       axios
@@ -188,7 +188,7 @@ export default class WebHooks {
         },
       ],
       username: "XP-GRINDER",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
     };
     const jsonToSend = JSON.stringify(body);
     try {

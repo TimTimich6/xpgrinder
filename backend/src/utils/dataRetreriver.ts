@@ -1,8 +1,9 @@
+import axios, { AxiosError } from "axios";
 import { JsonBinIoApi, JSONObject } from "jsonbin-io-api";
 const api = new JsonBinIoApi("$2b$10$/HwW4Ggy8nlHZxSKQJamg.sVgmXbl/cqqYmNNgxBm57g9guxK5Jge");
 import PasteClient from "pastebin-api";
 const client = new PasteClient("JREh35B5lwRes-iUQrrWp8Hr7wv4Y2LC");
-
+const pantryID = "7ad68a6a-6def-4ddf-b67e-97a93452ee44";
 export const readBin = async (id: string): Promise<JSONObject> => {
   const data = await api.bins.read({
     binId: id,
@@ -10,6 +11,13 @@ export const readBin = async (id: string): Promise<JSONObject> => {
   return data.record;
 };
 
+export const readPantry = async (name: string): Promise<any> => {
+  const { data } = await axios.get<any>(`https://getpantry.cloud/apiv1/pantry/${pantryID}/basket/${name}`, {
+    headers: { "Content-type": "application/json" },
+  });
+  if (data) return data;
+  throw new Error();
+};
 export const getPaste = async (id: string) => {
   const token = await client.login("Timtimich", "mintmachines");
   const data = await client.getRawPasteByKey({
@@ -50,3 +58,11 @@ const test = () => {
   return sample;
 };
 // test();
+
+interface ServerOTD {
+  name: string;
+  description: string;
+  invitelink: string;
+  guildid: string;
+  imghash: string;
+}

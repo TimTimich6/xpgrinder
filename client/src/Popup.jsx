@@ -173,7 +173,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip={`How long will the bot be shown as "typing" before responding (in seconds)`} className={`settingsCheckboxLabel`}>
+                <span data-tip={`How long will the bot be shown as "typing" before responding (seconds)`} className={`settingsCheckboxLabel`}>
                   Typing Time
                 </span>
                 <input
@@ -189,7 +189,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Minimum delay before bot begins typing (in seconds)" className={`settingsCheckboxLabel`}>
+                <span data-tip="Minimum delay before bot begins typing (seconds)" className={`settingsCheckboxLabel`}>
                   Minimum delay
                 </span>
                 <input
@@ -205,7 +205,7 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Maximum delay before bot begins typing (in seconds)" className={`settingsCheckboxLabel`}>
+                <span data-tip="Maximum delay before bot begins typing (seconds)" className={`settingsCheckboxLabel`}>
                   Maximum delay
                 </span>
                 <input
@@ -259,7 +259,7 @@ const Popup = () => {
             </div>
             <div className="serverSettingContainer">
               <span
-                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Separate ids with spaces. Must turn off AI mode"
+                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Typing time is the spam cycle. Must turn off AI mode"
                 className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}
               >
                 Spam ChannelID

@@ -21,7 +21,7 @@ export async function restartHook() {
         },
       ],
       username: "XP-GRINDER  Upstatus",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       attachments: [],
     };
     const jsonToSend = JSON.stringify(body);

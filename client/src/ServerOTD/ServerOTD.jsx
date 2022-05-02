@@ -26,7 +26,7 @@ const ServerOTD = () => {
     <>
       {serverOTD && (
         <div className="serverOTD">
-          <img src={`https://cdn.discordapp.com/icons/${serverOTD.guildid}/${serverOTD.imghash}.png?size=4096`} alt="" className="serverImg" />
+          <img src={`https://cdn.discordapp.com/icons/${serverOTD.guildid}/${serverOTD.imghash}.png?size=256`} alt="" className="serverImg" />
           <div className="rightSideOTD">
             <h1 className="serverOTDText">Server of the Day</h1>
             <h1 className="serverOTDName">{serverOTD.name}</h1>

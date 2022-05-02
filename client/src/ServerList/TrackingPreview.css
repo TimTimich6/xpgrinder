@@ -118,6 +118,7 @@
 	display: flex;
 	justify-content: flex-start;
 	/* width: 100%; */
+	align-items: center;
 	gap:2rem;
 }
 
@@ -142,3 +143,11 @@
 	width:fit-content;
 }
 
+.forcePower{
+	height:3.4rem;
+	/* width:2rem; */
+	/* background-color:white; */
+	border-radius:50%;
+	cursor: pointer;
+	filter: invert(-10%)
+}

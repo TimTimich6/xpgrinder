@@ -120,11 +120,28 @@ const CreateSever = (props) => {
     }
     setLoading(false);
   };
-
+  const handlePower = async () => {
+    setLoading(true);
+    try {
+      const data = await axios
+        .delete("/api/track", { data: { servers } })
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => setError({ ...err.response.data }));
+      if (data) console.log(data);
+      setActive(false);
+    } catch (error) {
+      setError({ ...error.response.data });
+    }
+    setLoading(false);
+  };
   return (
     <>
       <div className="newServerContainer">
-        <label className="srWord">Link/ID</label>
+        <label className="srWord" data-tip="Insert invite link (preffered) or id of the server">
+          Link/ID
+        </label>
         <input onChange={(e) => setLink(e.target.value)} type="text" required className="srText" />
       </div>
       <div className="buttonsServer">
@@ -152,6 +169,7 @@ const CreateSever = (props) => {
         >
           <TextButton bgc={!active ? "#BDB76B" : "gray"}>{!active ? "Track Selected" : "Stop Tracking"}</TextButton>
         </div>
+        <img src="./poweroff.png" alt="" className="forcePower" data-tip="forced turnoff" onClick={handlePower} />
       </div>
     </>
   );

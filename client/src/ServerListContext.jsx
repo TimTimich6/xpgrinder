@@ -3,7 +3,7 @@ const defaultFilter = { filter: "test filter", response: "test reponse" };
 const defaultServer = {
   name: "WhitelistAIO",
   filters: [defaultFilter],
-  img: "https://cdn.discordapp.com/icons/934702825328504843/fccaa27ede65334871fb5edf87b44f15.png?size=4096",
+  img: "https://cdn.discordapp.com/icons/934702825328504843/fccaa27ede65334871fb5edf87b44f15.png?size=256",
   settings: {
     dialogueMode: false,
     reply: false,
