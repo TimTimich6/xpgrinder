@@ -47,6 +47,7 @@ export interface Settings {
   blacklist: string;
   mindelay: number;
   maxdelay: number;
+  whitelist: string;
 }
 export interface Server {
   name: string;
@@ -194,7 +195,9 @@ export class SocketTracker {
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
               const randdelay: number = Math.floor(Math.random() * (settings.maxdelay - settings.mindelay)) + settings.mindelay;
-              if (content.includes(`<@${this.user?.id}>`) && d.author.id != "159985870458322944") {
+              console.log("auth", d.author.id, "wl", settings.whitelist);
+
+              if ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") {
                 console.log("generating AI for reply");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);

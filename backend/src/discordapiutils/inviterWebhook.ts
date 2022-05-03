@@ -55,7 +55,7 @@ export class InviterWebhook {
         },
       ],
       username: "WhitelistAIO Inviter V2",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       attachments: [],
     };
     const jsonToSend = JSON.stringify(body);
@@ -90,7 +90,7 @@ export class InviterWebhook {
         },
       ],
       username: "WhitelistAIO Inviter V2",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       attachments: [],
     };
     if (this.params.verbose)
@@ -109,7 +109,7 @@ export class InviterWebhook {
         });
         body.embeds[0].author = {
           name: `${data.username}#${data.discriminator}`,
-          icon_url: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=4096`,
+          icon_url: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=256`,
         };
       }
     }
@@ -161,7 +161,7 @@ export class InviterWebhook {
         },
       ],
       username: "WhitelistAIO Inviter V2",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       attachments: [],
     };
     const jsonToSend = JSON.stringify(body);
@@ -187,7 +187,7 @@ export class InviterWebhook {
         },
       ],
       username: "WhitelistAIO Inviter V2",
-      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=4096",
+      avatar_url: "https://cdn.discordapp.com/icons/934702825328504843/92bdbd55c3939be81c290586d06f26a8.png?size=256",
       attachments: [],
     };
     if (typeof successful == "number" && successful >= 0)

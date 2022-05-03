@@ -28,6 +28,7 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
       if (
         typeof settings.giveaway == "undefined" ||
         typeof settings.blacklist == "undefined" ||
+        typeof settings.whitelist == "undefined" ||
         typeof settings.mindelay == "undefined" ||
         typeof settings.maxdelay == "undefined"
       )
@@ -87,6 +88,8 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
         return res.status(500).json({ title: "Settings error", description: `Specific Channels don't pass the regex for ${server.name}`, code: 9 });
       else if (settings.blacklist.length > 0 && !settings.blacklist.trim().match(channelsRegex))
         return res.status(500).json({ title: "Settings error", description: `Blacklist users list ins't valid for ${server.name}`, code: 24 });
+      else if (settings.whitelist.length > 0 && !settings.whitelist.trim().match(channelsRegex))
+        return res.status(500).json({ title: "Settings error", description: `Whitelist users list ins't valid for ${server.name}`, code: 27 });
     }
 
     if (!token || token == "N/A")

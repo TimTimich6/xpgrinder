@@ -58,6 +58,7 @@ const CreateSever = (props) => {
               giveaway: "",
               temperature: 20,
               blacklist: "",
+              whitelist: "",
               mindelay: 5,
               maxdelay: 20,
             },
@@ -173,7 +174,7 @@ const CreateSever = (props) => {
         >
           <TextButton bgc={!active ? "#BDB76B" : "gray"}>{!active ? "Track Selected" : "Stop Tracking"}</TextButton>
         </div>
-        <img src="./poweroff.png" alt="" className="forcePower" data-tip="forced turnoff" onClick={handlePower} />
+        <img src="./poweroff.png" alt="" className="forcePower" data-tip="Force power off" onClick={handlePower} />
       </div>
     </>
   );

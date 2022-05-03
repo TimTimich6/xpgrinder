@@ -20,6 +20,7 @@ const Popup = () => {
   const giveawayRef = useRef();
   const spontaneityRef = useRef();
   const blacklistRef = useRef();
+  const whitelistRef = useRef();
   const mindelayRef = useRef();
   const maxdelayRef = useRef();
   const [shareStatus, setShareStatus] = useState("");
@@ -59,6 +60,7 @@ const Popup = () => {
               giveaway: giveawayRef.current.value,
               temperature: parseInt(spontaneityRef.current.value),
               blacklist: blacklistRef.current.value,
+              whitelist: whitelistRef.current.value,
               mindelay: parseInt(mindelayRef.current.value),
               maxdelay: parseInt(maxdelayRef.current.value),
             },
@@ -144,7 +146,7 @@ const Popup = () => {
                   data-tip="Channel IDs of channels that will be tracked. Separate ids with spaces. Must use with AI"
                   className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
                 >
-                  Specific Channels
+                  Specific Channels ids
                 </span>
                 <input
                   type="text"
@@ -154,7 +156,7 @@ const Popup = () => {
                   ref={channelsRef}
                   size="20"
                   disabled={spamOn}
-                  placeholder="Must use with AI"
+                  placeholder="Channel ids"
                 />
               </div>
               <div className="serverSettingContainer">
@@ -295,7 +297,7 @@ const Popup = () => {
             </div>
             <div className="serverSettingContainer">
               <span
-                data-tip="User IDs of people you don't want the bot responding to. Separate ids with spaces."
+                data-tip="User IDs of people the bot should never respond. Separate ids with spaces."
                 className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
               >
                 Blacklisted Users
@@ -311,6 +313,24 @@ const Popup = () => {
                 placeholder="user ids"
               />
             </div>
+            <div className="serverSettingContainer">
+              <span
+                data-tip="User IDs of people the bot should always respond. Separate ids with spaces."
+                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
+              >
+                Whtielist Users
+              </span>
+              <input
+                type="text"
+                value={server.settings.whitelist}
+                className="settingsInput"
+                onChange={(event) => handleInput(event)}
+                ref={whitelistRef}
+                size="30"
+                disabled={spamOn}
+                placeholder="user ids"
+              />
+            </div>
             <div className="popupBottom">
               <div className="popupBottomTop">
                 <div className="buttonWrapper" onClick={() => setOpenPopup(false)}>
@@ -319,7 +339,7 @@ const Popup = () => {
                   </TextButton>
                 </div>
                 <div className="buttonWrapper" onClick={() => handleShare()}>
-                  <TextButton bgc="goldenrod" pd="1rem" fz="2rem">
+                  <TextButton bgc="goldenrod" pd="1rem" fz="2rem" tip="Be helpful and share your setup">
                     Share Server
                   </TextButton>
                 </div>

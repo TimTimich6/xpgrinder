@@ -6,6 +6,7 @@ const TextButton = (props) => {
       className="textButton"
       style={{ backgroundColor: props.bgc, fontSize: props.fz, padding: `0.5rem ${props.pd}`, boxShadow: bx, color: props.color }}
       type={props.type}
+      data-tip={props.tip}
     >
       {props.children}
     </button>

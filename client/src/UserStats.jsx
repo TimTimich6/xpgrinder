@@ -15,7 +15,7 @@ const ServerStats = () => {
       <div className="settingsMiddleContainer">
         <div className="leftSideStats">
           <SettingsContainer label="UserID" output={user.id ? user.id : "N/A"} />
-          <SettingsContainer label="Token &#128204;" output={tokenValid ? token.slice(0, 6) + "......" + token.slice(-6) : "N/A"} modify={setToken} />
+          <SettingsContainer label="Token" output={tokenValid ? token.slice(0, 6) + "......" + token.slice(-6) : "N/A"} modify={setToken} />
           <SettingsContainer
             label="Webhook URL"
             output={webhookValid ? webhook.slice(0, 6) + "......" + webhook.slice(-6) : "N/A"}
