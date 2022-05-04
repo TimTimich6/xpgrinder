@@ -71,6 +71,7 @@ export class SocketTracker {
   url: string;
   hbInterval: NodeJS.Timer | undefined;
   alreadyReacted: string[] = [];
+  active = true;
   constructor(token: string, servers: Server[], url: string) {
     this.token = token;
     this.servers = servers;
@@ -98,7 +99,7 @@ export class SocketTracker {
   reconnect = () => {
     this.stop();
     this.socket = this.createSocket();
-    this.wh?.sendEvent(0, "Attempting at restarting tracking. If you see this and the bot runs fine afterwards please tell timlol", "red");
+    this.wh?.sendEvent(0, "Attempting at restarting tracking.", "red");
   };
 
   createSocket = () => {
@@ -195,8 +196,6 @@ export class SocketTracker {
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
               const randdelay: number = Math.floor(Math.random() * (settings.maxdelay - settings.mindelay)) + settings.mindelay;
-              console.log("auth", d.author.id, "wl", settings.whitelist);
-
               if ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") {
                 console.log("generating AI for reply");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
@@ -315,7 +314,12 @@ export class SocketTracker {
       }
     });
 
-    sock.on("error", async (err) => {
+    sock.on("close", (code) => {
+      console.log("confirm close");
+      this.active = false;
+      this.wh?.sendEvent("Stopped tracker", "Confirmation of close", "black");
+    });
+    sock.on("error", (err) => {
       console.log("Web socket error occured");
       this.reconnect();
     });

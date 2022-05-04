@@ -79,17 +79,14 @@ const CreateSever = (props) => {
     const newServers = servers.filter((server, index) => {
       return index !== currentServer;
     });
-    deleteServer();
-    console.log("new servers", newServers);
-    const data = await axios
+    await axios
       .delete("/api/servers", { data: { servers: newServers } })
       .then((resp) => {
+        deleteServer();
+        setCurrentServer(newServers.length - 1);
         return resp.data;
       })
       .catch((err) => setError({ ...err.response.data }));
-    console.log(data);
-
-    setCurrentServer(newServers.length - 1);
     setLoading(false);
   };
 
@@ -128,11 +125,11 @@ const CreateSever = (props) => {
       const data = await axios
         .delete("/api/track", { data: { servers } })
         .then((resp) => {
+          setActive(false);
           return resp.data;
         })
         .catch((err) => setError({ ...err.response.data }));
       if (data) console.log(data);
-      setActive(false);
     } catch (error) {
       setError({ ...error.response.data });
     }

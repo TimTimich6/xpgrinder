@@ -69,16 +69,7 @@
 
 
 
-@media only screen and (max-width: 650px) {
-	.trackingTotal {
-		flex-direction: row;
-		gap: 1rem;
-		width: auto;
-	}
-	.centerContainer {
-		display: none;
-	}
-}
+
 .srWord {
 	font-size: 2rem;
 	color: rgb(23, 149, 118);
@@ -149,5 +140,9 @@
 	/* background-color:white; */
 	border-radius:50%;
 	cursor: pointer;
-	filter: invert(-10%)
+	filter: invert(100%)
+}
+
+.forcePower:active,.forcePower:hover{
+	filter: invert(70%)
 }

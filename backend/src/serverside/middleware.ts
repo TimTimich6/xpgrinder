@@ -74,6 +74,10 @@ export const checkTracking = (req: any, res: Response, next: NextFunction) => {
         return res
           .status(500)
           .json({ title: "Settings error", description: `You must have specific channels to use AI for ${server.name}`, code: 11 });
+      else if (settings.giveaway.trim().match(channelsRegex) && !req.user.roles.includes("961160473213018142"))
+        return res
+          .status(500)
+          .json({ title: "Settings error", description: `Auto giveaway entring is reserved for Holder+ users in ${server.name}`, code: 27 });
       else if (settings.useAI && settings.percentResponse > 15)
         return res
           .status(500)

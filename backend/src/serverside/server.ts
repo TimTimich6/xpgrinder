@@ -45,7 +45,7 @@ interface SharedServers {
   username: string;
 }
 
-const trackingArray: TrackingStorage[] = [];
+let trackingArray: TrackingStorage[] = [];
 const ongoingInvitations: InviterActive[] = [];
 const sharedservers: SharedServers[] = [];
 console.log("base url", process.env.BASEURL);
@@ -113,7 +113,7 @@ app.get("/api/auth/redirect", async (req, res) => {
           if (axios.isAxiosError(err) && err.response?.status == 400) {
             return { data: err.response.data };
           } else {
-            console.log("unexpected error in invite: ", err);
+            console.log("unexpected error in oauth token: ", err);
             throw new Error("An unexpected error occurred");
           }
         });
@@ -147,7 +147,7 @@ app.get("/api/auth/redirect", async (req, res) => {
       res.redirect(process.env.BASEURL ? "http://localhost:3000" : "https://xpgrinder.xyz/");
     }
   } catch (error) {
-    return res.status(500).json({ title: "Auth error", description: "Code not found" });
+    return res.status(500).json({ title: "Auth error", description: "Error when trying to authorize, try again" });
   }
 });
 
@@ -196,31 +196,33 @@ app.delete("/api/track", isAuthed, async (req: any, res) => {
   const { servers } = req.body;
   const userid = <string>req.jwt.userid;
   const storage: TrackingStorage | undefined = trackingArray.find((element) => element.userid == userid);
-  if (storage) {
-    console.log("removing servers from userid: ", userid, "index: ", trackingArray.indexOf(storage));
-    if (storage.websocket) storage.websocket.stop();
-    if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
-    trackingArray.splice(trackingArray.indexOf(storage), 1);
-
-    console.log(trackingArray.map((elem) => elem.userid));
+  try {
+    if (storage) {
+      console.log("removing servers from userid: ", userid, "index: ", trackingArray.indexOf(storage));
+      if (storage.websocket) storage.websocket.stop();
+      if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
+      if (storage.websocket?.active == false || !storage.intervals?.some((int) => int.hasRef())) {
+        res.status(200).json({ userid, message: "stop tracking all servers" });
+        trackingArray = trackingArray.filter((storage) => storage.userid !== req.jwt.userid);
+      } else throw new Error();
+      console.log(trackingArray.map((elem) => elem.userid));
+    } else res.status(200).json({ userid, message: "tracking doesnt exist" });
+    console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
+    await mongo.overwriteServers(userid, servers, false);
+  } catch (error) {
+    return res.status(500).json({ title: "Tracking Error", description: "Failed to stop tracking, try stopping again" });
   }
-  console.log("LENGTH OF TRACKING AFTER DELETE:", trackingArray.length);
-  await mongo.overwriteServers(userid, servers, false);
-  res.status(200).json({ userid, message: "stop tracking all servers" });
 });
 
 app.delete("/api/servers", isAuthed, async (req: any, res) => {
   const userid = <string>req.jwt.userid;
   const storage: TrackingStorage | undefined = trackingArray.find((element) => element.userid == userid);
   if (storage) {
-    console.log("removing servers from userid: ", userid, "index: ", trackingArray.indexOf(storage));
-    if (storage.websocket) storage.websocket.stop();
-    if (storage.intervals && storage.intervals.length > 0) storage.intervals.forEach((interval) => clearInterval(interval));
-    trackingArray.splice(trackingArray.indexOf(storage), 1);
-    console.log(trackingArray.map((elem) => elem.userid));
+    return res.status(500).json({ title: "Servers Error", description: "Can't delete server when actively tracking" });
+  } else {
+    await mongo.overwriteServers(userid, req.body.servers, req.body.active);
+    res.status(200).json("overwrote servers with body");
   }
-  await mongo.overwriteServers(userid, req.body.servers, req.body.active);
-  res.status(200).json("overwrote servers with body");
 });
 
 app.get("/api/filters", isAuthed, hasRole, (req, res) => {

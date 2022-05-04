@@ -3,7 +3,7 @@
     gap:1rem;
     /* position: fixed; */
     top:5px;
-    z-index:100;
+    z-index:1;
     align-items: center;
     /* width:100vw; */
 }
@@ -19,7 +19,8 @@
     
 }
 .userPfp{
-    height:5rem;
+    width: 4rem;
+
     border-radius:0.3rem;
 }
 .loggedRight{

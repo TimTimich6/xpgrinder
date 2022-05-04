@@ -5,10 +5,11 @@
     display: flex;
     justify-content:center;
     align-items:center;
-    overflow:hidden;
     height:105vh;
     width:100vw;
-    background-color:rgba(32, 29, 29, 0.767)
+    background-color:rgba(32, 29, 29, 0.767);
+    overflow-y: scroll;
+
 }
 .popUpInner{
     background-color: rgb(255, 255, 255);
