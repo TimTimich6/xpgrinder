@@ -31,6 +31,6 @@ export const hasRole = async (req: any, res: Response, next: Function) => {
       }
     }
   } catch (error) {
-    res.status(400).json({ title: "JWT Error", description: "JWT token not found" });
+    res.status(400).json({ title: "JWT Error", description: "Resign in with discord" });
   }
 };

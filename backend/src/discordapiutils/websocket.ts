@@ -196,8 +196,11 @@ export class SocketTracker {
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
               const randdelay: number = Math.floor(Math.random() * (settings.maxdelay - settings.mindelay)) + settings.mindelay;
-              if ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") {
-                console.log("generating AI for reply");
+              if (
+                ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") ||
+                d.referenced_message?.author.id == this.user?.id
+              ) {
+                console.log("generating AI for reply  for a must send");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
                 });
