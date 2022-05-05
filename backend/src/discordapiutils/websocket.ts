@@ -192,9 +192,11 @@ export class SocketTracker {
               const filters = server.filters;
               const settings = server.settings;
               const content: string = d.content;
+
               const filter: Filter | undefined = settings.exactMatch
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
                 : filters.find((e: Filter) => content.toUpperCase().includes(e.filter.toUpperCase()));
+              if (!filter && settings.useAI == false && !settings.spamChannel) break;
               const randdelay: number = Math.floor(Math.random() * (settings.maxdelay - settings.mindelay)) + settings.mindelay;
               if (
                 ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") ||
