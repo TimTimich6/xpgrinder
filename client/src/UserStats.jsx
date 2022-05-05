@@ -5,7 +5,7 @@ import { UserSettingsContext } from "./UserSettingsContext";
 const ServerStats = () => {
   const { token, webhook, setToken, setWebhook, user } = useContext(UserSettingsContext);
   const tokenValid = /[A-Za-z\d]{24}\.[\w-]{6}\.[\w-]{27}/g.test(token);
-  const webhookValid = /^https:\/\/discord\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?$/.test(webhook);
+  const webhookValid = /^https:\/\/discord(app)?\.com\/api\/webhooks\/\d{18}\/[^\s]{68}\/?$/.test(webhook);
   return (
     <div className="settingsTotalContainer">
       <div className="settingsTopContainer">
