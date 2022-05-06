@@ -95,21 +95,9 @@ export default class WebHooks {
     }
   };
 
-  sendInteraction = async (type: string, extra: string, server: Server, channelID: string, messageID: string): Promise<void> => {
+  sendInteraction = async (type: string, extra: string, server: Server, channelID: string, messageID: string, img: string): Promise<void> => {
     const time = new Date(Date.now()).toLocaleTimeString();
     try {
-      const resp = await axios
-        .get<Guild>(`https://discord.com/api/v9/guilds/${server.guildID}`, {
-          headers: {
-            cookie: await getCookie(),
-            authorization: this.token,
-            ...commonHeaders,
-          },
-        })
-        .then((resp) => resp)
-        .catch((err) => {
-          console.log("err send interaction");
-        });
       const body = {
         content: null,
         embeds: [
@@ -150,7 +138,7 @@ export default class WebHooks {
               text: time,
             },
             thumbnail: {
-              url: `https://cdn.discordapp.com/icons/${server.guildID}/${resp?.data.icon}.png?size=256`,
+              url: img,
             },
           },
         ],

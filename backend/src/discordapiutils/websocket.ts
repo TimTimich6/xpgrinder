@@ -204,7 +204,7 @@ export class SocketTracker {
               ) {
                 console.log("generating AI for reply  for a must send");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
-                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id, server.img);
                 });
                 if (response) {
                   await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
@@ -219,7 +219,8 @@ export class SocketTracker {
                         `Responding to a mentioned message "${content}" with AI response "${response}"`,
                         server,
                         d.channel_id,
-                        d.id
+                        d.id,
+                        server.img
                       );
                     })
                     .catch(() => {
@@ -229,7 +230,8 @@ export class SocketTracker {
                         "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
                         server,
                         d.channel_id,
-                        d.message_id
+                        d.message_id,
+                        server.img
                       );
                     });
                 }
@@ -247,7 +249,14 @@ export class SocketTracker {
                   })
                     .then(() => {
                       console.log(`${getTime()} ${author} : ${content} --> ${filter.response}`);
-                      this.wh?.sendInteraction(t, `Responded to message "${content}" with filter "${filter.response}"`, server, d.channel_id, d.id);
+                      this.wh?.sendInteraction(
+                        t,
+                        `Responded to message "${content}" with filter "${filter.response}"`,
+                        server,
+                        d.channel_id,
+                        d.id,
+                        server.img
+                      );
                     })
                     .catch(() => {
                       console.log("Error caught when trying to respond");
@@ -256,14 +265,15 @@ export class SocketTracker {
                         "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
                         server,
                         d.channel_id,
-                        d.message_id
+                        d.message_id,
+                        server.img
                       );
                     });
                 }
               } else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
                 console.log("generating AI");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
-                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id);
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id, server.img);
                 });
                 if (response) {
                   await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
@@ -273,7 +283,14 @@ export class SocketTracker {
                   })
                     .then(() => {
                       console.log("AI responded:", response);
-                      this.wh?.sendInteraction(t, `Responding to message "${content}" with AI response "${response}"`, server, d.channel_id, d.id);
+                      this.wh?.sendInteraction(
+                        t,
+                        `Responding to message "${content}" with AI response "${response}"`,
+                        server,
+                        d.channel_id,
+                        d.id,
+                        server.img
+                      );
                     })
                     .catch(() => {
                       console.log("Error caught when trying to respond");
@@ -282,7 +299,8 @@ export class SocketTracker {
                         "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
                         server,
                         d.channel_id,
-                        d.message_id
+                        d.message_id,
+                        server.img
                       );
                     });
                 }
@@ -304,12 +322,12 @@ export class SocketTracker {
                   console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
                   const detail = `Reaction with ${d.emoji.name}`;
                   this.alreadyReacted.push(checkReact);
-                  this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id);
+                  this.wh?.sendInteraction(t, detail, server, d.channel_id, d.message_id, server.img);
                   return resp;
                 })
                 .catch(() => {
                   console.log("react catch statement");
-                  this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO REACT TO MESSAGE", server, d.channel_id, d.message_id);
+                  this.wh?.sendInteraction(t, "ERROR WHEN ATTEMPTING TO REACT TO MESSAGE", server, d.channel_id, d.message_id, server.img);
                 });
             }
             break;

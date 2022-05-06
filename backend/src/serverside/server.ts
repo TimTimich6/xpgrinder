@@ -63,7 +63,7 @@ app.get("/api/invite/:code", (req, res) => {
       res.status(200).json(data);
     })
     .catch((err) => {
-      console.log("Failed axios");
+      console.log("Failed data on invite");
       res.status(500).json({ title: "Invite Error", description: "Can't get data on invite" });
     });
 });
@@ -216,7 +216,7 @@ app.delete("/api/track", isAuthed, async (req: any, res) => {
 
 app.delete("/api/servers", isAuthed, async (req: any, res) => {
   const userid = <string>req.jwt.userid;
-  const storage: TrackingStorage | undefined = trackingArray.find((element) => element.userid == userid);
+  const storage: boolean = trackingArray.some((element) => element.userid == userid);
   if (storage) {
     return res.status(500).json({ title: "Servers Error", description: "Can't delete server when actively tracking" });
   } else {

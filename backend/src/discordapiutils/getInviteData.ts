@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { agent } from "./selfData";
 
 export interface Invite {
   code: string;
@@ -48,7 +49,7 @@ interface guildData extends Guild {
 
 export const getInviteData = async (code: string): Promise<inviteResponse> => {
   console.log("in axios for invite data");
-  const { data } = await axios.get<Invite>(`https://discord.com/api/v9/invites/${code}`).catch((err) => {
+  const { data } = await axios.get<Invite>(`https://discord.com/api/v9/invites/${code}`, { httpsAgent: agent }).catch((err) => {
     if (axios.isAxiosError(err)) {
       console.log("error message: ", err.message);
       throw new Error(err.message);
