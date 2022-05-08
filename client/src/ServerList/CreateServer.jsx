@@ -138,13 +138,14 @@ const CreateSever = (props) => {
   return (
     <>
       <div className="newServerContainer">
-        <label
-          className="srWord"
+        <label className="srWord">Link/ID</label>
+        <input
+          onChange={(e) => setLink(e.target.value)}
+          type="text"
+          required
+          className="srText"
           data-tip={`Insert invite link (preferred) or in the format of guild id:nick name. For example, 934702825328504843:Test Server `}
-        >
-          Link/ID
-        </label>
-        <input onChange={(e) => setLink(e.target.value)} type="text" required className="srText" />
+        />
       </div>
       <div className="buttonsServer">
         <div

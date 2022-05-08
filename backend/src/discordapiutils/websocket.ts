@@ -191,7 +191,7 @@ export class SocketTracker {
             if (server && d.author.id !== this.user?.id && channelOK) {
               const filters = server.filters;
               const settings = server.settings;
-              const content: string = d.content;
+              let content: string = d.content;
 
               const filter: Filter | undefined = settings.exactMatch
                 ? filters.find((e: Filter) => e.filter.toUpperCase() == content.toUpperCase())
@@ -202,6 +202,8 @@ export class SocketTracker {
                 ((content.includes(`<@${this.user?.id}>`) || settings.whitelist.includes(d.author.id)) && d.author.id != "159985870458322944") ||
                 d.referenced_message?.author.id == this.user?.id
               ) {
+                content = content.replace(`<@${this.user?.id}>`, "");
+
                 console.log("generating AI for reply  for a must send");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
                   this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id, server.img);

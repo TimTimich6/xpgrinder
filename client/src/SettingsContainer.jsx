@@ -12,6 +12,7 @@ const SettingsContainer = (props) => {
       setInput("");
     }
   };
+
   let tipContent;
   let placeholder;
   if (props.label.includes("Token")) {
@@ -24,14 +25,12 @@ const SettingsContainer = (props) => {
   return (
     <div className="settingsContainer">
       <ReactTooltip place="top" type="info" effect="float" multiline className="tooltip" />
-      <span className="containerTitle" data-tip={tipContent}>
-        {props.label}
-      </span>
-      <span className="containerOutput">
+      <span className="containerTitle">{props.label}</span>
+      <span className="containerOutput" data-tip={tipContent}>
         {!editing ? props.output : null}
         {props.modify ? <img className="editPencil" src="editpencil.png" onClick={() => handleEdit()} /> : null}
         {editing && props.modify ? (
-          <input placeholder={placeholder} type="password" size="40" className="headerInput" onChange={(e) => setInput(e.target.value)} />
+          <input placeholder={placeholder} size="40" className="headerInput" onChange={(e) => setInput(e.target.value)} />
         ) : null}
       </span>
     </div>

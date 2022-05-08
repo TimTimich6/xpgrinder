@@ -106,14 +106,10 @@ const Popup = () => {
             </div>
             <div className="popupBody">
               <div className="serverSettingContainer">
-                <span
-                  data-tip="Let AI contribute to responses on messages that aren't filters"
-                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-                >
-                  Assist with AI
-                </span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Assist with AI</span>
                 <input
                   type="checkbox"
+                  data-tip="Let AI contribute to responses on messages that aren't filters"
                   className="settingsCheckbox"
                   onChange={(event) => handleCheck(event)}
                   ref={aiRef}
@@ -123,14 +119,10 @@ const Popup = () => {
               </div>
 
               <div className="serverSettingContainer">
-                <span
-                  data-tip="How creative and unpredictable AI responses will be"
-                  className={`settingsCheckboxLabel ${spamOn || !server.settings.useAI ? "settingDisabled" : null}`}
-                >
-                  AI Spontaneity
-                </span>
+                <span className={`settingsCheckboxLabel ${spamOn || !server.settings.useAI ? "settingDisabled" : null}`}>AI Spontaneity</span>
                 <input
                   type="number"
+                  data-tip="How creative and unpredictable AI responses will be"
                   value={server.settings.temperature}
                   className="settingsInput"
                   onChange={(event) => handleInput(event)}
@@ -142,16 +134,12 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span
-                  data-tip="Channel IDs of channels that will be tracked. Separate ids with spaces. Must use with AI"
-                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-                >
-                  Specific Channels ids
-                </span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Specific Channels ids</span>
                 <input
                   type="text"
                   value={server.settings.channels}
                   className="settingsInput"
+                  data-tip="Channel IDs of channels that will be tracked. Separate ids with spaces. Must use with AI"
                   onChange={(event) => handleInput(event)}
                   ref={channelsRef}
                   size="20"
@@ -160,14 +148,10 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span
-                  data-tip="Whether the bot will reply to triggered messages or not"
-                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-                >
-                  Reply
-                </span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Reply</span>
                 <input
                   type="checkbox"
+                  data-tip="Whether the bot will reply to triggered messages or not"
                   className="settingsCheckbox"
                   onChange={(event) => handleCheck(event)}
                   ref={replyRef}
@@ -176,11 +160,10 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip={`How long will the bot be shown as "typing" before responding (seconds)`} className={`settingsCheckboxLabel`}>
-                  Typing Time
-                </span>
+                <span className={`settingsCheckboxLabel`}>Typing Time</span>
                 <input
                   type="number"
+                  data-tip={`How long will the bot be shown as "typing" before responding (seconds)`}
                   value={server.settings.responseTime}
                   className="settingsInput"
                   onChange={(event) => handleInput(event)}
@@ -192,11 +175,10 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Minimum delay before bot begins typing (seconds)" className={`settingsCheckboxLabel`}>
-                  Minimum delay
-                </span>
+                <span className={`settingsCheckboxLabel`}>Minimum delay</span>
                 <input
                   type="number"
+                  data-tip="Minimum delay before bot begins typing (seconds)"
                   value={server.settings.mindelay}
                   className="settingsInput"
                   onChange={(event) => handleInput(event)}
@@ -208,11 +190,10 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span data-tip="Maximum delay before bot begins typing (seconds)" className={`settingsCheckboxLabel`}>
-                  Maximum delay
-                </span>
+                <span className={`settingsCheckboxLabel`}>Maximum delay</span>
                 <input
                   type="number"
+                  data-tip="Maximum delay before bot begins typing (seconds)"
                   value={server.settings.maxdelay}
                   className="settingsInput"
                   onChange={(event) => handleInput(event)}
@@ -224,14 +205,10 @@ const Popup = () => {
                 />
               </div>
               <div className="serverSettingContainer">
-                <span
-                  data-tip="Checks whether the message matches filter exactly.Only applies to filters"
-                  className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-                >
-                  Exact Match
-                </span>
+                <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Exact Match</span>
                 <input
                   type="checkbox"
+                  data-tip="Checks whether the message matches filter exactly.Only applies to filters"
                   className="settingsCheckbox"
                   onChange={(event) => handleCheck(event)}
                   ref={exactRef}
@@ -241,14 +218,10 @@ const Popup = () => {
               </div>
             </div>
             <div className="serverSettingContainer">
-              <span
-                data-tip="What is the probability that the bot will respond when a message is triggered"
-                className={`settingsCheckboxLabel ${spamOn || server.settings.exactMatch ? "settingDisabled" : null}`}
-              >
-                Percent Response
-              </span>
+              <span className={`settingsCheckboxLabel ${spamOn || server.settings.exactMatch ? "settingDisabled" : null}`}>Percent Response</span>
               <input
                 type="number"
+                data-tip="What is the probability that the bot will respond when a message is triggered"
                 value={server.settings.percentResponse}
                 className="settingsInput"
                 onChange={(event) => handleInput(event)}
@@ -261,14 +234,10 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span
-                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Typing time is the spam cycle. Must turn off AI mode"
-                className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}
-              >
-                Spam ChannelID
-              </span>
+              <span className={`settingsCheckboxLabel ${server.settings.spamChannel.length != 18 ? "settingDisabled" : null}`}>Spam ChannelID</span>
               <input
                 type="text"
+                data-tip="Enter the channel ID for the channel to spam and delete messages quickly. Typing time is the spam cycle. Must turn off AI mode"
                 value={server.settings.spamChannel}
                 className="settingsInput"
                 onChange={(event) => handleInput(event)}
@@ -278,14 +247,10 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span
-                data-tip="Enter the channel IDs for the giveaway channel. Separate ids with spaces. Reacts to every message in the channel"
-                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-              >
-                Giveaway ChannelID
-              </span>
+              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Giveaway ChannelID</span>
               <input
                 type="text"
+                data-tip="Enter the channel IDs for the giveaway channel. Separate ids with spaces. Reacts to every message in the channel"
                 value={server.settings.giveaway}
                 className="settingsInput"
                 onChange={(event) => handleInput(event)}
@@ -296,14 +261,10 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span
-                data-tip="User IDs of people the bot should never respond. Separate ids with spaces."
-                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-              >
-                Blacklisted Users
-              </span>
+              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Blacklisted Users</span>
               <input
                 type="text"
+                data-tip="User IDs of people the bot should never respond. Separate ids with spaces."
                 value={server.settings.blacklist}
                 className="settingsInput"
                 onChange={(event) => handleInput(event)}
@@ -314,18 +275,14 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span
-                data-tip="User IDs of people the bot should always respond. Separate ids with spaces."
-                className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}
-              >
-                Whtielist Users
-              </span>
+              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Whtielist Users</span>
               <input
                 type="text"
                 value={server.settings.whitelist}
                 className="settingsInput"
                 onChange={(event) => handleInput(event)}
                 ref={whitelistRef}
+                data-tip="User IDs of people the bot should always respond. Separate ids with spaces."
                 size="30"
                 disabled={spamOn}
                 placeholder="user ids"
