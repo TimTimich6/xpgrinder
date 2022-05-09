@@ -275,7 +275,7 @@ const Popup = () => {
               />
             </div>
             <div className="serverSettingContainer">
-              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Whtielist Users</span>
+              <span className={`settingsCheckboxLabel ${spamOn ? "settingDisabled" : null}`}>Whitelist Users</span>
               <input
                 type="text"
                 value={server.settings.whitelist}

@@ -144,7 +144,8 @@ export const invite = async (
     .post<InviteSuccess>(`https://discord.com/api/v9/invites/${code}`, payload || {}, {
       headers: { ...commonheaders, authorization: token, Cookie: await getCookie() },
       httpsAgent: agent,
-      timeout: 15000,
+      timeout: 30000,
+      proxy: false,
     })
     .catch((err: AxiosError<captchaData | GeneralDiscordError>) => {
       if (axios.isAxiosError(err) && err.response?.status == 400) {
@@ -153,8 +154,7 @@ export const invite = async (
         console.log(err.response.data);
         return { data: err.response.data, headers: err.response.headers, status: err.response.status };
       } else {
-        console.log("unexpected error in invite: ", err);
-        throw new Error("An unexpected error occurred");
+        return { data: {}, headers: undefined };
       }
     });
 
@@ -216,7 +216,8 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
   const { data } = await axios
     .post<SuccessfulTaskAnti>("https://api.anti-captcha.com/createTask", payload, {
       headers: { "content-type": "application/json" },
-      timeout: 15000,
+      timeout: 30000,
+      proxy: false,
     })
     .catch((err: AxiosError<TaskWithErrorAnti>) => {
       if (axios.isAxiosError(err) && err.response) {
@@ -224,7 +225,7 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
         return { data: err.response.data };
       } else {
         console.log("unexpected error: ", err.response?.data);
-        throw new Error("An unexpected error occurred");
+        return { data: {} };
       }
     });
 
@@ -235,7 +236,7 @@ async function solveCaptchaAnti(captcha: captchaData): Promise<string | number |
         .post<TaskWithErrorAnti | TaskSolvedAnti>(
           "https://api.anti-captcha.com/getTaskResult",
           { clientKey, taskId: data.taskId },
-          { headers: { "content-type": "application/json" }, timeout: 15000 }
+          { headers: { "content-type": "application/json" }, timeout: 30000 }
         )
         .then((resp) => resp.data)
         .catch((err: AxiosError<any>) => {
@@ -269,7 +270,7 @@ async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | numb
   const resp = await axios
     .post<SuccessfulCreate2Cap>(url, payload, {
       headers: { "content-type": "application/json" },
-      timeout: 15000,
+      timeout: 30000,
     })
     .catch((err: AxiosError<TwoCapCreateError>) => {
       if (axios.isAxiosError(err) && err.response) {
@@ -284,7 +285,7 @@ async function solveCaptcha2Captcha(captcha: captchaData): Promise<string | numb
       await waitTime(20);
       const taskGetData = await axios
         .get<SuccessfulCreate2Cap | FailedSolution2Cap>(`http://2captcha.com/res.php?key=${TwoCapKey}&action=get2&id=${resp.data.request}&json=1`, {
-          timeout: 15000,
+          timeout: 30000,
         })
         .then((resp) => resp.data)
         .catch((err: AxiosError<string>) => {
@@ -313,7 +314,7 @@ async function bypassTos(guildID: string, code: string, token: string): Promise<
   const { data } = await axios
     .get<ScreeningForm>(`https://discord.com/api/v9/guilds/${guildID}/member-verification?with_guild=false&invite_code=${code}`, {
       headers: { ...commonheaders, authorization: token },
-      timeout: 15000,
+      timeout: 30000,
     })
     .catch((err: AxiosError<ScreeningError | GeneralDiscordError>) => {
       if (axios.isAxiosError(err) && err.response?.status == 400) {
@@ -323,7 +324,7 @@ async function bypassTos(guildID: string, code: string, token: string): Promise<
         return { data: err.response.data, headers: err.response.headers, status: err.response.status };
       } else {
         console.log("unexpected error: ", err.response?.data);
-        throw new Error("An unexpected error occurred");
+        return { data: {} };
       }
     });
   if ("form_fields" in data) {
@@ -334,7 +335,7 @@ async function bypassTos(guildID: string, code: string, token: string): Promise<
     const screeningDone = await axios
       .put<ScreeningDone>(`https://discord.com/api/v9/guilds/${guildID}/requests/@me`, payload, {
         headers: { ...commonheaders, authorization: token },
-        timeout: 15000,
+        timeout: 30000,
       })
       .then((res) => res.data);
     if (screeningDone.application_status == "APPROVED") {

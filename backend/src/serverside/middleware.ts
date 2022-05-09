@@ -1,9 +1,8 @@
 import { GeneralDiscordError } from "./../discordapiutils/invitetoken";
 import axios, { AxiosError } from "axios";
-import { getUses, idData } from "./mongocommands";
+import { checkNextReset, getUses, idData, setNextReset } from "./mongocommands";
 import { NextFunction, Request, Response } from "express";
 import { howManyHolding } from "../utils/other";
-export const getTokens = async () => {};
 export const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
 const invRegex = new RegExp("(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/.+[a-z]");
 const channelsRegex = /^\d{18}(?:\s+\d{18})*$/g;
@@ -164,6 +163,7 @@ export const checkInvite = async (req: Request, res: Response, next: NextFunctio
     params.webhook = params.webhook.trim();
     params.serverLogo = params.serverLogo.trim();
     req.body.amount = parseInt(req.body.amount);
+
     if (params.amount <= 0 || params.amount >= 16)
       return res.status(500).json({ title: "Invite error", description: `Amount is out of range [1,15]` });
     if (!params.webhook.match(webhookRegex)) return res.status(500).json({ title: "Invite error", description: `Webhook is not valid` });
@@ -192,8 +192,15 @@ export const checkUses = async (req: any, res: Response, next: NextFunction) => 
   const userid = req.jwt.userid;
   const uses = await getUses(userid);
   if (uses) {
-    if (uses + parseInt(req.body.amount) > 30)
-      return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 15" });
+    if (uses + parseInt(req.body.amount) > 50) {
+      const reset = await checkNextReset(userid);
+      if (Date.now() >= reset) {
+        await setNextReset(userid, Date.now() + 86_400_00, 0);
+        return next();
+      }
+
+      return res.status(500).json({ title: "Invite Error", description: "Such request would bring the uses count over maximum invitations of 50" });
+    }
   }
   next();
 };

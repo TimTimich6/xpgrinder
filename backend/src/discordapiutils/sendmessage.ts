@@ -1,10 +1,10 @@
+import { ButtonData } from "./../utils/testproxy";
 import { getPaste } from "./../utils/dataRetreriver";
-import commonHeaders, { getCookie } from "./headers";
+import commonHeaders, { getCookie, interaction } from "./headers";
 import fetch, { Response } from "node-fetch";
 import axios from "axios";
 import waitTime from "../utils/waitTime";
 import { agent } from "./selfData";
-import { HttpsProxyAgent } from "https-proxy-agent";
 interface messageRef {
   channel_id?: string;
   guild_id: string;
@@ -94,6 +94,7 @@ export const deleteMessage = async (channelID: string, messageID: string, token:
         ...commonHeaders,
       },
       httpsAgent: agent,
+      proxy: false,
     })
     .catch((err) => console.log("error when deleting message"));
 };
@@ -145,11 +146,19 @@ export const reactMessage = async (channelID: string, messageID: string, rxn: st
           ...commonHeaders,
         },
         httpsAgent: agent,
+        proxy: false,
       }
     )
     .catch((err) => {
       if (err.response && err.response.data) console.log("err reacting", err.response.data.code, err.response.data.message);
     });
 };
-
 // reactMessage("936904237064007704", "962440096618020864", "😆", "NTE2MzY5MTQzMDQ2MzQwNjA4.Yi5Jgw.Ixs8bay3l-HAYj5-z7ioSRdy46M");
+
+export const clickButton = async (token: string, data: ButtonData) => {
+  const resp = await axios.post("https://discord.com/api/v9/interactions", data, {
+    headers: interaction,
+  });
+  if (resp.status == 204) console.log("successful click");
+  else console.log("failed to click");
+};

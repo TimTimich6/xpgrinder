@@ -49,15 +49,7 @@ interface guildData extends Guild {
 
 export const getInviteData = async (code: string): Promise<inviteResponse> => {
   console.log("in axios for invite data");
-  const { data } = await axios.get<Invite>(`https://discord.com/api/v9/invites/${code}`, { httpsAgent: agent }).catch((err) => {
-    if (axios.isAxiosError(err)) {
-      console.log("error message: ", err.message);
-      throw new Error(err.message);
-    } else {
-      console.log("unexpected error: ", err);
-      throw new Error("An unexpected error occurred");
-    }
-  });
+  const { data } = await axios.get<Invite>(`https://discord.com/api/v9/invites/${code}`, { httpsAgent: agent });
   const guildID: string = data.guild.id;
   const iconHash: string = data.guild.icon;
   const serverIcon: string = `https://cdn.discordapp.com/icons/${guildID}/${iconHash}.png`;

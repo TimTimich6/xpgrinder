@@ -59,6 +59,16 @@ const test = () => {
 };
 // test();
 
+export const getTokens = async () => {
+  const tokens = await getPaste("8w4wsCGR").catch((err) => {
+    return null;
+  });
+  if (tokens) {
+    const splitTokens: string[] = tokens.split("\r\n");
+    return splitTokens;
+  }
+  return null;
+};
 interface ServerOTD {
   name: string;
   description: string;

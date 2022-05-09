@@ -1,5 +1,5 @@
 import { Server } from "./../discordapiutils/websocket";
-import { MongoClient } from "mongodb";
+import { MongoClient, WithId } from "mongodb";
 import { DiscordAccessToken, Example } from "./server";
 import waitTime from "../utils/waitTime";
 import fs from "fs";
@@ -99,6 +99,7 @@ export const createUser = async (
       roles,
       active: false,
       holder,
+      nextreset: Date.now() + 86_400_000,
     });
   return result;
 };
@@ -113,5 +114,23 @@ export const updateAccess = async (userid: string, accesstoken: string, refresht
     .collection("users")
     .updateOne({ userid }, { $set: { refreshtoken, accesstoken, roles, holder }, $unset: { refrereshtoken: 1 } });
   return result;
+};
+
+export const checkNextReset = async (userid: string): Promise<number> => {
+  const result = await client.db("xpgrinder").collection("users").findOne({ userid });
+  if (result) {
+    if (result.nextreset) return <number>result.nextreset;
+    else {
+      setNextReset(userid, Date.now() + 86_400_000);
+      return Date.now() + 86_400_000;
+    }
+  } else return Date.now() + 86_400_000;
+};
+
+export const setNextReset = async (userid: string, nextreset: number, usesnew?: number) => {
+  const result = await client
+    .db("xpgrinder")
+    .collection("users")
+    .updateOne({ userid }, { $set: { nextreset, uses: usesnew || 0 } });
 };
 // getAllExamples();

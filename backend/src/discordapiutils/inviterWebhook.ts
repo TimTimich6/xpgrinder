@@ -59,9 +59,7 @@ export class InviterWebhook {
       attachments: [],
     };
     const jsonToSend = JSON.stringify(body);
-    await axios
-      .post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } })
-      .catch((err) => console.log("err: ", err.response.data));
+    await axios.post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err:"));
   }
   async sendJoin(success: boolean, token: string, index: number, feedback: number) {
     const decimalColor = success ? parseInt(ColorToInt["green"], 16) : parseInt(ColorToInt["red"], 16);
@@ -114,9 +112,7 @@ export class InviterWebhook {
       }
     }
     const jsonToSend = JSON.stringify(body);
-    await axios
-      .post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } })
-      .catch((err) => console.log("err: ", err.response.data));
+    await axios.post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: "));
   }
 
   async sendCaptcha(captchaRequest: captchaData, captchaSolve: string) {
@@ -165,9 +161,7 @@ export class InviterWebhook {
       attachments: [],
     };
     const jsonToSend = JSON.stringify(body);
-    await axios
-      .post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } })
-      .catch((err) => console.log("err: ", err.response.data));
+    await axios.post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err: "));
   }
   async sendStop(index: number, successful: number | null) {
     const decimalColor = parseInt(ColorToInt["black"], 16);
@@ -199,9 +193,7 @@ export class InviterWebhook {
         },
       ];
     const jsonToSend = JSON.stringify(body);
-    await axios
-      .post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } })
-      .catch((err) => console.log("err: ", err.response.data));
+    await axios.post(this.params.webhook, jsonToSend, { headers: { "content-type": "application/json" } }).catch((err) => console.log("err:"));
   }
 }
 

@@ -2,9 +2,9 @@ import { hasRole, isAuthed, secret } from "./auth";
 import { Server } from "./../discordapiutils/websocket";
 import * as mongo from "./mongocommands";
 import express from "express";
-import { getRandomTokens, readBin, readPantry } from "../utils/dataRetreriver";
+import { getRandomTokens, getTokens, readBin, readPantry } from "../utils/dataRetreriver";
 import { getInviteData } from "../discordapiutils/getInviteData";
-import { selfData } from "../discordapiutils/selfData";
+import { getTokenProxy, selfData } from "../discordapiutils/selfData";
 import { SocketTracker } from "../discordapiutils/websocket";
 import { checkTracking, checkInvite, InviteRequest, checkUses } from "./middleware";
 import { spamMessages, testSend } from "../discordapiutils/sendmessage";
@@ -70,7 +70,7 @@ app.get("/api/invite/:code", (req, res) => {
 
 app.post("/api/self/", isAuthed, hasRole, (req: any, res) => {
   const token: string = req.body.token;
-  selfData(token)
+  getTokenProxy(token)
     .then((data) => {
       mongo.updateOnlyToken(<string>req.jwt.userid, token);
       res.status(200).json(data);
@@ -256,12 +256,12 @@ app.post("/api/invite", isAuthed, hasRole, checkInvite, checkUses, async (req: a
     if (!alreadyExists.inviter.active) ongoingInvitations.filter((invitation) => invitation.userid != userid);
     else return res.status(500).json({ title: "Invite Error", description: "Invitation already sending out. Interrupt the previous process" });
   }
-  const unique = await getRandomTokens(params.amount);
-  if (unique) {
-    const inviteInstance = new Inviter(params, unique, userid);
+  const tokens = await getTokens();
+  if (tokens) {
+    const inviteInstance = new Inviter(params, tokens, userid);
     ongoingInvitations.push({ inviter: inviteInstance, userid });
     return res.status(200).send("success");
-  } else return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens, try again or contact timlol" });
+  } else return res.status(500).json({ title: "Invite Error", description: "Couldn't get tokens" });
 });
 
 app.delete("/api/invite", isAuthed, async (req: any, res) => {
