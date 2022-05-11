@@ -156,7 +156,7 @@ export class SocketTracker {
           break;
       }
       if (d) {
-        const server = this.servers.find((server) => d.guild_id === server.guildID);
+        const server = this.servers.find((server) => d.guild_id === server.guildID.trim());
         switch (t) {
           case "READY":
             console.log("ready occured");

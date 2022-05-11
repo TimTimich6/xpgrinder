@@ -37,7 +37,8 @@ export const getTokenProxy = async (token: string): Promise<userData | null> => 
     .get<userData>("https://discord.com/api/v9/users/@me", {
       headers: {
         authorization: <string>token,
-        cookie: await getCookie(),
+        cookie:
+          "__dcfduid=adcb2a33ddff3fd98266f5ebfb6eb50b; __sdcfduid=53f16c47f3fe11ebb97342010a0a091103b51d184b552f1814adc67ef661e523cd19aa4536c6a4a3a181204bba26b67d; __stripe_mid=eda543e2-204a-4640-af99-4be0831b695ce7d49c",
         ...commonHeaders,
       },
       httpsAgent: agent,
