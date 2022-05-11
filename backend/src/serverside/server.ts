@@ -132,7 +132,7 @@ app.get("/api/auth/redirect", async (req, res) => {
         if (memberData) {
           const user = memberData.data.user;
           const result = await mongo.getByUserid(memberData.data.user.id);
-          const token = jwt.sign({ userid: memberData.data.user.id }, secret, { expiresIn: "1d" });
+          const token = jwt.sign({ userid: memberData.data.user.id }, secret, { expiresIn: "3h" });
           res.cookie("jwt", token);
           const holder = howManyHolding(memberData.data.roles);
           if (!result) {
