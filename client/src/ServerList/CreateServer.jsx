@@ -33,7 +33,7 @@ const CreateSever = (props) => {
       return {
         guildID: split[0],
         guildName: split[1],
-        serverIcon: "./xpgrinder.png",
+        serverIcon: "https://cdn.discordapp.com/icons/974140696330117160/557b69703e40726aec3034d10df3f364.png?size=256",
       };
     }
   };

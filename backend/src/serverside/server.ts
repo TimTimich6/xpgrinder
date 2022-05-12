@@ -368,7 +368,7 @@ app.listen(port, () => {
     console.log("done");
 
     throw new Error();
-  }, 6 * 1000 * 60);
+  }, 60 * 6 * 1000 * 60);
 });
 
 export interface DiscordAccessToken {
