@@ -364,11 +364,6 @@ app.listen(port, () => {
     restartHook()
       .then(() => console.log("send start hook"))
       .catch(() => console.log("failed to send restart hook"));
-  setTimeout(() => {
-    console.log("done");
-
-    throw new Error();
-  }, 60 * 6 * 1000 * 60);
 });
 
 export interface DiscordAccessToken {

@@ -72,16 +72,19 @@ export class SocketTracker {
   hbInterval: NodeJS.Timer | undefined;
   alreadyReacted: string[] = [];
   active = true;
+  killtimeout: NodeJS.Timeout | undefined;
   constructor(token: string, servers: Server[], url: string) {
     this.token = token;
     this.servers = servers;
     this.socket = this.createSocket();
+    this.selfKill();
     this.url = url;
   }
 
   stop() {
     this.socket.close();
     if (this.hbInterval) clearInterval(this.hbInterval);
+    if (this.killtimeout) clearTimeout(this.killtimeout);
     this.wh?.sendEvent("Stopped tracker", "WebSocket stop event called", "black");
     return;
   }
@@ -98,10 +101,13 @@ export class SocketTracker {
   };
   reconnect = () => {
     this.stop();
+    if (this.killtimeout) clearTimeout(this.killtimeout);
     this.socket = this.createSocket();
     this.wh?.sendEvent(0, "Attempting at restarting tracking.", "red");
   };
-
+  selfKill = () => {
+    this.killtimeout = setTimeout(() => this.stop(), 1000 * 8 * 60 * 60);
+  };
   createSocket = () => {
     const sock = new WebSocket("wss://gateway.discord.gg/?v=8&encoding=json");
     const payload: Payload = {
