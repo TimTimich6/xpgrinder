@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 export const generateAIResponse = async (message: string, temperature: number): Promise<string | undefined> => {
@@ -9,7 +9,7 @@ export const generateAIResponse = async (message: string, temperature: number): 
   const response = await openai
     .createCompletionFromModel({
       prompt,
-      model: "ada:ft-personal-2022-05-11-04-09-12",
+      model: "ada:ft-personal-2022-05-15-19-58-25",
       temperature: temperature / 100,
       max_tokens: 25,
       top_p: 0.9,
