@@ -15,7 +15,7 @@ export const isAuthed = (req: Request | any, res: Response, next: Function) => {
     } else throw new Error();
   } catch (error) {
     console.log("failed to auth");
-    res.status(400).json({ title: "JWT Error", description: "Invalid JWT token" });
+    res.status(400).json({ title: "Sign In Error", description: "Resign in with discord" });
   }
 };
 
@@ -31,6 +31,6 @@ export const hasRole = async (req: any, res: Response, next: Function) => {
       }
     }
   } catch (error) {
-    res.status(400).json({ title: "JWT Error", description: "Resign in with discord" });
+    res.status(400).json({ title: "Sign In Error", description: "Resign in with discord" });
   }
 };

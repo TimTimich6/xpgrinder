@@ -212,7 +212,7 @@ export class SocketTracker {
 
                 console.log("generating AI for reply  for a must send");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
-                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id, server.img);
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI RESPONSE`, server, d.channel_id, d.id, server.img);
                 });
                 if (response) {
                   await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
@@ -281,7 +281,7 @@ export class SocketTracker {
               } else if (server.settings.useAI && checkAI(content, settings.percentResponse)) {
                 console.log("generating AI");
                 const response = await generateAIResponse(content, settings.temperature).catch(() => {
-                  this.wh?.sendInteraction(t, `ERROR GENERATING AI, ADJUST YOUR AI SPONTANEITY SETTING`, server, d.channel_id, d.id, server.img);
+                  this.wh?.sendInteraction(t, `ERROR GENERATING AI RESPONSE`, server, d.channel_id, d.id, server.img);
                 });
                 if (response) {
                   await realType(response, d.channel_id, this.token, settings.responseTime, settings.reply, randdelay, {
