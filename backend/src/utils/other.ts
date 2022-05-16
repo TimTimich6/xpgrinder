@@ -1,11 +1,11 @@
 import { Configuration, OpenAIApi } from "openai";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 export const generateAIResponse = async (message: string, temperature: number): Promise<string | undefined> => {
-  const prompt = `${message} ->`;
+  const prompt = `${message}  ->`;
   const response = await openai
     .createCompletionFromModel({
       prompt,
