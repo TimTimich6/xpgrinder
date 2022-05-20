@@ -38,7 +38,7 @@ export class Inviter {
             await this.webhook.sendJoin(true, token, index + 1, feedback);
             await waitTime(1);
             if (this.params.reaction)
-              await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, token).catch(() =>
+              await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, token, null).catch(() =>
                 console.log("failed to react upon joining")
               );
             if (this.params.message)
@@ -55,7 +55,7 @@ export class Inviter {
 
                 await waitTime(1);
                 if (this.params.reaction)
-                  await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, newtoken).catch(() =>
+                  await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, newtoken, null).catch(() =>
                     console.log("failed to react upon joining")
                   );
                 if (this.params.message)
@@ -101,7 +101,7 @@ export class Inviter {
         this.successful++;
         await waitTime(1);
         if (this.params.reaction)
-          await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, token).catch(() =>
+          await reactMessage(this.params.channelID, this.params.messageID, this.params.reaction, token, null).catch(() =>
             console.log("failed to react upon joining")
           );
         if (this.params.message)

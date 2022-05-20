@@ -231,7 +231,7 @@ export class SocketTracker {
                         server.img
                       );
                     })
-                    .catch(() => {
+                    .catch((err) => {
                       console.log("Error caught when trying to respond to a mention");
                       this.wh?.sendInteraction(
                         t,
@@ -300,8 +300,9 @@ export class SocketTracker {
                         server.img
                       );
                     })
-                    .catch(() => {
+                    .catch((err) => {
                       console.log("Error caught when trying to respond");
+
                       this.wh?.sendInteraction(
                         t,
                         "ERROR WHEN ATTEMPTING TO SEND MESSAGE, POSSIBLY DUE TO SLOWMODE",
@@ -325,7 +326,7 @@ export class SocketTracker {
               !this.alreadyReacted.includes(checkReact)
             ) {
               await waitTime(3);
-              await reactMessage(d.channel_id, d.message_id, d.emoji.name, this.token)
+              await reactMessage(d.channel_id, d.message_id, d.emoji.name, this.token, d.emoji.id)
                 .then((resp) => {
                   console.log("reacted to giveaway channel", server.settings.giveaway, "with", d.emoji.name);
                   const detail = `Reaction with ${d.emoji.name}`;

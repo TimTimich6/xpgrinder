@@ -133,11 +133,11 @@ export const testSend = async (message: string, token: string, channelID: string
 };
 
 //https://apps.timwhitlock.info/emoji/tables/unicode
-export const reactMessage = async (channelID: string, messageID: string, rxn: string, token: string): Promise<void> => {
-  const encoded = encodeURIComponent(rxn);
+export const reactMessage = async (channelID: string, messageID: string, rxn: string, token: string, id: string | null): Promise<void> => {
+  const encoded = id ? rxn + "%3A" + id : encodeURIComponent(rxn);
   const resp = await axios
     .put(
-      `https://discord.com/api/v9/channels/${channelID}/messages/${messageID}/reactions/${encoded}/%40me`,
+      `https://discord.com/api/v9/channels/${channelID}/messages/${messageID}/reactions/${encoded}/%40me?location=Message`,
       {},
       {
         headers: {
