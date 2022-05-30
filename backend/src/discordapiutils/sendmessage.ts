@@ -93,8 +93,6 @@ export const deleteMessage = async (channelID: string, messageID: string, token:
         authorization: token,
         ...commonHeaders,
       },
-      httpsAgent: agent,
-      proxy: false,
     })
     .catch((err) => console.log("error when deleting message"));
 };
@@ -114,7 +112,7 @@ export const spamMessages = async (channelID: string, token: string, delay: numb
       return null;
     });
     if (response) {
-      await waitTime(1);
+      await waitTime(3);
       console.log("random: ", message, "for token", token.slice(0, 5));
       deleteMessage(channelID, response.id, token);
     }
