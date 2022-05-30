@@ -9,7 +9,7 @@ export const generateAIResponse = async (message: string, temperature: number): 
   const response = await openai
     .createCompletionFromModel({
       prompt,
-      model: "ada:ft-personal-2022-05-15-19-58-25",
+      model: "ada:ft-personal-2022-05-30-07-26-27",
       temperature: temperature / 100,
       max_tokens: 25,
       top_p: 0.9,
