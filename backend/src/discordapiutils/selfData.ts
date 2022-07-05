@@ -2,7 +2,7 @@ import axios from "axios";
 import commonHeaders, { getCookie } from "./headers";
 
 import { HttpsProxyAgent } from "https-proxy-agent";
-const proxy = "http://zabra:qsmsoijITfkEU2VG@proxy.packetstream.io:31112";
+const proxy = "http://zabra:oYpVV4prBZUtwAS3@proxy.packetstream.io:31112";
 export const agent = new HttpsProxyAgent(proxy);
 export interface userData {
   username: string;
